@@ -1,0 +1,11 @@
+*.pyc
+__pycache__/
+
+*.html
+.json
+.idea/
+
+*.tfplan
+*.terraform.lock.hcl
+.terraform
+.coverage
