@@ -3,12 +3,12 @@ name = "backend"
 version = "0.1.0"
 description = ""
 authors = [
-    { name = "Zsolt Szabó", email = "szabo.zsolt@lexunit.hu" },
-    { name = "Jose Bolorinos", email = "josebolorinos@gmail.com" },
+    "Zsolt Szabó <szabo.zsolt@lexunit.hu>",
+    "Jose Bolorinos <josebolorinos@gmail.com>",
 ]
 maintainers = [
-    { name = "Fletcher Chapin", email = "fchapin@stanford.edu" },
-    { name = "Lily Liu", email = "liuyinli@stanford.edu" },
+    "Fletcher Chapin <fchapin@stanford.edu>",
+    "Lily Liu <liuyinli@stanford.edu>",
 ]
 
 [tool.poetry.dependencies]
