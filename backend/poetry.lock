@@ -1062,32 +1062,6 @@ typing-extensions = "*"
 test = ["pytest", "pytest-cov", "pytest-mpl", "pytest-subtests"]
 
 [[package]]
-name = "flows-prep"
-version = "0.1.0"
-description = ""
-optional = false
-python-versions = ">=3.9,<3.11"
-files = []
-develop = false
-
-[package.dependencies]
-holidays = "^0.45"
-marimo = ">=0.1.82"
-numpy = ">=1.22.1"
-openpyxl = "^3.1.2"
-pandas = ">=1.4.0"
-pype-schema = "0.5.1"
-scikit-learn = ">=1.0.2"
-scipy = ">=1.7.3"
-xlrd = "^2.0.1"
-
-[package.source]
-type = "git"
-url = "git@github.com:we3lab/flows-prep.git"
-reference = "HEAD"
-resolved_reference = "2c62818f97aebb68e6b313d018654e0efa7ae716"
-
-[[package]]
 name = "fonttools"
 version = "4.53.0"
 description = "Tools to manipulate font files"
