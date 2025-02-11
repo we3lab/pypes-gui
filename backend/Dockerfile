@@ -16,8 +16,6 @@ RUN mkdir -p /root/.ssh && \
 WORKDIR /app
 COPY . .
 
-RUN echo $(poetry --version)
-
 RUN poetry config virtualenvs.create false && \
     poetry install --no-root --no-interaction --no-cache -vvv
 
