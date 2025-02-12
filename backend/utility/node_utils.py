@@ -1,3 +1,36 @@
+def add_vtags_to_network(network: dict, verbose=False, logger=None):
+    """Adds virtual tags to all sub-networks of a given network
+
+    Parameters
+    ----------
+    network : pype_schema.node.Network
+        Network object to add virtual tags to
+
+    verbose : bool
+        If True, informative print statements will be printed to console for debugging
+
+    logger : logging.Logger
+        Optional logger object to log messages to
+
+    """
+    networks = [
+        network for network in network.get_list_of_type(Network, recurse=False)
+    ] + [network]
+    for subnetwork in networks:
+        # Only add vtags to "Facility networks" (otherwise things like electricity demand don't make sense)
+        if isinstance(subnetwork, Facility):
+            for cogen in subnetwork.get_list_of_type(Cogeneration, recurse=True):
+                if verbose:
+                    ut.log_message(f"Checking virtual tag for {cogen.id}", logger)
+                check_add_cogen_production_tag(subnetwork, cogen)
+            if verbose:
+                ut.log_message(f"Adding virtual tags to {subnetwork.id}", logger)
+            add_vtags_to_network_helper(
+                network, subnetwork.id, verbose=verbose, logger=logger
+            )
+    return network
+    
+
 def find_connection(network: dict, node_id: str):
     """
         Remove a node from the network.
