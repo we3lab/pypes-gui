@@ -3,8 +3,9 @@ from jose import jwt
 from logger import logger
 from fastapi import FastAPI
 from fastapi.security import HTTPBearer
-from routes import (network, node, connection, tag, manage_scenario, prefect_routes, user, file_management,
-                    cleaning_dashboard, simulation_dashboard, parameter_routes, analytics_dashboard, mpc_dashboard)
+from routes import (
+    network, node, connection, tag, manage_scenario, file_management, parameter_routes
+)
 from config import ENV, JWT_SECRET, API_KEY
 
 app = FastAPI()

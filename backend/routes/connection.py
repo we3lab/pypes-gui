@@ -1,5 +1,4 @@
 import json
-import boto3
 
 from fastapi import APIRouter, HTTPException
 
@@ -9,16 +8,8 @@ from models import Connection
 from logger import logger
 from utils import data_to_network
 from utility.node_utils import handle_tags
-from config import AWS_REGION, AWS_CLIENT_ID, AWS_CLIENT_SECRET
 
 router = APIRouter(prefix='/network')
-client = boto3.client(
-    service_name="s3",
-    region_name=AWS_REGION,
-    aws_access_key_id=AWS_CLIENT_ID,
-    aws_secret_access_key=AWS_CLIENT_SECRET,
-)
-
 
 def add_conn_to_network(network: dict, obj: Connection) -> dict:
     network["connections"].append(obj.id)

@@ -1,5 +1,4 @@
 import os
-import boto3
 import json
 
 from fastapi import APIRouter, HTTPException
@@ -17,16 +16,8 @@ from logger import logger
 from utils import data_to_network
 from utility.node_utils import find_connection, remove_child_node, handle_tags
 from routes.connection import remove_connection
-from config import AWS_REGION, AWS_CLIENT_ID, AWS_CLIENT_SECRET
-
 
 router = APIRouter(prefix="/network")
-client = boto3.client(
-    service_name="s3",
-    region_name=AWS_REGION,
-    aws_access_key_id=AWS_CLIENT_ID,
-    aws_secret_access_key=AWS_CLIENT_SECRET,
-)
 
 
 def add_parent_node_network(network: dict, obj: Node) -> dict:

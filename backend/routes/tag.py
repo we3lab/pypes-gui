@@ -1,22 +1,12 @@
-import boto3
-
 from fastapi import APIRouter, HTTPException
 from pype_schema.parse_json import JSONParser
 
-from flows_prep.utils.network_helper import add_vtags_to_network
+from utility.node_utils import add_vtags_to_network
 from routes.network import create_network_from_temp
 from models import Tag
 from logger import logger
 from database.crud import get_network_from_db, update_network_in_db
 from database.session import session_manager
-from config import AWS_REGION, AWS_CLIENT_ID, AWS_CLIENT_SECRET
-
-client = boto3.client(
-    service_name="s3",
-    region_name=AWS_REGION,
-    aws_access_key_id=AWS_CLIENT_ID,
-    aws_secret_access_key=AWS_CLIENT_SECRET,
-)
 
 router = APIRouter(prefix='/network')
 
