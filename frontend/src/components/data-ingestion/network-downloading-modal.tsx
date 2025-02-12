@@ -47,7 +47,7 @@ const NetworkFileDownloadModal: React.FC<networkFileDownloadModalParams> = ({
   const [showError, setShowError] = useState<boolean>(false);
   const [fileName, setFileName] = useState<string>("");
   const { data: fileUrl, refetch: fileUrlRefetch } =
-    trpc.dataCleaningRouter.getFileLink.useQuery({
+    trpc.filesRouter.getFileLink.useQuery({
       file_id: selectedFileId,
       file_name: fileName,
     });

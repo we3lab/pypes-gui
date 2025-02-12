@@ -18,7 +18,12 @@ import uploadRateScheduleHandler, {
   uploadRateScheduleInputZ,
   uploadRateScheduleOutputZ,
 } from "../handlers/file/uploadRateSchedule";
+import getFileLinkHandler, {
+  getFileLinkInputZ,
+  getFileLinkOutputZ,
+} from "../handlers/file/getFileLinkHandler";
 import { publicProcedure, router } from "../trpc";
+
 
 import getBillingDatesHandler, {getBillingDatesInputZ, getBillingDatesOutputZ} from "../handlers/file/getBillingDatesHandler";
 import { get } from "http";
@@ -121,6 +126,13 @@ export const filesRouter = router({
     .output(saveSCADASetupOutputZ)
     .mutation(({ input, ctx }) => {
       return saveSCADASetupHandler(input, ctx);
+    }),
+
+  getFileLink: publicProcedure
+    .input(getFileLinkInputZ)
+    .output(getFileLinkOutputZ)
+    .query(({ input, ctx }) => {
+      return getFileLinkHandler(input, ctx);
     }),
   
 });
