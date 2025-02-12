@@ -36,8 +36,6 @@ import FlowsSelect from "../global/flows-select";
 import FlowsButtonDark from "../global/flows-button-dark";
 import FlowsButtonLight from "../global/flows-button-light";
 import FlowsPopUpWindow from "../global/flows-pop-up-window";
-import RateScheduleEditor from "./rate-schedule-editor";
-import RateSchedule from "../data-ingestion/rate_schedule";
 import TagSection from "../data-ingestion/tag_table";
 import FlowsTextField from "../global/flows-text-field";
 import { da } from "@faker-js/faker";
