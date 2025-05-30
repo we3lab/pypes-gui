@@ -598,7 +598,7 @@ export default function UploadTagCSVGrid({
           toolbar: EditToolbar as GridSlots["toolbar"],
         }}
         slotProps={{
-          toolbar: { setRows, setRowModesModel }
+          toolbar: { setRows, setRowModesModel },
         }}
       />
     </Box>

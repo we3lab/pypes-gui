@@ -88,19 +88,31 @@ export function getEdgeParams(source: Node, target: Node) {
 }
 
 export function createNodesAndEdges() {
-  const nodes = [];
+  const nodes: Node[] = [];
   const edges = [];
   const center = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
-  nodes.push({ id: 'target', data: { label: 'Target' }, position: center });
+  // Create the "Target" node as a TankNode
+  nodes.push({
+    id: 'target',
+    type: 'Tank', // Use capitalized "Tank" to match nodeTypes
+    data: { label: 'Target', nodeName: 'Target', nodeIcon: '/Tank.svg' }, // Match FlowsNode props
+    position: center,
+  });
 
+  // Create the "Source" nodes as TankNodes
   for (let i = 0; i < 8; i++) {
     const degrees = i * (360 / 8);
     const radians = degrees * (Math.PI / 180);
     const x = 250 * Math.cos(radians) + center.x;
     const y = 250 * Math.sin(radians) + center.y;
 
-    nodes.push({ id: `${i}`, data: { label: 'Source' }, position: { x, y } });
+    nodes.push({
+      id: `${i}`,
+      type: 'Tank', // Use capitalized "Tank" to match nodeTypes
+      data: { label: 'Source', nodeName: `Source ${i}`, nodeIcon: '/Tank.svg' }, // Match FlowsNode props
+      position: { x, y },
+    });
 
     edges.push({
       id: `edge-${i}`,

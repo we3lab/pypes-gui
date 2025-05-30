@@ -26,7 +26,7 @@ export const authOptions: NextAuthOptions = {
 
       async authorize(credentials) {
         // get token from credentials
-
+        console.log('authorizing...', `${process.env.BACKEND_API}/user/authenticate`);
         const res = await fetch(
           `${process.env.BACKEND_API}/user/authenticate`,
           {

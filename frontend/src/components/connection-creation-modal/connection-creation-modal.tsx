@@ -259,7 +259,6 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
                 entry_point: selectedEntry,
                 exit_point: selectedExit,
               });
-              console.log("Connection created..."); //d
             }}
           >
             Create

@@ -1,4 +1,8 @@
 import { Modal, Box, Menu, MenuItem } from "@mui/material";
+// import RateScheduleTable, {
+//   GridRow,
+// } from "../data-ingestion/rate_schedule_table";
+
 import FlowsButtonLight from "../global/flows-button-light";
 import {
   modal_box_css_scrollable,
@@ -9,6 +13,7 @@ import SectionTitle from "../global/section-title";
 import { useEffect, useRef, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import FlowsButtonDark from "../global/flows-button-dark";
+import RateScheduleGrid from "../data-ingestion/rate_schedule_table";
 import { randomId } from "@mui/x-data-grid-generator";
 import UploadTagCSVGrid from "./uploadTagCSVGrid";
 import { on } from "events";
