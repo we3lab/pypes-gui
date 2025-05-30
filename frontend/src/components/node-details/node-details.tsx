@@ -1,9 +1,7 @@
 import useStore, { NodeWithData } from "@/store/store";
-import { trpc } from "@/utils/trpc";
 import {
   Box,
   Button,
-  Card,
   Modal,
   Paper,
   Table,
@@ -12,24 +10,16 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  setRef,
 } from "@mui/material";
-import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Node, Edge } from "reactflow";
+import { useCallback, useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
-import { v4 as uuidv4 } from "uuid";
 import SectionTitle from "../global/section-title";
 import HelperText from "../global/helper-text";
-import DiagramTitle from "../global/diagram-title";
 import {
   modal_main_section_wrapper_css,
   modal_box_css,
-  modal_first_button_css,
   modal_section_horizontal_css,
   modal_section_vertical_css,
-  modal_other_button_css,
-  modal_left_subsection_wrapper_css,
   page_tablecell_css,
 } from "../global/flows-style";
 import FlowsButtonLight from "../global/flows-button-light";
@@ -38,12 +28,8 @@ import FlowsPopUpWindow from "../global/flows-pop-up-window";
 import dynamic from "next/dynamic";
 
 interface NodeDeatailsProps {
-  // selectedNode: NodeWithData | null;
-  // statenodes: Node[];
   setRefreshFalse: () => void;
   callReDraw: () => void;
-  // globalParent: string;
-  // setStateNodes: (nodes: Node[]) => void;
   selectedNodeId: string;
   open: boolean;
   onClose: () => void;
@@ -52,16 +38,12 @@ interface NodeDeatailsProps {
 const NodeDeatails: React.FC<NodeDeatailsProps> = ({
   setRefreshFalse,
   callReDraw,
-  // statenodes: statenodes,
-  // globalParent,
-  // setStateNodes,
   selectedNodeId,
   open,
   onClose,
 }: NodeDeatailsProps) => {
   const {
     deleteNode,
-    deleteEdge,
     modifyNode,
     openNodeUpdateModal,
     openTagCreationModal,
@@ -69,226 +51,155 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
     closeNodeUpdateModal,
     closeNodeDetailsModal,
     setSelectedNodeId,
-    networkIdDataIngestionPage,
-    edges,
+    nodes,
     parentId,
     tagCreationModalOpen,
   } = useStore();
+
   const [deleteNodeModal, setDeleteNodeModal] = useState<boolean>(false);
   const [deleteTagModal, setDeleteTagModal] = useState<boolean>(false);
   const [selectedTag, setSelectedTag] = useState<string>("");
-  const { mutateAsync: removeNodeTrpc } = trpc.nodeRouter.remove.useMutation();
-  const { mutateAsync: updateNodeDataTrpc } =
-    trpc.nodeRouter.update.useMutation();
-  const { data: network, refetch: networkRefetch } =
-    trpc.networkRouter.get.useQuery(
-      { network_id: networkIdDataIngestionPage },
-      { enabled: false }
-    );
-  const { mutateAsync: addTagTrpc } = trpc.tagRouter.add.useMutation();
-  // const [nodeId, setNodeId] = useState<string>("world");
-  const [selectedNode, setSelectedNode] = useState<object | null>({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [tags, setTags] = useState<string[]>([]);
-
-  const { data: nodeTags, refetch: tagsRefetch } =
-    trpc.tagRouter.getAllFromNode.useQuery(
-      {
-        network_id: networkIdDataIngestionPage,
-        node_id: selectedNodeId,
-      },
-      { enabled: false }
-    );
-
-  const { mutateAsync: deleteTagTrpc } = trpc.tagRouter.remove.useMutation();
-
-  const {data: nodeTagUnits, refetch: nodeTagUnitsRefetch} = trpc.tagRouter.gettagUits.useQuery({
-    network_id: networkIdDataIngestionPage,
-    node_id: selectedNodeId,
-  }, {enabled: false})
 
   const TagCreationModal = dynamic(
     () => import("@/components/tag-creation-modal/tag-creation-modal"),
     { ssr: false }
   );
 
-  const getSelectedNode = useCallback(() => {
-    networkRefetch();
-    if (network) {
-      const nnetwork = JSON.parse(network.data);
-      setSelectedNode(nnetwork[selectedNodeId]);
-    }
-  }, [network, networkRefetch, selectedNodeId]);
+  // Find the selected node from the nodes object
+  const getNodeData = useCallback(() => {
+    console.log("nodes: ", nodes);
+    const allNodes = Object.values(nodes).flat();
+    console.log("allNodes: ", allNodes);
+    return allNodes.find((node) => node.id === selectedNodeId);
+  }, [nodes, selectedNodeId]);
+
+  const nodeData = getNodeData();
+
+  // Local state for tags, synced with node data (tags is an object)
+  const [tags, setTags] = useState<Record<string, any>>(nodeData?.data?.tags || {});
 
   useEffect(() => {
-    if (open) {
-      getSelectedNode();
-    }
-  }, [open, getSelectedNode]);
-
-  useEffect(() => {
-    if (open && isLoading) {
-      tagsRefetch().then(() => {
-        setIsLoading(false);
-      });
-    }
-  }, [isLoading, open, tagsRefetch]);
-
-  useEffect(() => {
-    setIsLoading(true);
-  }, [selectedNodeId, open]);
-
-  const prepareAndUpdateNode = (payload: any, updateNode: any) => {
-    networkRefetch();
-    if (network) {
-      const { name, ...payload_wo_name } = payload;
-      updateNode.additionalData = payload_wo_name;
-      updateNode.id = payload.name;
-      console.log("Updated node: ", updateNode);
-      let parent_id = "";
-
-      if (parentId == "world") {
-        parent_id = "ParentNetwork";
+    if (open && selectedNodeId) {
+      const node = getNodeData();
+      if (node) {
+        setTags(node.data?.tags || {});
       } else {
-        parent_id = parentId;
+        console.warn(`Node with ID ${selectedNodeId} not found in nodes`);
+        setTags({});
       }
-
-      if ("volume (cubic meters)" in updateNode.additionalData) {
-        updateNode.additionalData["volume"] =
-          updateNode.additionalData["volume (cubic meters)"];
-        delete updateNode.additionalData["volume (cubic meters)"];
-      }
-
-      const resPromise = updateNodeDataTrpc({
-        networkId: networkIdDataIngestionPage,
-        node_id: selectedNodeId,
-        parentId: parent_id,
-        newNode: updateNode,
-      });
-      resPromise.then((res) => {
-        console.log("Response code", res.response_code);
-        if (res.response_code === "200") {
-          console.log("Successfully updated");
-          setSelectedNodeId(updateNode.id);
-        } else {
-          console.log("Response error", res.response_code);
-          throw new Error("Error response during node update");
-        }
-      });
-    } else {
-      console.log("Network not found");
     }
+  }, [open, selectedNodeId, getNodeData]);
 
-    closeNodeUpdateModal();
-  };
+  const prepareAndUpdateNode = useCallback(
+    (payload: any) => {
+      if (!nodeData) {
+        console.error("No nodeData available to update");
+        return;
+      }
+      const { name, ...payload_wo_name } = payload;
+      const updatedNode = {
+        ...nodeData,
+        id: name || nodeData.id,
+        data: {
+          ...nodeData.data,
+          tags: tags, // Preserve existing tags object
+          additionalData: payload_wo_name, // Store additional fields
+        },
+      } as NodeWithData;
 
-  const onEditNode = async () => {
-    networkRefetch();
-    if (network) {
-      const nnetwork = JSON.parse(network.data);
-      const networknodes = nnetwork.nodes;
-      const currentNode = nnetwork[selectedNodeId];
-      const additionalData = { ...currentNode };
-      delete additionalData.type;
-      delete additionalData.id;
-      delete additionalData.position;
-      delete additionalData.tags;
+      // Handle volume field renaming if present
+      if ("volume (cubic meters)" in payload_wo_name) {
+        updatedNode.data.additionalData = updatedNode.data.additionalData || {};
+        updatedNode.data.additionalData["volume"] = payload_wo_name["volume (cubic meters)"];
+        delete updatedNode.data.additionalData["volume (cubic meters)"];
+      }
 
-      const updateNode = {
-        type: currentNode.type,
-        parent: parentId,
-        position: currentNode.position,
-        data: { tags: currentNode.tags },
+      // Update store
+      const parent = nodeData.data.parent || parentId || "world";
+      const updatedNodes = {
+        ...nodes,
+        [parent]: nodes[parent].map((node) =>
+          node.id === selectedNodeId ? updatedNode : node
+        ),
       };
+      useStore.setState({ nodes: updatedNodes });
+      setSelectedNodeId(updatedNode.id);
+      callReDraw();
+      closeNodeUpdateModal();
+    },
+    [nodeData, nodes, selectedNodeId, parentId, callReDraw, closeNodeUpdateModal, setSelectedNodeId, tags]
+  );
 
-      openNodeUpdateModal(updateNode.type, (payload) =>
-        prepareAndUpdateNode(payload, updateNode)
-      );
+  const onEditNode = () => {
+    if (nodeData) {
+      openNodeUpdateModal(nodeData.node.type, (payload) => prepareAndUpdateNode(payload));
     } else {
-      console.log("Network not found");
+      console.log("Node not found");
     }
   };
 
-  const onDeleteNode = () => {
-    const resPromise = removeNodeTrpc({
-      networkId: networkIdDataIngestionPage,
-      node_id: selectedNodeId,
-      parent_id: parentId,
-    });
-    resPromise
-      .then((res: any) => {
-        console.log("Response code", res.response_code);
-        if (res.response_code === "200") {
-          callReDraw();
-        } else {
-          console.log("Response error", res.response_code);
-          throw new Error("Error response from backend");
-        }
-      })
-      .catch((error) => {
-        console.error("An error occurred:", error);
-      });
-    callReDraw(), setSelectedNodeId("");
-    closeNodeDetailsModal();
-  };
+  const onDeleteNode = useCallback(() => {
+    if (nodeData) {
+      deleteNode(nodeData); // Use store's deleteNode method
+      callReDraw();
+      setSelectedNodeId("");
+      closeNodeDetailsModal();
+      setDeleteNodeModal(false);
+    } else {
+      console.error("Cannot delete node: nodeData not found");
+    }
+  }, [nodeData, deleteNode, callReDraw, closeNodeDetailsModal, setSelectedNodeId]);
 
   const prepareAndSendTag = (payload: any) => {
-    const trpcTag = {
-      id: payload.id,
-      units: payload.unit,
-      type: payload.tagType,
-      source_unit_id: payload.source_unit_id,
-      dest_unit_id: null,
-      totalized: payload.totalized,
-      contents: payload.content,
-    };
-
-    const resPromise = addTagTrpc({
-      network_id: networkIdDataIngestionPage,
-      resource_id: selectedNodeId,
-      tag_data: trpcTag,
-    });
-    resPromise.then((res) => {
-      console.log("Response code", res.response_code);
-      if (res.response_code === "200") {
-        console.log("Successfully created Tag");
-        setIsLoading(true);
-      } else {
-        console.log("Response error", res.response_code);
-        alert("Error response during tag creation: " + res.response_code);
-        throw new Error("Error response during tag creation");
+    const newTagKey = payload.id; // Tag key (e.g., "tag1")
+    const newTagValue = payload.value || true; // Default to true if no value provided
+    setTags((prevTags) => {
+      const updatedTags = { ...prevTags, [newTagKey]: newTagValue };
+      if (nodeData) {
+        const parent = nodeData.data.parent || parentId || "world";
+        const updatedNodes = {
+          ...nodes,
+          [parent]: nodes[parent].map((node) =>
+            node.id === selectedNodeId
+              ? { ...node, data: { ...node.data, tags: updatedTags } }
+              : node
+          ),
+        };
+        useStore.setState({ nodes: updatedNodes });
       }
+      return updatedTags;
     });
-
     closeTagCreationModal();
   };
 
   const onAddTag = () => {
-    nodeTagUnitsRefetch().then((r) => {
-      if(r){
-        openTagCreationModal((payload) => prepareAndSendTag(payload));
-      }
-    });
+    openTagCreationModal((payload) => prepareAndSendTag(payload));
   };
 
-  const onDeleteTag = (tag: string) => {
-    const resPromise = deleteTagTrpc({
-      network_id: networkIdDataIngestionPage,
-      resource_id: selectedNodeId,
-      tag_id: tag,
-    });
-    resPromise.then((res) => {
-      console.log("Response code", res.response_code);
-      if (res.response_code === "200") {
-        console.log("Successfully deleted Tag");
-        setIsLoading(true);
-      } else {
-        console.log("Response error", res.response_code);
-        alert("Error response during tag deletion: " + res.response_code);
-        throw new Error("Error response during tag deletion");
+  const onDeleteTag = (tagKey: string) => {
+    setTags((prevTags) => {
+      const updatedTags = { ...prevTags };
+      delete updatedTags[tagKey];
+      if (nodeData) {
+        const parent = nodeData.data.parent || parentId || "world";
+        const updatedNodes = {
+          ...nodes,
+          [parent]: nodes[parent].map((node) =>
+            node.id === selectedNodeId
+              ? { ...node, data: { ...node.data, tags: updatedTags } }
+              : node
+          ),
+        };
+        useStore.setState({ nodes: updatedNodes });
       }
+      return updatedTags;
     });
+    setDeleteTagModal(false);
   };
+
+  if (!selectedNodeId) {
+    return null;
+  }
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -296,39 +207,28 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
         <FlowsPopUpWindow
           title="Delete"
           question="Are you sure you want to delete this node?"
-          onClose={() => {
-            setDeleteNodeModal(false);
-          }}
-          onClick={() => {
-            setDeleteNodeModal(false);
-            onDeleteNode();
-          }}
+          onClose={() => setDeleteNodeModal(false)}
+          onClick={onDeleteNode}
           open={deleteNodeModal}
         />
-        {nodeTagUnits &&
+        <div>
           <TagCreationModal
             open={tagCreationModalOpen}
             onClose={closeTagCreationModal}
-            source={nodeTagUnits?.data}
-            destination={[]}
-            // connection={connectionData?.data}
+            source={nodeData?.id} // Simplified, adjust as needed
+            destination={[]} // No destination for nodes
           />
-        }
+        </div>
         <FlowsPopUpWindow
           title="Delete"
           question="Are you sure you want to delete this tag?"
-          onClose={() => {
-            setDeleteTagModal(false);
-          }}
-          onClick={() => {
-            setDeleteTagModal(false);
-            onDeleteTag(selectedTag);
-          }}
+          onClose={() => setDeleteTagModal(false)}
+          onClick={() => onDeleteTag(selectedTag)}
           open={deleteTagModal}
         />
         <div className={modal_main_section_wrapper_css}>
           <button
-            onClick={onClose} // Add this to close the modal when the button is clicked
+            onClick={onClose}
             className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 cursor-pointer"
           >
             <FaTimes className="text-2xl" />
@@ -339,7 +239,7 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
             <div className={modal_section_horizontal_css}>
               <FlowsButtonDark
                 className="w-1/5 font-normal capitalize p-2"
-                onClick={() => onEditNode()}
+                onClick={onEditNode}
               >
                 Edit Node
               </FlowsButtonDark>
@@ -351,69 +251,56 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
               </FlowsButtonDark>
               <FlowsButtonDark
                 className="w-1/5 font-normal capitalize p-2 ml-5"
-                onClick={() => onAddTag()}
+                onClick={onAddTag}
               >
                 Add tag
               </FlowsButtonDark>
             </div>
-            {!nodeTags ? (
-              <div>Loading...</div>
-            ) : (
-              nodeTags && (
-                <TableContainer className="shadow-none mt-10" component={Paper}>
-                  <Table className="text-sm">
-                    <TableHead className="bg-flows-light-gray">
-                      <TableRow>
-                        <TableCell colSpan={3} className={page_tablecell_css}>
-                          Tag name
+            {Object.keys(tags).length > 0 ? (
+              <TableContainer className="shadow-none mt-10" component={Paper}>
+                <Table className="text-sm">
+                  <TableHead className="bg-flows-light-gray">
+                    <TableRow>
+                      <TableCell className={page_tablecell_css}>Tag Name</TableCell>
+                      <TableCell className={page_tablecell_css}>Value</TableCell>
+                      <TableCell className={page_tablecell_css}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {Object.entries(tags).map(([tagKey, tagValue], index) => (
+                      <TableRow key={index}>
+                        <TableCell className={page_tablecell_css}>{tagKey}</TableCell>
+                        <TableCell className={page_tablecell_css}>
+                          {typeof tagValue === "object" ? JSON.stringify(tagValue) : tagValue.toString()}
+                        </TableCell>
+                        <TableCell className={page_tablecell_css}>
+                          <Button className="p-0 justify-end cursor-default">
+                            <div
+                              className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
+                              onClick={onAddTag} // Simplified: reopens tag modal
+                            >
+                              <img src="/edit.svg" className="w-4" />
+                            </div>
+                          </Button>
+                          <Button className="p-0 justify-end cursor-default">
+                            <div
+                              className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
+                              onClick={() => {
+                                setSelectedTag(tagKey);
+                                setDeleteTagModal(true);
+                              }}
+                            >
+                              <img src="/trash-delete.svg" className="w-4" />
+                            </div>
+                          </Button>
                         </TableCell>
                       </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {nodeTags &&
-                        JSON.parse(nodeTags.data)?.map(
-                          (tag: string, index: number) => (
-                            <TableRow key={index}>
-                              <TableCell
-                                className={page_tablecell_css + " w-full"}
-                              >
-                                {tag}
-                              </TableCell>
-                              <TableCell className={page_tablecell_css + " "}>
-                                <Button className="p-0 justify-end cursor-default">
-                                  <div
-                                    className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
-                                    onClick={() => {
-                                      onAddTag();
-                                    }}
-                                  >
-                                    <img src="/edit.svg" className="w-4" />
-                                  </div>
-                                </Button>
-                              </TableCell>
-                              <TableCell className={page_tablecell_css + " "}>
-                                <Button className="p-0 justify-end cursor-default">
-                                  <div
-                                    className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
-                                    onClick={() => {
-                                      setSelectedTag(tag);
-                                      setDeleteTagModal(true);
-                                    }}
-                                  >
-                                    <img
-                                      src="/trash-delete.svg"
-                                      className="w-4"
-                                    />
-                                  </div>
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          )
-                        )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <div>No tags available</div>
             )}
           </div>
         </div>

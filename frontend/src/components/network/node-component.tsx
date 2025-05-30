@@ -16,11 +16,11 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
   margins = "",
   addition = "",
 }) => {
-
-  const onDragStart = (event: any, nodeType: any) => {
+  const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeType: string) => {
     event.dataTransfer.setData("application/reactflow", nodeType);
     event.dataTransfer.effectAllowed = "move";
   };
+
   return (
     <div
       className="dndnode input"
@@ -36,11 +36,15 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
           " border-flows-blue rounded"
         }
       >
-        {/* <div className=""> */}
         <div className="">
-          <img className="" width={35} height={35} src={src} />
+          <Image
+            className=""
+            width={35}
+            height={35}
+            src={src}
+            alt={text}
+          />
         </div>
-        {/* <div className=""><img className="mx-auto blur-sm hover:blur-none" src="/Tank.svg" /></div> */}
         <div className="text-center text-flows-node-label">{text}</div>
       </div>
     </div>

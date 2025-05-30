@@ -73,11 +73,8 @@ const FlowsNode: React.FC<FlowsNodeProps> = ({ nodeName, nodeIcon, id }) => {
             onClick={() => {
               console.log("ID", id);
               setSelectedNodeId(id);
-              if (activePage == "1") {
-                openNodeDetailsModal();
-              } else if (activePage == "4") {
-                openNodeOptimizeModal();
-              }
+              console.log("activePage", activePage);
+              openNodeDetailsModal();
             }}
             className="absolute top-0 left-0 cursor-pointer hover:transform hover:scale-125"
             style={{ zIndex: 2 }}
