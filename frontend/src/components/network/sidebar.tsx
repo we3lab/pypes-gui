@@ -12,7 +12,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
-  const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeType: string) => {
+  const onDragStart = (event: React.DragEvent<HTMLElement>, nodeType: string) => {
     console.log("Dragging node type from Sidebar:", nodeType);
     event.dataTransfer.setData("application/reactflow", nodeType);
     event.dataTransfer.effectAllowed = "move";
