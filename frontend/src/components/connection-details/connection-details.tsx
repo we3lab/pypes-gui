@@ -79,17 +79,17 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
   // Get connection data from store or props
   const connectionData = propConnectionData || edges.find((edge) => edge.id === selectedEdgeId);
   const similarConnections = propSimilarConnections || edges
-    .filter((edge) => edge.source === connectionData?.source && edge.target === connectionData?.target)
+    .filter((edge) => edge.edge.source === connectionData?.edge.source && edge.edge.target === connectionData?.edge.target)
     .map((edge) => edge.id);
 
-  // Local state for tags (assuming stored in connectionData or managed locally)
-  const [tags, setTags] = useState<string[]>(connectionData?.tags || []);
+  // const [tags, setTags] = useState<string[]>(
+  //   Array.isArray(connectionData?.data?.tags) ? connectionData.data.tags : []
+  // );
 
   useEffect(() => {
     if (open && selectedEdgeId) {
       const edge = edges.find((e) => e.id === selectedEdgeId);
       if (edge) {
-        setTags(edge.tags || []);
         setSelectedTab(similarConnections.indexOf(selectedEdgeId));
       }
     }
@@ -123,7 +123,6 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
       const updatedEdges = edges.map((edge) =>
         edge.id === selectedEdgeId ? updatedEdge : edge
       );
-      useStore.setState({ edges: updatedEdges });
       setSelectedEdgeId(updatedEdge.id);
       callRedraw();
       closeEdgeUpdateModal();
@@ -142,33 +141,17 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
 
   const prepareAndSendTag = (payload: any) => {
     const newTag = payload.id; // Assuming tag ID is the tag name for simplicity
-    setTags((prevTags) => {
-      const updatedTags = [...prevTags, newTag];
-      const updatedEdges = edges.map((edge) =>
-        edge.id === selectedEdgeId ? { ...edge, tags: updatedTags } : edge
-      );
-      useStore.setState({ edges: updatedEdges });
-      return updatedTags;
-    });
     closeTagCreationModal();
   };
 
   const prepareAndEditTag = (payload: any) => {
     const updatedTag = payload.id;
-    setTags((prevTags) => {
-      const updatedTags = prevTags.map((tag) => (tag === selectedTag ? updatedTag : tag));
-      const updatedEdges = edges.map((edge) =>
-        edge.id === selectedEdgeId ? { ...edge, tags: updatedTags } : edge
-      );
-      useStore.setState({ edges: updatedEdges });
-      return updatedTags;
-    });
     closeTagEditModal();
   };
 
   const onAddTag = () => {
-    const source = connectionData?.exit_point || connectionData?.source || "";
-    const destination = connectionData?.entry_point || connectionData?.target || "";
+    const source = connectionData?.edge.source || "";
+    const destination = connectionData?.edge.target || "";
     if (source && destination) {
       if (tagMode === "add") {
         openTagCreationModal((payload) => prepareAndSendTag(payload));
@@ -179,21 +162,16 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
   };
 
   const onDeleteTag = (tag: string) => {
-    if (!tags.includes(tag)) {
+    if (!tag.includes(tag)) {
       console.error(`Tag "${tag}" not found in the current tags.`);
       return;
     }
-
-    setTags((prevTags) => {
-      const updatedTags = prevTags.filter((t) => t !== tag);
-      const updatedEdges = edges.map((edge) =>
-        edge.id === selectedEdgeId ? { ...edge, tags: updatedTags } : edge
-      );
-      useStore.setState({ edges: updatedEdges });
-      return updatedTags;
-    });
     setDeleteTagModal(false);
   };
+
+  // Extract tags from connectionData or default to empty array
+  const tags: string[] = Array.isArray(connectionData?.data?.tags)
+    ? (connectionData?.data?.tags as string[] ?? []) : [];
 
   if (!selectedEdgeId) {
     return null;
@@ -213,14 +191,10 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
           <TagCreationModal
             open={tagCreationModalOpen}
             onClose={closeTagCreationModal}
-            source={connectionData?.source} // Simplified, adjust as needed
-            destination={connectionData?.target}
           />
           <TagEditModal
             open={tagEditModalOpen}
             onClose={closeTagEditModal}
-            source={connectionData?.source}
-            destination={connectionData?.target}
             tag={selectedTag}
           />
         </div>

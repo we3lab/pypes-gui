@@ -102,8 +102,9 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
         id: name || nodeData.id,
         data: {
           ...nodeData.data,
-          tags: tags, // Preserve existing tags object
-          additionalData: payload_wo_name, // Store additional fields
+          tags: tags,
+          // Ensure additionalData exists on data
+          ...(nodeData.data && { additionalData: payload_wo_name }),
         },
       } as NodeWithData;
 
@@ -132,7 +133,7 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
 
   const onEditNode = () => {
     if (nodeData) {
-      openNodeUpdateModal(nodeData.node.type, (payload) => prepareAndUpdateNode(payload));
+      openNodeUpdateModal(nodeData.node.type ?? "", (payload) => prepareAndUpdateNode(payload));
     } else {
       console.log("Node not found");
     }
@@ -215,7 +216,7 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
           <TagCreationModal
             open={tagCreationModalOpen}
             onClose={closeTagCreationModal}
-            source={nodeData?.id} // Simplified, adjust as needed
+            source={[]} // Pass an empty array or adjust as needed
             destination={[]} // No destination for nodes
           />
         </div>

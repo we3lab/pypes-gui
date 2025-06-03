@@ -26,10 +26,10 @@ const FloatingEdge: ComponentType<EdgeProps> = ({ id, source, target, markerEnd,
         style={style}
         className="react-flow__edge-path"
         d={edgePath}
-        markerEnd={markerEnd?.type ? `url(#${markerEnd.type})` : undefined}
+        markerEnd={markerEnd ? `url(#${markerEnd})` : undefined}
       />
       {/* Add any additional edge elements, like labels or buttons */}
-      <ConnectionDeatails edgeId={id} />
+      {/* <ConnectionDeatails edgeId={id} /> */}
     </>
   );
 };

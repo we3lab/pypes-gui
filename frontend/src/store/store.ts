@@ -8,6 +8,7 @@ import createMainSlice from "./main.slice";
 export interface NodeData {
   tags: object;
   parent: string;
+  additionalData?: Record<string, any>;
 }
 
 export interface NodeWithData {
@@ -26,6 +27,7 @@ export interface StateNode {
 export interface EdgeWithData {
   id: string;
   edge: Edge;
+  type: string;
   data: {
     tags: object;
   }
