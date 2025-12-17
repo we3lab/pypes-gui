@@ -117,11 +117,17 @@ def render_connection_form(session_state):
         
         default_source = ""
         default_dest = ""
+        default_exit = ""
+        default_entry = ""
         if existing_conn:
             if hasattr(existing_conn, 'source') and existing_conn.source:
                 default_source = existing_conn.source.id
             if hasattr(existing_conn, 'destination') and existing_conn.destination:
                 default_dest = existing_conn.destination.id
+            if hasattr(existing_conn, 'exit_point') and existing_conn.exit_point:
+                default_exit = existing_conn.exit_point.id
+            if hasattr(existing_conn, 'entry_point') and existing_conn.entry_point:
+                default_entry = existing_conn.entry_point.id
         
         # TODO: add entry_point and exit_point to UI
         exit_point = entry_point = None
@@ -130,10 +136,14 @@ def render_connection_form(session_state):
         with ncol1:
             source_id = st.selectbox("Source Node*", node_ids, 
                                     index=node_ids.index(default_source) if default_source in node_ids else 0)
+            exit_point = st.selectbox("Exit Point Node", node_ids, 
+                                    index=node_ids.index(default_entry) if default_entry in node_ids else 0)
         with ncol2:
             dest_id = st.selectbox("Destination Node*", node_ids,
                                   index=node_ids.index(default_dest) if default_dest in node_ids else 0)
-        
+            entry_point = st.selectbox("Entry Point Node", node_ids, 
+                                    index=node_ids.index(default_exit) if default_exit in node_ids else 0)
+
         # Contents
         st.write("**Contents**")
         contents_options = get_contents_enum()
@@ -204,11 +214,23 @@ def render_connection_form(session_state):
             min_pres = parse_unit_input(min_pres_val, pres_unit)
             max_pres = parse_unit_input(max_pres_val, pres_unit)
             design_pres = parse_unit_input(design_pres_val, pres_unit)
-            
+
             # Friction
             friction_val = st.text_input("Friction Coefficient", "")
             if friction_val:
                 friction = float(friction_val)
+
+            # Heating values
+            st.write("**Heating Value (for Gas)**")
+            hcol1, hcol2 = st.columns(2)
+            with hcol1:
+                low_heat_val = st.text_input("Lower Heating Value", "")
+                high_heat_val = st.text_input("Higher Heating Value", "")
+            with hcol2:
+                hval_unit = st.selectbox("Heating Value Unit", ["BTU/scf", "megajoule/m**3"])
+            
+            lower_heating_value = parse_unit_input(low_heat_val, hval_unit)
+            higher_heating_value = parse_unit_input(high_heat_val, hval_unit)
         
         else:  # Wire, Wireless, and Delivery do not currently require additional params
             pass
@@ -228,6 +250,10 @@ def render_connection_form(session_state):
                 # Get node objects
                 source_node = session_state.network.nodes.get(source_id)
                 dest_node = session_state.network.nodes.get(dest_id)
+                if entry_point is not None:
+                    entry_point = session_state.network.nodes.get(entry_point)
+                if exit_point is not None:
+                    exit_point = session_state.network.nodes.get(exit_point)
                 
                 if not source_node or not dest_node:
                     st.error("Invalid source or destination node!")
