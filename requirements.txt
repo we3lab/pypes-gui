@@ -1,0 +1,7 @@
+streamlit
+pype-schema
+networkx
+matplotlib
+pyvis
+pandas
+pint

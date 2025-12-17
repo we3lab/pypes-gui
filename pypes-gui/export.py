@@ -129,3 +129,13 @@ def render_export_tab(session_state):
             st.write("**Node Distribution:**")
             for node_type, count in node_types.items():
                 st.write(f"- {node_type}: {count}")
+        
+        conn_types = {}
+        for conn_obj in session_state.network.connections.values():
+            conn_type = type(conn_obj).__name__
+            conn_types[conn_type] = conn_types.get(conn_type, 0) + 1
+        
+        if conn_types:
+            st.write("**Connection Distribution:**")
+            for conn_type, count in conn_types.items():
+                st.write(f"- {conn_type}: {count}")
