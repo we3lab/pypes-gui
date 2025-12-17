@@ -1,4 +1,4 @@
-"""Nodes tab for PyPES UI - COMPLETE FILE"""
+"""Nodes tab for PyPES UI"""
 import streamlit as st
 from pype_schema import node, utils
 from pype_schema.units import u
@@ -33,7 +33,7 @@ def render_nodes_tab(session_state):
 
 def render_node_list(session_state):
     """Render list of existing nodes"""
-    st.subheader("📋 Existing Nodes")
+    st.subheader("Existing Nodes")
     
     if session_state.network.nodes:
         search = st.text_input("🔍 Search nodes", "")
