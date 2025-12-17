@@ -1,11 +1,11 @@
 """Tags tab for PyPES UI"""
 import streamlit as st
-from pype_schema import tag, utils
 from pype_schema.units import u
+from pype_schema import tag, utils
 
 def get_tag_types():
     """Get all available TagType values"""
-    return [member.name for member in utils.TagType]
+    return [member.name for member in tag.TagType]
 
 def get_contents_enum():
     """Get all available ContentsType values"""
@@ -59,10 +59,10 @@ def render_tags_tab(session_state):
 
 def render_tag_list(all_tags, session_state):
     """Render list of existing tags"""
-    st.subheader("📋 Existing Tags")
+    st.subheader("Existing Tags")
     
     if all_tags:
-        search = st.text_input("🔍 Search tags", "")
+        search = st.text_input("Search tags", "")
         
         filtered_tags = {
             k: v for k, v in all_tags.items()
@@ -140,7 +140,7 @@ def render_tag_form(session_state):
                 return
             
             try:
-                tag_type_enum = utils.TagType[tag_type_str]
+                tag_type_enum = tag.TagType[tag_type_str]
                 contents_enum = utils.ContentsType[contents_str]
                 
                 units = parse_unit_input(unit_val, unit_str) if unit_str else None

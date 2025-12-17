@@ -101,7 +101,7 @@ def render_connection_form(session_state):
             existing_conn = session_state.network.connections[session_state.selected_connection]
         
         # Connection ID and Type
-        conn_types = ["Pipe", "Wire"]
+        conn_types = ["Pipe", "Wire", "Wireless", "Delivery"]
         
         if existing_conn:
             conn_id = st.text_input("Connection ID*", value=session_state.selected_connection, disabled=True)
@@ -123,6 +123,9 @@ def render_connection_form(session_state):
             if hasattr(existing_conn, 'destination') and existing_conn.destination:
                 default_dest = existing_conn.destination.id
         
+        # TODO: add entry_point and exit_point to UI
+        exit_point = entry_point = None
+
         ncol1, ncol2 = st.columns(2)
         with ncol1:
             source_id = st.selectbox("Source Node*", node_ids, 
@@ -142,11 +145,13 @@ def render_connection_form(session_state):
             else:
                 default_contents = [existing_conn.contents.name]
         
-        if conn_type == "Pipe":
-            contents_selected = st.selectbox("Contents*", contents_options,
-                                           index=contents_options.index(default_contents[0]) if default_contents else 0)
-        else:  # Wire
+        if conn_type == "Wire":
             contents_selected = "Electricity"
+        else:  # Pipe, Wireless, or Delivery
+            contents_selected = st.selectbox(
+                "Contents*", contents_options,
+                index=contents_options.index(default_contents[0]) if default_contents else 0
+            )
         
         # Bidirectional
         default_bidir = False
@@ -155,10 +160,10 @@ def render_connection_form(session_state):
         bidirectional = st.checkbox("Bidirectional", value=default_bidir)
         
         # Initialize variables
-        diameter = min_flow = max_flow = avg_flow = None
+        diameter = min_flow = max_flow = design_flow = None
         min_pres = max_pres = design_pres = None
+        lower_heating_value = higher_heating_value = None
         friction = None
-        voltage = current = None
         
         # Type-specific parameters
         if conn_type == "Pipe":
@@ -178,13 +183,13 @@ def render_connection_form(session_state):
             with fcol1:
                 min_flow_val = st.text_input("Min Flow", "")
                 max_flow_val = st.text_input("Max Flow", "")
-                avg_flow_val = st.text_input("Avg Flow", "")
+                design_flow_val = st.text_input("Design Flow", "")
             with fcol2:
                 flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
             
             min_flow = parse_unit_input(min_flow_val, flow_unit)
             max_flow = parse_unit_input(max_flow_val, flow_unit)
-            avg_flow = parse_unit_input(avg_flow_val, flow_unit)
+            design_flow = parse_unit_input(design_flow_val, flow_unit)
             
             # Pressure
             st.write("**Pressure Parameters**")
@@ -205,17 +210,9 @@ def render_connection_form(session_state):
             if friction_val:
                 friction = float(friction_val)
         
-        elif conn_type == "Wire":
-            st.write("**Wire Parameters**")
-            
-            ecol1, ecol2 = st.columns(2)
-            with ecol1:
-                voltage_val = st.text_input("Voltage (V)", "")
-                current_val = st.text_input("Current (A)", "")
-            
-            voltage = parse_unit_input(voltage_val, "V")
-            current = parse_unit_input(current_val, "A")
-        
+        else:  # Wire, Wireless, and Delivery do not currently require additional params
+            pass
+
         # Submit button
         submit_label = "Save Connection" if existing_conn else "Add Connection"
         if st.form_submit_button(submit_label):
@@ -243,6 +240,7 @@ def render_connection_form(session_state):
                 new_conn = None
                 
                 if conn_type == "Pipe":
+                    # TODO: add tag list to UI
                     new_conn = connection.Pipe(
                         conn_id,
                         contents_enum,
@@ -250,24 +248,49 @@ def render_connection_form(session_state):
                         dest_node,
                         min_flow=min_flow,
                         max_flow=max_flow,
-                        avg_flow=avg_flow,
+                        design_flow=design_flow,
                         diameter=diameter,
                         friction=friction,
+                        lower_heating_value=lower_heating_value,
+                        higher_heating_value=higher_heating_value,
                         min_pres=min_pres,
                         max_pres=max_pres,
                         design_pres=design_pres,
-                        bidirectional=bidirectional
+                        bidirectional=bidirectional,
+                        exit_point=exit_point,
+                        entry_point=entry_point,
                     )
-                
                 elif conn_type == "Wire":
                     new_conn = connection.Wire(
                         conn_id,
                         contents_enum,
                         source_node,
                         dest_node,
+                        bidirectional=bidirectional,
+                        exit_point=exit_point,
+                        entry_point=entry_point,
+                    )
+                elif conn_type == "Wireless":
+                    new_conn = connection.Wireless(
+                        conn_id,
+                        contents_enum,
+                        source_node,
+                        dest_node,
+                        bidirectional=bidirectional,
+                        exit_point=exit_point,
+                        entry_point=entry_point,
+                    )
+                elif conn_type == "Delivery":
+                    new_conn = connection.Delivery(
+                        conn_id,
+                        contents_enum,
+                        source_node,
+                        dest_node,
                         voltage=voltage,
                         current=current,
-                        bidirectional=bidirectional
+                        bidirectional=bidirectional,
+                        exit_point=exit_point,
+                        entry_point=entry_point,
                     )
                 
                 if new_conn:

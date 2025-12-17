@@ -1,11 +1,20 @@
-import streamlit as st
-import json
-from pype_schema import parse_json, visualize, node, connection, utils
-from pype_schema.units import u
-import tempfile
+# import external dependencies
 import os
+import json
+import tempfile
 import pandas as pd
+import streamlit as st
 from datetime import datetime
+
+# pypes imports
+from pype_schema.units import u
+from pype_schema import parse_json, visualize, node, connection, utils
+
+# local imports
+from tags import render_tags_tab
+from nodes import render_nodes_tab
+from connections import render_connections_tab
+from constants import DEFAULT_NETWORK_INPUT_CONTENTS, DEFAULT_NETWORK_OUTPUT_CONTENTS 
 
 st.set_page_config(page_title="PyPES Network Editor", layout="wide")
 
@@ -76,7 +85,11 @@ with st.sidebar:
     with st.form("new_network_form"):
         network_id = st.text_input("Network ID", "new_network")
         if st.form_submit_button("Create Network"):
-            st.session_state.network = node.Network(network_id)
+            st.session_state.network = node.Network(
+                network_id, 
+                DEFAULT_NETWORK_INPUT_CONTENTS, 
+                DEFAULT_NETWORK_OUTPUT_CONTENTS
+            )
             st.success(f"Created: {network_id}")
             st.rerun()
     
@@ -142,19 +155,16 @@ if st.session_state.network:
             })
             st.dataframe(stats_df, use_container_width=True)
     
-    # NODES TAB - I'll provide this in the next part
+    # NODES TAB
     with tab2:
-        from pypes_ui_nodes import render_nodes_tab
         render_nodes_tab(st.session_state)
     
     # CONNECTIONS TAB
     with tab3:
-        from pypes_ui_connections import render_connections_tab
         render_connections_tab(st.session_state)
     
     # TAGS TAB
     with tab4:
-        from pypes_ui_tags import render_tags_tab
         render_tags_tab(st.session_state)
     
     # EXPORT TAB

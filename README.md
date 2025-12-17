@@ -9,6 +9,12 @@ First, make sure you have all required packages installed:
 pip install streamlit pype-schema networkx matplotlib pyvis pandas pint
 ```
 
+Or from `requirements.txt`:
+
+```bash
+pip install -r requirements.txt
+```
+
 # Project Structure
 
 ```

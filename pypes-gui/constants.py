@@ -1,0 +1,5 @@
+"""Constants  for PyPES UI"""
+
+# Default values
+DEFAULT_NETWORK_INPUT_CONTENTS = None
+DEFAULT_NETWORK_OUTPUT_CONTENTS = None
