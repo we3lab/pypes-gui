@@ -82,10 +82,6 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
     .filter((edge) => edge.edge.source === connectionData?.edge.source && edge.edge.target === connectionData?.edge.target)
     .map((edge) => edge.id);
 
-  // const [tags, setTags] = useState<string[]>(
-  //   Array.isArray(connectionData?.data?.tags) ? connectionData.data.tags : []
-  // );
-
   useEffect(() => {
     if (open && selectedEdgeId) {
       const edge = edges.find((e) => e.id === selectedEdgeId);
