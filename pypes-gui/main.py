@@ -13,6 +13,8 @@ from pype_schema import parse_json, visualize, node, connection, utils
 # local imports
 from tags import render_tags_tab
 from nodes import render_nodes_tab
+from export import render_export_tab
+from visualize import render_visualize_tab
 from connections import render_connections_tab
 from constants import DEFAULT_NETWORK_INPUT_CONTENTS, DEFAULT_NETWORK_OUTPUT_CONTENTS 
 
@@ -35,32 +37,6 @@ if 'selected_node' not in st.session_state:
     st.session_state.selected_node = None
 if 'selected_connection' not in st.session_state:
     st.session_state.selected_connection = None
-
-# Helper Functions
-def parse_unit_input(value_str, unit_str):
-    """Parse user input with units"""
-    try:
-        if value_str and unit_str:
-            value = float(value_str)
-            return value * u(unit_str)
-        elif value_str:
-            return float(value_str)
-        return None
-    except:
-        return None
-
-def get_contents_enum():
-    """Get all available ContentsType values"""
-    return [member.name for member in utils.ContentsType]
-
-def get_node_types():
-    """Get all available node types"""
-    return [
-        "Junction", "Tank", "Reservoir", "Pump", "Treatment",
-        "Disinfection", "Aeration", "Clarification", "Thickening",
-        "Screening", "Conditioning", "Reactor", "Digestion",
-        "Filtration", "ROMembrane", "Cogeneration", "Boiler"
-    ]
 
 # Sidebar
 with st.sidebar:
@@ -100,6 +76,16 @@ with st.sidebar:
         st.metric("Network ID", st.session_state.network.id)
         st.metric("Nodes", len(st.session_state.network.nodes))
         st.metric("Connections", len(st.session_state.network.connections))
+
+        tag_count = 0
+        for node_obj in st.session_state.network.nodes.values():
+            if hasattr(node_obj, 'tags'):
+                tag_count += len(node_obj.tags)
+        for conn_obj in st.session_state.network.connections.values():
+            if hasattr(conn_obj, 'tags'):
+                tag_count += len(conn_obj.tags)
+        
+        st.metric("Tags", tag_count)
         
         if st.button("Clear Network"):
             st.session_state.network = None
@@ -115,45 +101,7 @@ if st.session_state.network:
     
     # VISUALIZATION TAB
     with tab1:
-        st.header("Network Visualization")
-        
-        col1, col2 = st.columns([3, 1])
-        
-        with col2:
-            viz_type = st.radio("Type", ["Interactive (PyVis)", "Static (NetworkX)"])
-            
-            if st.button("🎨 Generate", type="primary"):
-                try:
-                    with tempfile.NamedTemporaryFile(
-                        delete=False, 
-                        suffix='.html' if viz_type.startswith("Interactive") else '.png'
-                    ) as tmp:
-                        if viz_type.startswith("Interactive"):
-                            visualize.draw_graph(st.session_state.network, pyvis=True, output_file=tmp.name)
-                            with open(tmp.name, 'r') as f:
-                                html_content = f.read()
-                            with col1:
-                                st.components.v1.html(html_content, height=700, scrolling=True)
-                        else:
-                            visualize.draw_graph(st.session_state.network, pyvis=False, output_file=tmp.name)
-                            with col1:
-                                st.image(tmp.name)
-                        os.unlink(tmp.name)
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
-        
-        st.subheader("Network Statistics")
-        if st.session_state.network.nodes:
-            node_types = {}
-            for n in st.session_state.network.nodes.values():
-                node_type = type(n).__name__
-                node_types[node_type] = node_types.get(node_type, 0) + 1
-            
-            stats_df = pd.DataFrame({
-                'Node Type': list(node_types.keys()),
-                'Count': list(node_types.values())
-            })
-            st.dataframe(stats_df, use_container_width=True)
+        render_visualize_tab(st.session_state)
     
     # NODES TAB
     with tab2:
@@ -169,55 +117,7 @@ if st.session_state.network:
     
     # EXPORT TAB
     with tab5:
-        st.header("Export Network")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader("Export to JSON")
-            if st.button("Generate JSON", type="primary"):
-                try:
-                    # Create a temporary file to export
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.json', mode='w') as tmp:
-                        tmp_path = tmp.name
-                    
-                    parser = parse_json.JSONParser(tmp_path)
-                    parser.network_obj = st.session_state.network
-                    json_data = parser.write()
-                    
-                    st.download_button(
-                        "Download JSON",
-                        data=json.dumps(json_data, indent=2),
-                        file_name=f"{st.session_state.network.id}.json",
-                        mime="application/json"
-                    )
-                    
-                    os.unlink(tmp_path)
-                except Exception as e:
-                    st.error(f"Export error: {str(e)}")
-        
-        with col2:
-            st.subheader("Export Network Summary")
-            if st.button("Generate Summary CSV"):
-                # Create summary dataframe
-                summary_data = []
-                for node_id, node_obj in st.session_state.network.nodes.items():
-                    summary_data.append({
-                        'ID': node_id,
-                        'Type': type(node_obj).__name__,
-                        'Input': str([c.name for c in node_obj.input_contents]) if hasattr(node_obj, 'input_contents') else '',
-                        'Output': str([c.name for c in node_obj.output_contents]) if hasattr(node_obj, 'output_contents') else ''
-                    })
-                
-                df = pd.DataFrame(summary_data)
-                csv = df.to_csv(index=False)
-                
-                st.download_button(
-                    "Download Summary CSV",
-                    data=csv,
-                    file_name=f"{st.session_state.network.id}_summary.csv",
-                    mime="text/csv"
-                )
+        render_export_tab(st.session_state)
 
 else:
     st.info("Please upload a network JSON file or create a new network to begin.")

@@ -1,9 +1,10 @@
 """Visualization tab for PyPES UI"""
+import os
+import tempfile
+import pandas as pd
 import streamlit as st
 from pype_schema import visualize
-import tempfile
-import os
-import pandas as pd
+
 
 def render_visualize_tab(session_state):
     st.header("Network Visualization")
@@ -38,7 +39,7 @@ def render_visualize_tab(session_state):
                             st.image(tmp.name)
                     os.unlink(tmp.name)
             except Exception as e:
-                st.error(f"❌ Visualization error: {str(e)}")
+                st.error(f"Visualization error: {str(e)}")
     
     # Network statistics
     st.subheader("Network Statistics")
@@ -52,8 +53,8 @@ def render_visualize_tab(session_state):
             'Node Type': list(node_types.keys()),
             'Count': list(node_types.values())
         })
-        st.dataframe(stats_df, use_container_width=True)
-    
+        st.dataframe(stats_df, width="stretch")
+
     if session_state.network.connections:
         conn_types = {}
         for c in session_state.network.connections.values():
@@ -64,4 +65,19 @@ def render_visualize_tab(session_state):
             'Connection Type': list(conn_types.keys()),
             'Count': list(conn_types.values())
         })
-        st.dataframe(conn_df, use_container_width=True)
+        st.dataframe(conn_df, width="stretch")
+
+    # TODO: recursion is not currently considered,
+    # but it will have to be handled eventually
+    network_tags = session_state.network.get_all_tags()
+    if network_tags:
+        tag_types = {}
+        for t in network_tags:
+            tag_type = t.tag_type.name
+            tag_types[tag_type] = tag_types.get(tag_type, 0) + 1
+        
+        tag_df = pd.DataFrame({
+            'Tag Type': list(tag_types.keys()),
+            'Count': list(tag_types.values())
+        })
+        st.dataframe(tag_df, width="stretch")

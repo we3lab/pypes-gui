@@ -53,7 +53,7 @@ You should see output like:
 
 To quickly test if everything works:
 
-1. Launch the app
+1. Launch the app with `streamlit run main.py`
 2. Click "Create New Network" in the sidebar
 3. Enter a network name and click "Create Network"
 4. Try adding a simple Junction node

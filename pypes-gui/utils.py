@@ -30,4 +30,4 @@ def get_node_types():
 
 def get_connection_types():
     """Get all available connection types"""
-    return ["Pipe", "Wire"]
+    return ["Pipe", "Wire", "Wireless", "Delivery"]
