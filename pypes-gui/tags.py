@@ -1,27 +1,14 @@
 """Tags tab for PyPES UI"""
+# external dependencies
 import streamlit as st
+
+# pypes imports
 from pype_schema.units import u
 from pype_schema import tag, utils
 
-def get_tag_types():
-    """Get all available TagType values"""
-    return [member.name for member in tag.TagType]
+# local imports
+from utils import get_tag_types, parse_unit_input, get_contents_enum
 
-def get_contents_enum():
-    """Get all available ContentsType values"""
-    return [member.name for member in utils.ContentsType]
-
-def parse_unit_input(value_str, unit_str):
-    """Parse user input with units"""
-    try:
-        if value_str and unit_str:
-            value = float(value_str)
-            return value * u(unit_str)
-        elif value_str:
-            return float(value_str)
-        return None
-    except:
-        return None
 
 def render_tags_tab(session_state):
     """Main function to render the tags tab"""

@@ -21,13 +21,18 @@ def get_contents_enum():
 def get_node_types():
     """Get all available node types"""
     return [
-        "Junction", "Tank", "Reservoir", "Pump", "Treatment",
-        "Disinfection", "Aeration", "Clarification", "Thickening",
+        "Network", "Facility", "Junction", "Valve", "Tank", 
+        "Reservoir", "Pump", "Aeration", "Clarification", "Thickening",
         "Screening", "Conditioning", "Reactor", "Digestion",
         "Filtration", "ROMembrane", "Cogeneration", "Boiler",
-        "Separator", "PRV"
+        "Separator", "PRV", "ModularUnit", "StaticMixer", "Battery",
+        "Disinfection", "Chlorination", "UVSystem", "Flaring", 
     ]
 
 def get_connection_types():
     """Get all available connection types"""
     return ["Pipe", "Wire", "Wireless", "Delivery"]
+
+def get_tag_types():
+    """Get all available TagType values"""
+    return [member.name for member in tag.TagType]

@@ -1,4 +1,4 @@
-# import external dependencies
+# external dependencies
 import os
 import json
 import tempfile
@@ -17,6 +17,7 @@ from export import render_export_tab
 from visualize import render_visualize_tab
 from connections import render_connections_tab
 from constants import DEFAULT_NETWORK_INPUT_CONTENTS, DEFAULT_NETWORK_OUTPUT_CONTENTS 
+
 
 st.set_page_config(page_title="PyPES Network Editor", layout="wide")
 

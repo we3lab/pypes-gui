@@ -1,23 +1,14 @@
 """Connections tab for PyPES UI"""
+# external dependencies
 import streamlit as st
-from pype_schema import connection, utils
+
+# pypes imports
 from pype_schema.units import u
+from pype_schema import connection, utils
 
-def parse_unit_input(value_str, unit_str):
-    """Parse user input with units"""
-    try:
-        if value_str and unit_str:
-            value = float(value_str)
-            return value * u(unit_str)
-        elif value_str:
-            return float(value_str)
-        return None
-    except:
-        return None
+# local imports
+from utils import get_connection_types, parse_unit_input, get_contents_enum
 
-def get_contents_enum():
-    """Get all available ContentsType values"""
-    return [member.name for member in utils.ContentsType]
 
 def render_connections_tab(session_state):
     """Main function to render the connections tab"""
@@ -101,7 +92,7 @@ def render_connection_form(session_state):
             existing_conn = session_state.network.connections[session_state.selected_connection]
         
         # Connection ID and Type
-        conn_types = ["Pipe", "Wire", "Wireless", "Delivery"]
+        conn_types = utils.get_connection_types()
         
         if existing_conn:
             conn_id = st.text_input("Connection ID*", value=session_state.selected_connection, disabled=True)

@@ -1,23 +1,14 @@
 """Nodes tab for PyPES UI"""
+# external dependencies
 import streamlit as st
-from pype_schema import node, utils
+
+# pypes imports
+from pype_schema import utils
 from pype_schema.units import u
 
-def parse_unit_input(value_str, unit_str):
-    """Parse user input with units"""
-    try:
-        if value_str and unit_str:
-            value = float(value_str)
-            return value * u(unit_str)
-        elif value_str:
-            return float(value_str)
-        return None
-    except:
-        return None
+# local imports
+from utils import get_node_types, parse_unit_input, get_contents_enum
 
-def get_contents_enum():
-    """Get all available ContentsType values"""
-    return [member.name for member in utils.ContentsType]
 
 def render_nodes_tab(session_state):
     """Main function to render the nodes tab"""
@@ -49,6 +40,30 @@ def render_node_list(session_state):
             with st.expander(f"**{node_id}** ({node_type})"):
                 st.write(f"**Type:** {node_type}")
                 
+                # TODO: add missing attributes here
+                # pump_type
+                # digester_type
+                # min_gen_capacity
+                # max_gen_capacity
+                # design_gen_capacity
+                # thermal_efficiency
+                # electrical_efficiency
+                # intensity
+                # area
+                # settling_time
+                # selectivity
+                # permeability
+                # residence_time
+                # dosing_rate
+                # pH
+                # power_rating
+                # energy_capacity
+                # rte
+                # leakage
+                # charge_rate
+                # discharge_rate
+                # diameter
+                # pressure_setting
                 if hasattr(node_obj, 'input_contents'):
                     st.write(f"**Input:** {[c.name for c in node_obj.input_contents]}")
                 if hasattr(node_obj, 'output_contents'):
@@ -68,11 +83,11 @@ def render_node_list(session_state):
                 
                 btn_col1, btn_col2 = st.columns(2)
                 with btn_col1:
-                    if st.button(f"✏️ Edit", key=f"edit_{node_id}"):
+                    if st.button(f"Edit", key=f"edit_{node_id}"):
                         session_state.selected_node = node_id
                         st.rerun()
                 with btn_col2:
-                    if st.button(f"🗑️ Delete", key=f"del_{node_id}"):
+                    if st.button(f"Delete", key=f"del_{node_id}"):
                         del session_state.network.nodes[node_id]
                         st.success(f"Deleted: {node_id}")
                         st.rerun()
@@ -95,7 +110,7 @@ def render_node_form(session_state):
             existing_node = session_state.network.nodes[session_state.selected_node]
         
         # Node ID and Type
-        node_types = ["Junction", "Tank", "Reservoir", "Pump"]
+        node_types = get_node_types
         
         if existing_node:
             node_id = st.text_input("Node ID*", value=session_state.selected_node, disabled=True)
@@ -176,8 +191,36 @@ def render_node_form(session_state):
             if node_type == "Tank":
                 num_units = st.number_input("Number of Units", min_value=1, value=1)
         
+        # TODO: fill in below classes
+        # elif node_type in ["Cogeneration", "Boiler"]:
+        #
+        # elif node_type == "Digestion":
+        # 
+        # elif node_type == "Disinfection":
+        # 
+        # elif node_type in ["Disinfection", "Chlorination", "UVSystem"]:
+        #    if node_type == "UVSystem":
+        # elif node_type in ["Filtration", "ROMembrane"]:
+        #    if node_type == "ROMembrane":
+        # elif node_type in ["Reactor", "StaticMixer"]:
+        # 
+        # elif node_type in ["Thickening", "Aeration", "CLarification"]:
+        #
+        # elif node_type in ["Screening", "Conditioning", "Flaring"]:
+        # 
+        # elif node_type == "Separator":
+        #
+        # elif node_type == "Battery":
+        #
+        # elif node_type in ["Network", "Facility"]:
+        #    if node_type == "Facility":
+        # elif node_type in ["Valve", "Junction", "PRV"]:
+        #    # all three use diameter
+        #    if node_type == "PRV":
+        #        # only PRV uses pressure_setting
+        
         # Submit button
-        submit_label = "Save Node" if existing_node else "➕ Add Node"
+        submit_label = "Save Node" if existing_node else "Add Node"
         if st.form_submit_button(submit_label):
             if not node_id:
                 st.error("Node ID is required!")
@@ -194,7 +237,7 @@ def render_node_form(session_state):
                 
                 # Create appropriate node type
                 new_node = None
-                
+                # TODO: diameter is a missing argument
                 if node_type == "Junction":
                     new_node = node.Junction(node_id, input_enum, output_enum)
                 
@@ -224,6 +267,7 @@ def render_node_form(session_state):
                         num_units=num_units,
                         pump_type=pump_type
                     )
+                # TODO: add all the classes from above
                 
                 if new_node:
                     session_state.network.nodes[node_id] = new_node
