@@ -75,18 +75,29 @@ with st.sidebar:
     if st.session_state.network:
         st.header("Network Info")
         st.metric("Network ID", st.session_state.network.id)
-        st.metric("Nodes", len(st.session_state.network.nodes))
-        st.metric("Connections", len(st.session_state.network.connections))
+        st.metric("Top Level Nodes", len(st.session_state.network.nodes))
+        st.metric("Total Nodes", len(st.session_state.network.get_all_nodes(recurse=True)))
+        st.metric("Top Level Connections", len(st.session_state.network.connections))
+        st.metric("Total Connections", len(st.session_state.network.get_all_connections(recurse=True)))
 
-        tag_count = 0
+        top_level_tag_count = 0
         for node_obj in st.session_state.network.nodes.values():
             if hasattr(node_obj, 'tags'):
-                tag_count += len(node_obj.tags)
+                top_level_tag_count += len(node_obj.tags)
         for conn_obj in st.session_state.network.connections.values():
             if hasattr(conn_obj, 'tags'):
-                tag_count += len(conn_obj.tags)
+                top_level_tag_count += len(conn_obj.tags)
+
+        total_tag_count = 0
+        for node_obj in st.session_state.network.get_all_nodes(recurse=True):
+            if hasattr(node_obj, 'tags'):
+                total_tag_count += len(node_obj.tags)
+        for conn_obj in st.session_state.network.get_all_connections(recurse=True):
+            if hasattr(conn_obj, 'tags'):
+                total_tag_count += len(conn_obj.tags)
         
-        st.metric("Tags", tag_count)
+        st.metric("Top Level Tags", top_level_tag_count)
+        st.metric("Total Tags", total_tag_count)
         
         if st.button("Clear Network"):
             st.session_state.network = None

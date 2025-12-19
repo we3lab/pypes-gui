@@ -1,6 +1,7 @@
 """Helper functions for PyPES UI"""
-from pype_schema import utils
 from pype_schema.units import u
+from pype_schema import utils, tag
+
 
 def parse_unit_input(value_str, unit_str):
     """Parse user input with units"""

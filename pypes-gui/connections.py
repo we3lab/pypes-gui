@@ -4,7 +4,8 @@ import streamlit as st
 
 # pypes imports
 from pype_schema.units import u
-from pype_schema import connection, utils
+from pype_schema import connection
+from pype_schema.utils import ContentsType
 
 # local imports
 from utils import get_connection_types, parse_unit_input, get_contents_enum
@@ -92,7 +93,7 @@ def render_connection_form(session_state):
             existing_conn = session_state.network.connections[session_state.selected_connection]
         
         # Connection ID and Type
-        conn_types = utils.get_connection_types()
+        conn_types = get_connection_types()
         
         if existing_conn:
             conn_id = st.text_input("Connection ID*", value=session_state.selected_connection, disabled=True)
@@ -251,7 +252,7 @@ def render_connection_form(session_state):
                     return
                 
                 # Convert contents to enum
-                contents_enum = utils.ContentsType[contents_selected]
+                contents_enum = ContentsType[contents_selected]
                 
                 # Create appropriate connection type
                 new_conn = None
