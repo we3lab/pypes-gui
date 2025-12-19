@@ -3,24 +3,197 @@
 import streamlit as st
 
 # pypes imports
+from pype_schema import utils, node, tag
 from pype_schema.units import u
-from pype_schema import utils, node
 
 # local imports
 from utils import get_node_types, parse_unit_input, get_contents_enum
 
 
-def render_nodes_tab(session_state):
-    """Main function to render the nodes tab"""
-    st.header("Node Management")
+def render_tag_selector(session_state, existing_tags=None, key_prefix=""):
+    """Render tag selection/creation interface
     
-    col1, col2 = st.columns([1, 1])
+    Parameters
+    ----------
+    session_state : object
+        Session state containing network
+    existing_tags : dict, optional
+        Currently attached tags
+    key_prefix : str
+        Prefix for widget keys to ensure uniqueness
     
-    with col1:
-        render_node_list(session_state)
+    Returns
+    -------
+    dict
+        Selected/created tags
+    """
+    st.write("**Tags**")
     
-    with col2:
-        render_node_form(session_state)
+    # Get all available tags from network
+    available_tags = {}
+    if hasattr(session_state.network, 'tags'):
+        available_tags = session_state.network.tags
+    
+    selected_tags = {}
+    
+    if existing_tags:
+        st.write(f"Currently attached: {len(existing_tags)} tag(s)")
+    
+    # Option to select existing tags
+    if available_tags:
+        tag_options = list(available_tags.keys())
+        selected_tag_ids = st.multiselect(
+            "Select Existing Tags",
+            tag_options,
+            default=list(existing_tags.keys()) if existing_tags else [],
+            key=f"{key_prefix}_tag_select"
+        )
+        
+        for tag_id in selected_tag_ids:
+            selected_tags[tag_id] = available_tags[tag_id]
+    
+    # Option to create new tag
+    with st.expander("➕ Create New Tag"):
+        new_tag_id = st.text_input("Tag ID", key=f"{key_prefix}_new_tag_id")
+        
+        tag_type_options = ["DataTag", "VirtualTag"]
+        new_tag_type = st.selectbox("Tag Type", tag_type_options, key=f"{key_prefix}_new_tag_type")
+        
+        # Get contents options
+        contents_options = get_contents_enum()
+        new_tag_contents = st.selectbox("Contents Type", contents_options, key=f"{key_prefix}_new_tag_contents")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            new_tag_value = st.text_input("Value (optional)", key=f"{key_prefix}_new_tag_value")
+        with col2:
+            new_tag_unit = st.text_input("Unit (e.g., m**3/day)", key=f"{key_prefix}_new_tag_unit")
+        
+        if st.button("Create Tag", key=f"{key_prefix}_create_tag_btn"):
+            if new_tag_id:
+                try:
+                    contents_enum = utils.ContentsType[new_tag_contents]
+                    value = parse_unit_input(new_tag_value, new_tag_unit) if new_tag_value else None
+                    
+                    if new_tag_type == "DataTag":
+                        new_tag = tag.DataTag(new_tag_id, contents_enum, value=value)
+                    else:  # VirtualTag
+                        new_tag = tag.VirtualTag(new_tag_id, contents_enum, value=value)
+                    
+                    # Add to network tags if not already there
+                    if hasattr(session_state.network, 'tags'):
+                        session_state.network.tags[new_tag_id] = new_tag
+                    
+                    selected_tags[new_tag_id] = new_tag
+                    st.success(f"Created tag: {new_tag_id}")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error creating tag: {str(e)}")
+            else:
+                st.error("Tag ID is required!")
+    
+    return selected_tags
+
+
+def render_nested_nodes_selector(session_state, existing_nodes=None, key_prefix=""):
+    """Render interface for selecting nodes to nest within a container node
+    
+    Parameters
+    ----------
+    session_state : object
+        Session state containing network
+    existing_nodes : dict, optional
+        Currently nested nodes
+    key_prefix : str
+        Prefix for widget keys
+    
+    Returns
+    -------
+    dict
+        Selected nodes
+    """
+    st.write("**Nested Nodes**")
+    
+    # Get all available nodes from network (excluding current node being edited)
+    available_nodes = {}
+    if hasattr(session_state.network, 'nodes'):
+        available_nodes = {
+            k: v for k, v in session_state.network.nodes.items()
+            if k != session_state.selected_node  # Don't allow selecting self
+        }
+    
+    selected_nodes = {}
+    
+    if existing_nodes:
+        st.write(f"Currently nested: {len(existing_nodes)} node(s)")
+        for nid, n in existing_nodes.items():
+            st.caption(f"  - {nid} ({type(n).__name__})")
+    
+    if available_nodes:
+        node_options = list(available_nodes.keys())
+        selected_node_ids = st.multiselect(
+            "Select Nodes to Nest",
+            node_options,
+            default=list(existing_nodes.keys()) if existing_nodes else [],
+            key=f"{key_prefix}_node_select",
+            help="Select nodes that should be contained within this node"
+        )
+        
+        for node_id in selected_node_ids:
+            selected_nodes[node_id] = available_nodes[node_id]
+    else:
+        st.info("No available nodes to nest. Create nodes first.")
+    
+    return selected_nodes
+
+
+def render_nested_connections_selector(session_state, existing_connections=None, key_prefix=""):
+    """Render interface for selecting connections to nest within a container node
+    
+    Parameters
+    ----------
+    session_state : object
+        Session state containing network
+    existing_connections : dict, optional
+        Currently nested connections
+    key_prefix : str
+        Prefix for widget keys
+    
+    Returns
+    -------
+    dict
+        Selected connections
+    """
+    st.write("**Nested Connections**")
+    
+    # Get all available connections from network
+    available_connections = {}
+    if hasattr(session_state.network, 'connections'):
+        available_connections = session_state.network.connections
+    
+    selected_connections = {}
+    
+    if existing_connections:
+        st.write(f"Currently nested: {len(existing_connections)} connection(s)")
+        for cid, c in existing_connections.items():
+            st.caption(f"  - {cid} ({type(c).__name__})")
+    
+    if available_connections:
+        conn_options = list(available_connections.keys())
+        selected_conn_ids = st.multiselect(
+            "Select Connections to Nest",
+            conn_options,
+            default=list(existing_connections.keys()) if existing_connections else [],
+            key=f"{key_prefix}_conn_select",
+            help="Select connections that should be contained within this node"
+        )
+        
+        for conn_id in selected_conn_ids:
+            selected_connections[conn_id] = available_connections[conn_id]
+    else:
+        st.info("No available connections to nest. Create connections first.")
+    
+    return selected_connections
 
 def render_node_list(session_state):
     """Render list of existing nodes"""
@@ -45,6 +218,19 @@ def render_node_list(session_state):
                     st.write(f"**Input:** {[c.name for c in node_obj.input_contents]}")
                 if hasattr(node_obj, 'output_contents'):
                     st.write(f"**Output:** {[c.name for c in node_obj.output_contents]}")
+                
+                # Display tags if present
+                if hasattr(node_obj, 'tags') and node_obj.tags:
+                    st.write(f"**Tags:** {', '.join(node_obj.tags.keys())}")
+                
+                # Display nested nodes for containers
+                if hasattr(node_obj, 'nodes') and node_obj.nodes:
+                    st.write(f"**Nested Nodes ({len(node_obj.nodes)}):** {', '.join(node_obj.nodes.keys())}")
+                
+                # Display nested connections for containers
+                if hasattr(node_obj, 'connections') and node_obj.connections:
+                    st.write(f"**Nested Connections ({len(node_obj.connections)}):** {', '.join(node_obj.connections.keys())}")
+                
                 if hasattr(node_obj, 'elevation') and node_obj.elevation:
                     st.write(f"**Elevation:** {node_obj.elevation}")
                 if hasattr(node_obj, 'volume') and node_obj.volume:
@@ -176,6 +362,10 @@ def render_node_form(session_state):
         input_contents = st.multiselect("Input Contents", contents_options, default=default_input)
         output_contents = st.multiselect("Output Contents", contents_options, default=default_output)
         
+        # Tags - available for all node types
+        existing_tags = existing_node.tags if existing_node and hasattr(existing_node, 'tags') else None
+        selected_tags = render_tag_selector(session_state, existing_tags, key_prefix=f"node_{node_id}")
+        
         # Initialize variables
         min_flow = max_flow = design_flow = None
         volume = elevation = None
@@ -193,7 +383,9 @@ def render_node_form(session_state):
         energy_capacity = rte = leakage = None
         charge_rate = discharge_rate = None
         diameter = pressure_setting = None
-        
+        nested_nodes = None
+        nested_connections = None
+
         # Type-specific parameters
         if node_type == "Pump":
             st.write("**Flow Parameters**")
@@ -340,11 +532,8 @@ def render_node_form(session_state):
                     residence_unit = st.selectbox("Residence Time Unit", ["minute", "hour", "day"])
                 
                 residence_time = parse_unit_input(residence_time_val, residence_unit)
-                
-                # Dosing rate - this is a dictionary in the schema
-                st.write("**Dosing Rate** (optional)")
-                st.caption("Note: Dosing rate is a dictionary mapping contents to rates")
-elif node_type in ["Filtration", "ROMembrane"]:
+        
+        elif node_type in ["Filtration", "ROMembrane"]:
             st.write("**Flow Parameters**")
             fcol1, fcol2 = st.columns(2)
             with fcol1:
@@ -380,7 +569,6 @@ elif node_type in ["Filtration", "ROMembrane"]:
                     permeability_unit = st.selectbox("Permeability Unit", ["L/m**2/hour/bar", "gal/ft**2/day/psi"])
                 
                 permeability = parse_unit_input(permeability_val, permeability_unit)
-        
         elif node_type in ["Reactor", "StaticMixer"]:
             st.write("**Flow Parameters**")
             fcol1, fcol2 = st.columns(2)
@@ -512,8 +700,17 @@ elif node_type in ["Filtration", "ROMembrane"]:
             leakage = st.number_input("Leakage Rate (0-1)", min_value=0.0, max_value=1.0,
                                      value=float(existing_node.leakage) if existing_node and existing_node.leakage else 0.0, step=0.01)
         
-        elif node_type in ["Network", "Facility"]:
-            st.info("Networks and Facilities are containers for other nodes. Configure them separately.")
+        elif node_type in ["Network", "Facility", "ModularUnit"]:
+            # Container nodes - can contain other nodes and connections
+            st.info(f"{node_type} is a container. Configure nested nodes and connections below.")
+            
+            # Get existing nested objects if editing
+            existing_nodes = existing_node.nodes if existing_node and hasattr(existing_node, 'nodes') else None
+            existing_conns = existing_node.connections if existing_node and hasattr(existing_node, 'connections') else None
+            
+            # Render selectors for nested objects
+            nested_nodes = render_nested_nodes_selector(session_state, existing_nodes, key_prefix=f"node_{node_id}")
+            nested_connections = render_nested_connections_selector(session_state, existing_conns, key_prefix=f"node_{node_id}")
             
             if node_type == "Facility":
                 st.write("**Elevation**")
@@ -523,6 +720,22 @@ elif node_type in ["Filtration", "ROMembrane"]:
                 with ecol2:
                     elevation_unit = st.selectbox("Elevation Unit", ["m", "ft"])
                 elevation = parse_unit_input(elevation_val, elevation_unit)
+            
+            elif node_type == "ModularUnit":
+                st.write("**Flow Parameters**")
+                fcol1, fcol2 = st.columns(2)
+                with fcol1:
+                    min_flow_val = st.text_input("Min Flow", value=str(existing_node.min_flow.magnitude) if existing_node and existing_node.min_flow else "")
+                    max_flow_val = st.text_input("Max Flow", value=str(existing_node.max_flow.magnitude) if existing_node and existing_node.max_flow else "")
+                    design_flow_val = st.text_input("Design Flow", value=str(existing_node.design_flow.magnitude) if existing_node and existing_node.design_flow else "")
+                with fcol2:
+                    flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
+                
+                min_flow = parse_unit_input(min_flow_val, flow_unit)
+                max_flow = parse_unit_input(max_flow_val, flow_unit)
+                design_flow = parse_unit_input(design_flow_val, flow_unit)
+                
+                num_units = st.number_input("Number of Units", min_value=1, value=existing_node.num_units if existing_node else 1)
         
         elif node_type in ["Valve", "Junction", "PRV"]:
             st.write("**Diameter**")
@@ -564,23 +777,22 @@ elif node_type in ["Filtration", "ROMembrane"]:
                 new_node = None
                 
                 if node_type == "Junction":
-                    new_node = node.Junction(node_id, input_enum, output_enum, diameter=diameter)
-                
+                    new_node = node.Junction(node_id, input_enum, output_enum, diameter=diameter, tags=selected_tags)
                 elif node_type == "Tank":
                     new_node = node.Tank(
                         node_id, input_enum, output_enum,
                         elevation=elevation,
                         volume=volume,
-                        num_units=num_units
+                        num_units=num_units,
+                        tags=selected_tags
                     )
-
                 elif node_type == "Reservoir":
                     new_node = node.Reservoir(
                         node_id, input_enum, output_enum,
                         elevation=elevation,
-                        volume=volume
+                        volume=volume,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Pump":
                     new_node = node.Pump(
                         node_id, input_enum, output_enum,
@@ -590,9 +802,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         design_flow=design_flow,
                         power_rating=power_rating,
                         num_units=num_units,
-                        pump_type=pump_type
+                        pump_type=pump_type,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Cogeneration":
                     new_node = node.Cogeneration(
                         node_id, input_enum, output_enum,
@@ -601,9 +813,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         design_gen_capacity=design_gen_capacity,
                         thermal_efficiency=thermal_efficiency,
                         electrical_efficiency=electrical_efficiency,
-                        num_units=num_units
+                        num_units=num_units,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Boiler":
                     new_node = node.Boiler(
                         node_id, input_enum, output_enum,
@@ -611,9 +823,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         max_gen_capacity=max_gen_capacity,
                         design_gen_capacity=design_gen_capacity,
                         thermal_efficiency=thermal_efficiency,
-                        num_units=num_units
+                        num_units=num_units,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Digestion":
                     new_node = node.Digestion(
                         node_id, input_enum, output_enum,
@@ -622,9 +834,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         design_flow=design_flow,
                         volume=volume,
                         num_units=num_units,
-                        digester_type=digester_type
+                        digester_type=digester_type,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Disinfection":
                     new_node = node.Disinfection(
                         node_id, input_enum, output_enum,
@@ -634,9 +846,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         volume=volume,
                         num_units=num_units,
                         residence_time=residence_time,
-                        dosing_rate=dosing_rate
+                        dosing_rate=dosing_rate,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Chlorination":
                     new_node = node.Chlorination(
                         node_id, input_enum, output_enum,
@@ -646,9 +858,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         volume=volume,
                         num_units=num_units,
                         residence_time=residence_time,
-                        dosing_rate=dosing_rate
+                        dosing_rate=dosing_rate,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "UVSystem":
                     new_node = node.UVSystem(
                         node_id, input_enum, output_enum,
@@ -658,9 +870,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         volume=volume,
                         num_units=num_units,
                         intensity=intensity,
-                        area=area
+                        area=area,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Filtration":
                     new_node = node.Filtration(
                         node_id, input_enum, output_enum,
@@ -668,9 +880,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         max_flow=max_flow,
                         design_flow=design_flow,
                         volume=volume,
-                        num_units=num_units
+                        num_units=num_units,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "ROMembrane":
                     new_node = node.ROMembrane(
                         node_id, input_enum, output_enum,
@@ -680,9 +892,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         volume=volume,
                         num_units=num_units,
                         selectivity=selectivity,
-                        permeability=permeability
+                        permeability=permeability,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Reactor":
                     new_node = node.Reactor(
                         node_id, input_enum, output_enum,
@@ -691,9 +903,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         design_flow=design_flow,
                         volume=volume,
                         num_units=num_units,
-                        pH=pH
+                        pH=pH,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "StaticMixer":
                     new_node = node.StaticMixer(
                         node_id, input_enum, output_enum,
@@ -701,7 +913,8 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         max_flow=max_flow,
                         design_flow=design_flow,
                         volume=volume,
-                        num_units=num_units
+                        num_units=num_units,
+                        tags=selected_tags
                     )
                 elif node_type == "Thickening":
                     new_node = node.Thickening(
@@ -711,7 +924,8 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         design_flow=design_flow,
                         volume=volume,
                         num_units=num_units,
-                        settling_time=settling_time
+                        settling_time=settling_time,
+                        tags=selected_tags
                     )
                 elif node_type == "Aeration":
                     new_node = node.Aeration(
@@ -720,7 +934,8 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         max_flow=max_flow,
                         design_flow=design_flow,
                         volume=volume,
-                        num_units=num_units
+                        num_units=num_units,
+                        tags=selected_tags
                     )
                 elif node_type == "Clarification":
                     new_node = node.Clarification(
@@ -730,9 +945,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         design_flow=design_flow,
                         volume=volume,
                         num_units=num_units,
-                        settling_time=settling_time
+                        settling_time=settling_time,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Screening":
                     new_node = node.Screening(
                         node_id, input_enum, output_enum,
@@ -740,9 +955,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         max_flow=max_flow,
                         design_flow=design_flow,
                         volume=volume,
-                        num_units=num_units
+                        num_units=num_units,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Conditioning":
                     new_node = node.Conditioning(
                         node_id, input_enum, output_enum,
@@ -750,9 +965,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         max_flow=max_flow,
                         design_flow=design_flow,
                         volume=volume,
-                        num_units=num_units
+                        num_units=num_units,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Flaring":
                     new_node = node.Flaring(
                         node_id, input_enum, output_enum,
@@ -760,9 +975,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         max_flow=max_flow,
                         design_flow=design_flow,
                         volume=volume,
-                        num_units=num_units
+                        num_units=num_units,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Separator":
                     new_node = node.Separator(
                         node_id, input_enum, output_enum,
@@ -770,9 +985,9 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         max_flow=max_flow,
                         design_flow=design_flow,
                         volume=volume,
-                        num_units=num_units
+                        num_units=num_units,
+                        tags=selected_tags
                     )
-                
                 elif node_type == "Battery":
                     new_node = node.Battery(
                         node_id, input_enum, output_enum,
@@ -780,28 +995,49 @@ elif node_type in ["Filtration", "ROMembrane"]:
                         rte=rte,
                         leakage=leakage,
                         charge_rate=charge_rate,
-                        discharge_rate=discharge_rate
+                        discharge_rate=discharge_rate,
+                        tags=selected_tags
                     )
                 
                 elif node_type == "Network":
-                    new_node = node.Network(node_id, input_enum, output_enum)
-                
+                    new_node = node.Network(
+                        node_id, input_enum, output_enum,
+                        nodes=nested_nodes,
+                        connections=nested_connections,
+                        tags=selected_tags
+                    )
                 elif node_type == "Facility":
                     new_node = node.Facility(
                         node_id, input_enum, output_enum,
-                        elevation=elevation
+                        elevation=elevation,
+                        nodes=nested_nodes,
+                        connections=nested_connections,
+                        tags=selected_tags
                     )
-                
+                elif node_type == "ModularUnit":
+                    new_node = node.ModularUnit(
+                        node_id, input_enum, output_enum,
+                        min_flow=min_flow,
+                        max_flow=max_flow,
+                        design_flow=design_flow,
+                        num_units=num_units,
+                        nodes=nested_nodes,
+                        connections=nested_connections,
+                        tags=selected_tags
+                    )
                 elif node_type == "Valve":
-                    new_node = node.Valve(node_id, input_enum, output_enum, diameter=diameter)
-                
+                    new_node = node.Valve(
+                        node_id, input_enum, output_enum,
+                        diameter=diameter,
+                        tags=selected_tags
+                    )
                 elif node_type == "PRV":
                     new_node = node.PRV(
                         node_id, input_enum, output_enum,
                         diameter=diameter,
-                        pressure_setting=pressure_setting
+                        pressure_setting=pressure_setting,
+                        tags=selected_tags
                     )
-                
                 if new_node:
                     session_state.network.nodes[node_id] = new_node
                     if existing_node:
@@ -812,6 +1048,7 @@ elif node_type in ["Filtration", "ROMembrane"]:
                     st.rerun()
                 else:
                     st.error(f"Failed to create node of type: {node_type}")
-                    
             except Exception as e:
                 st.error(f"Error creating node: {str(e)}")
+                import traceback
+                st.error(traceback.format_exc())
