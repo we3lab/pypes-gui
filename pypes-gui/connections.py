@@ -63,7 +63,6 @@ def render_connection_list(session_state):
                     st.write(f"**Friction:** {conn_obj.friction}")
                 
                 btn_col1, btn_col2 = st.columns(2)
-                print("conn_id:", conn_id)
                 with btn_col1:
                     if st.button(f"Edit", key=f"edit_top_conn_{conn_id}"):
                         session_state.selected_connection = conn_id
@@ -112,7 +111,6 @@ def render_connection_list(session_state):
                     st.write(f"**Friction:** {conn_obj.friction}")
                 
                 btn_col1, btn_col2 = st.columns(2)
-                print("conn_id:", conn_id)
                 with btn_col1:
                     if st.button(f"Edit", key=f"edit_nested_conn_{conn_id}"):
                         session_state.selected_connection = conn_id

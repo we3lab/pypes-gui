@@ -82,7 +82,7 @@ def render_tag_list(all_tags, session_state):
                 
                 btn_col1, btn_col2 = st.columns(2)
                 with btn_col1:
-                    if st.button(f"✏️ Edit", key=f"edit_tag_{tag_id}"):
+                    if st.button(f"Edit", key=f"edit_tag_{tag_id}"):
                         st.session_state.selected_tag = tag_id
                         st.rerun()
                 with btn_col2:
@@ -137,10 +137,11 @@ def render_tag_form(session_state, all_tags=None):
             index=tag_types.index(default_tag_type) if default_tag_type in tag_types else 0,
         )
         
+        # TODO: support contentless tags
         # Contents type
         contents_options = get_contents_enum()
-        default_contents = contents_options[0]
-        if existing_tag_obj and hasattr(existing_tag_obj, "contents"):
+        default_contents = ""
+        if existing_tag_obj and hasattr(existing_tag_obj, "contents") and existing_tag_obj.contents:
             default_contents = existing_tag_obj.contents.name 
         contents_str = st.selectbox(
             "Contents*", 
@@ -149,17 +150,10 @@ def render_tag_form(session_state, all_tags=None):
         )
         
         # Units
-        ucol1, ucol2 = st.columns(2)
-        with ucol1:
-            default_unit_val = "1.0"
-            if existing_tag_obj and hasattr(existing_tag_obj, "units") and existing_tag_obj.units:
-                default_unit_val = str(existing_tag_obj.units.magnitude)
-            unit_val = st.text_input("Unit Value", default_unit_val, key="tag_unit_val")
-        with ucol2:
-            default_unit_str = ""
-            if existing_tag_obj and hasattr(existing_tag_obj, "units") and existing_tag_obj.units:
-                default_unit_str = str(existing_tag_obj.units.units)
-            unit_str = st.text_input("Unit (e.g., m**3/day, kW)", default_unit_str, key="tag_unit_str")
+        default_unit_str = ""
+        if existing_tag_obj and hasattr(existing_tag_obj, "units") and existing_tag_obj.units:
+            default_unit_str = str(existing_tag_obj.units)
+        unit_str = st.text_input("Unit (e.g., m**3/day, kW)", default_unit_str, key="tag_unit_str")
 
         # Totalized
         default_totalized = False
@@ -237,11 +231,10 @@ def render_tag_form(session_state, all_tags=None):
             except Exception as e:
                 st.error(f"Error creating tag: {str(e)}")
 
-# TODO: Add algebraic vs lambda function execution mode
+
 def render_virtual_tag_form(session_state, all_tags=None):
     """Render form for adding/editing virtual tags"""
-    
-    # Check if editing
+    # Check if editing existing tag
     existing_tag_obj = None
     if st.session_state.selected_tag and all_tags:
         existing_tag_obj = all_tags.get(st.session_state.selected_tag)
@@ -294,11 +287,221 @@ def render_virtual_tag_form(session_state, all_tags=None):
             "Tag Type*", 
             tag_types,
             index=tag_types.index(default_tag_type) if default_tag_type in tag_types else 0,
-            key="vtag_type"
+            key="vtag_tag_type"
         )
-
-        # TODO: add submission logic
+        
+        # TODO: support contentless tags
+        # Contents
+        contents_options = get_contents_enum()
+        default_contents = ""
+        if existing_tag_obj and hasattr(existing_tag_obj, "contents") and existing_tag_obj.contents:
+            default_contents = existing_tag_obj.contents.name
+        
+        contents_str = st.selectbox(
+            "Contents*", 
+            contents_options,
+            index=contents_options.index(default_contents) if default_contents in contents_options else 0,
+            key="vtag_contents"
+        )
+        
+        # Units
+        st.write("**Units**")
+        default_unit_str = ""
+        if existing_tag_obj and hasattr(existing_tag_obj, "units") and existing_tag_obj.units:
+            default_unit_str = str(existing_tag_obj.units)
+        unit_str = st.text_input("Unit (e.g., m**3/day, kW)", default_unit_str, key="vtag_unit_str")
+        
+        # Totalized
+        default_totalized = False
+        if existing_tag_obj and hasattr(existing_tag_obj, "totalized"):
+            default_totalized = existing_tag_obj.totalized
+        totalized = st.checkbox("Totalized", value=default_totalized, key="vtag_totalized")
+        
+        st.divider()
+        
+        # Operation Mode
+        st.write("**Virtual Tag Configuration**")
+        mode_options = ["Algebraic", "Custom"]
+        default_mode = "Algebraic"
+        if existing_tag_obj and hasattr(existing_tag_obj, "mode"):
+            default_mode = existing_tag_obj.mode.name
+        
+        operation_mode = st.selectbox(
+            "Operation Mode",
+            mode_options,
+            index=mode_options.index(default_mode) if default_mode in mode_options else 0,
+            key="vtag_mode",
+            help="Algebraic: Apply unary then binary operations. Custom: Use lambda function."
+        )
+        
+        # Get all available tags for selection
+        all_available_tags = {}
+        for node_obj in session_state.network.get_all_nodes(recurse=True):
+            if hasattr(node_obj, "tags"):
+                all_available_tags.update(node_obj.tags)
+        for conn_obj in session_state.network.get_all_connections(recurse=True):
+            if hasattr(conn_obj, "tags"):
+                all_available_tags.update(conn_obj.tags)
+        
+        # Remove current tag from available tags if editing
+        if existing_tag_obj:
+            all_available_tags = {k: v for k, v in all_available_tags.items() if k != st.session_state.selected_tag}
+        
+        tag_options = list(all_available_tags.keys())
+        
+        # Select constituent tags
+        default_selected_tags = []
+        if existing_tag_obj and hasattr(existing_tag_obj, "tags"):
+            default_selected_tags = [t.id for t in existing_tag_obj.tags]
+        
+        selected_tag_ids = st.multiselect(
+            "Constituent Tags*",
+            tag_options,
+            default=default_selected_tags,
+            key="vtag_constituent_tags",
+            help="Select the tags to combine in this virtual tag"
+        )
+        
+        if operation_mode == "Algebraic":
+            st.write("**Algebraic Operations**")
+            
+            # Unary operations
+            st.caption("Unary Operations (applied to each tag)")
+            unary_ops_options = ["noop", "delta", "<<", ">>", "~", "-"]
+            
+            default_unary = []
+            if existing_tag_obj and hasattr(existing_tag_obj, "unary_operations"):
+                if isinstance(existing_tag_obj.unary_operations, list):
+                    default_unary = existing_tag_obj.unary_operations
+                else:
+                    default_unary = [existing_tag_obj.unary_operations] * len(selected_tag_ids)
+            
+            unary_operations = []
+            for i, tag_id in enumerate(selected_tag_ids):
+                default_unary_op = default_unary[i] if i < len(default_unary) else "noop"
+                unary_op = st.selectbox(
+                    f"Unary operation for {tag_id}",
+                    unary_ops_options,
+                    index=unary_ops_options.index(default_unary_op) if default_unary_op in unary_ops_options else 0,
+                    key=f"vtag_unary_{i}",
+                    help="noop=no operation, delta=difference, <<=shift left, >>=shift right, ~=boolean not, -=negate"
+                )
+                unary_operations.append(unary_op)
+            
+            # Binary operations
+            if len(selected_tag_ids) > 1:
+                st.caption("Binary Operations (combine tags sequentially)")
+                binary_ops_options = ["+", "-", "*", "/"]
+                
+                default_binary = []
+                if existing_tag_obj and hasattr(existing_tag_obj, "binary_operations"):
+                    if isinstance(existing_tag_obj.binary_operations, list):
+                        default_binary = existing_tag_obj.binary_operations
+                    else:
+                        default_binary = [existing_tag_obj.binary_operations] * (len(selected_tag_ids) - 1)
+                
+                binary_operations = []
+                for i in range(len(selected_tag_ids) - 1):
+                    default_binary_op = default_binary[i] if i < len(default_binary) else "+"
+                    binary_op = st.selectbox(
+                        f"Operation between tags {i} and {i+1}",
+                        binary_ops_options,
+                        index=binary_ops_options.index(default_binary_op) if default_binary_op in binary_ops_options else 0,
+                        key=f"vtag_binary_{i}",
+                        help="Operation to combine consecutive tags"
+                    )
+                    binary_operations.append(binary_op)
+            else:
+                binary_operations = None
+            
+            custom_operations = None
+            
+        else:  # Custom mode
+            st.write("**Custom Lambda Function**")
+            
+            default_custom = ""
+            if existing_tag_obj and hasattr(existing_tag_obj, "custom_operations"):
+                default_custom = existing_tag_obj.custom_operations or ""
+            
+            custom_operations = st.text_area(
+                "Lambda Function*",
+                value=default_custom,
+                key="vtag_custom_ops",
+                help=f"Lambda function with {len(selected_tag_ids)} argument(s). Example: lambda x, y: x + y"
+            )
+            
+            if custom_operations:
+                st.caption(f"⚠️ Ensure your lambda has {len(selected_tag_ids)} argument(s)")
+            
+            unary_operations = None
+            binary_operations = None
+        
         # Submit button
-        submit_label = "Update Tag" if existing_tag_obj else "Add Tag"
+        submit_label = "Update Virtual Tag" if existing_tag_obj else "Add Virtual Tag"
         if st.form_submit_button(submit_label):
-            pass
+            if not tag_id or not parent_id:
+                st.error("Tag ID and Parent are required!")
+                return
+            
+            if not selected_tag_ids:
+                st.error("At least one constituent tag is required!")
+                return
+            
+            if operation_mode == "Custom" and not custom_operations:
+                st.error("Lambda function is required in Custom mode!")
+                return
+            
+            try:
+                # Get tag objects from IDs
+                constituent_tags = [all_available_tags[tid] for tid in selected_tag_ids]
+                
+                # Convert enums
+                tag_type_enum = tag.TagType[tag_type_str]
+                contents_enum = utils.ContentsType[contents_str]
+                units = parse_unit_input(unit_val, unit_str) if unit_str else None
+                
+                # Convert mode
+                from pype_schema.tag import OperationMode
+                mode_enum = OperationMode.Algebraic if operation_mode == "Algebraic" else OperationMode.Custom
+                
+                # Create virtual tag
+                new_vtag = tag.VirtualTag(
+                    tag_id,
+                    tags=constituent_tags,
+                    unary_operations=unary_operations,
+                    binary_operations=binary_operations,
+                    custom_operations=custom_operations,
+                    mode=mode_enum,
+                    tag_type=tag_type_enum,
+                    parent_id=parent_id,
+                    contents=contents_enum,
+                    units=units,
+                    totalized=totalized
+                )
+                
+                # Add to parent
+                if parent_type == "Node":
+                    all_nodes = {node.id: node for node in session_state.network.get_all_nodes(recurse=True)}
+                    parent_obj = all_nodes.get(parent_id)
+                else:
+                    all_conns = {conn.id: conn for conn in session_state.network.get_all_connections(recurse=True)}
+                    parent_obj = all_conns.get(parent_id)
+                
+                if parent_obj:
+                    if not hasattr(parent_obj, "tags"):
+                        parent_obj.tags = {}
+                    parent_obj.tags[tag_id] = new_vtag
+                    
+                    if existing_tag_obj:
+                        st.success(f"Updated virtual tag: {tag_id}")
+                        st.session_state.selected_tag = None
+                    else:
+                        st.success(f"Added virtual tag: {tag_id}")
+                    st.rerun()
+                else:
+                    st.error("Parent object not found!")
+                    
+            except Exception as e:
+                st.error(f"Error creating virtual tag: {str(e)}")
+                import traceback
+                st.error(traceback.format_exc())
