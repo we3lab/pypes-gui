@@ -176,12 +176,12 @@ def render_connection_form(session_state):
         source_id = st.selectbox("Source Node*", node_ids, 
                                 index=node_ids.index(default_source) if default_source in node_ids else 0)
         exit_point = st.selectbox("Exit Point Node", node_ids, 
-                                index=node_ids.index(default_entry) if default_entry in node_ids else 0)
+                                index=node_ids.index(default_exit) if default_exit in node_ids else 0)
     with ncol2:
         dest_id = st.selectbox("Destination Node*", node_ids,
                                 index=node_ids.index(default_dest) if default_dest in node_ids else 0)
         entry_point = st.selectbox("Entry Point Node", node_ids, 
-                                index=node_ids.index(default_exit) if default_exit in node_ids else 0)
+                                index=node_ids.index(default_entry) if default_entry in node_ids else 0)
 
     # Contents
     st.write("**Contents**")
