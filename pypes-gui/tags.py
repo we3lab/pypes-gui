@@ -7,34 +7,14 @@ from pype_schema.units import u
 from pype_schema import tag, utils
 
 # local imports
-from utils import get_tag_types, parse_unit_input, get_contents_enum
+from utils import get_tag_types, parse_unit_input, get_contents_enum, remove_keys
 
 
 def render_tags_tab(session_state):
     """Main function to render the tags tab"""
     st.header("Tag Management")
-    
-    all_tags = {}
-    
-    for node_id, node_obj in session_state.network.nodes.items():
-        if hasattr(node_obj, 'tags'):
-            for tag_id, tag_obj in node_obj.tags.items():
-                all_tags[tag_id] = {
-                    'tag': tag_obj,
-                    'parent': node_obj,
-                    'parent_id': node_id,
-                    'parent_type': 'Node'
-                }
-    
-    for conn_id, conn_obj in session_state.network.connections.items():
-        if hasattr(conn_obj, 'tags'):
-            for tag_id, tag_obj in conn_obj.tags.items():
-                all_tags[tag_id] = {
-                    'tag': tag_obj,
-                    'parent': conn_obj,
-                    'parent_id': conn_id,
-                    'parent_type': 'Connection'
-                }
+
+    all_tags = {tag.id: tag for tag in session_state.network.get_all_tags(recurse=True)}
     
     col1, col2 = st.columns([1, 1])
     
@@ -53,33 +33,32 @@ def render_tag_list(all_tags, session_state):
         
         filtered_tags = {
             k: v for k, v in all_tags.items()
-            if search.lower() in k.lower() or search.lower() in v['parent_id'].lower()
+            if search.lower() in k.lower() or search.lower() in v.parent_id.lower()
         }
         
-        for tag_id, tag_info in filtered_tags.items():
-            tag_obj = tag_info['tag']
+        for tag_id, tag_obj in filtered_tags.items():
             tag_class = type(tag_obj).__name__
             
             with st.expander(f"**{tag_id}** ({tag_class})"):
                 st.write(f"**Type:** {tag_class}")
-                st.write(f"**Parent:** {tag_info['parent_id']} ({tag_info['parent_type']})")
+                st.write(f"**Parent:** {tag_obj.parent_id}")
                 
-                if hasattr(tag_obj, 'tag_type'):
+                if hasattr(tag_obj, "tag_type"):
                     st.write(f"**Tag Type:** {tag_obj.tag_type.name}")
-                if hasattr(tag_obj, 'units') and tag_obj.units:
+                if hasattr(tag_obj, "units") and tag_obj.units:
                     st.write(f"**Units:** {tag_obj.units}")
-                if hasattr(tag_obj, 'contents') and tag_obj.contents:
+                if hasattr(tag_obj, "contents") and tag_obj.contents:
                     st.write(f"**Contents:** {tag_obj.contents.name}")
-                if hasattr(tag_obj, 'totalized'):
+                if hasattr(tag_obj, "totalized"):
                     st.write(f"**Totalized:** {tag_obj.totalized}")
-                if hasattr(tag_obj, 'source_unit_id') and tag_obj.source_unit_id:
+                if hasattr(tag_obj, "source_unit_id") and tag_obj.source_unit_id:
                     st.write(f"**Source Unit ID:** {tag_obj.source_unit_id}")
-                if hasattr(tag_obj, 'dest_unit_id') and tag_obj.dest_unit_id:
+                if hasattr(tag_obj, "dest_unit_id") and tag_obj.dest_unit_id:
                     st.write(f"**Dest Unit ID:** {tag_obj.dest_unit_id}")
                 
-                if st.button(f"🗑️ Delete", key=f"del_tag_{tag_id}"):
-                    parent_obj = tag_info['parent']
-                    if hasattr(parent_obj, 'tags') and tag_id in parent_obj.tags:
+                if st.button(f"Delete", key=f"del_tag_{tag_id}"):
+                    parent_obj = session_state.network.get_parent_from_tag(tag_obj)
+                    if hasattr(parent_obj, "tags") and tag_id in parent_obj.tags:
                         del parent_obj.tags[tag_id]
                         st.success(f"Deleted tag: {tag_id}")
                         st.rerun()
@@ -96,9 +75,9 @@ def render_tag_form(session_state):
         parent_type = st.radio("Parent Type", ["Node", "Connection"])
         
         if parent_type == "Node":
-            parent_ids = [""] + list(session_state.network.nodes.keys())
+            parent_ids = [""] + [node.id for node in session_state.network.get_all_nodes(recurse=True)]
         else:
-            parent_ids = [""] + list(session_state.network.connections.keys())
+            parent_ids = [""] + [conn.id for conn in session_state.network.get_all_connections(recurse=True)]
         
         parent_id = st.selectbox("Parent*", parent_ids)
         
@@ -148,12 +127,14 @@ def render_tag_form(session_state):
                 )
                 
                 if parent_type == "Node":
-                    parent_obj = session_state.network.nodes.get(parent_id)
+                    all_nodes = {node.id: node for node in session_state.network.get_all_nodes(recurse=True)}
+                    parent_obj = all_nodes.get(parent_id)
                 else:
-                    parent_obj = session_state.network.connections.get(parent_id)
+                    all_conns = {conn.id: conn for conn in session_state.network.get_all_connections(recurse=True)}
+                    parent_obj = all_conns.get(parent_id)
                 
                 if parent_obj:
-                    if not hasattr(parent_obj, 'tags'):
+                    if not hasattr(parent_obj, "tags"):
                         parent_obj.tags = {}
                     parent_obj.tags[tag_id] = new_tag
                     st.success(f"Added tag: {tag_id}")
@@ -163,3 +144,5 @@ def render_tag_form(session_state):
                     
             except Exception as e:
                 st.error(f"Error creating tag: {str(e)}")
+
+# TODO: create render_virtual_tag_form

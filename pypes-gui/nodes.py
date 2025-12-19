@@ -273,11 +273,11 @@ def render_node_list(session_state):
                 
                 btn_col1, btn_col2 = st.columns(2)
                 with btn_col1:
-                    if st.button(f"Edit", key=f"edit_{node_id}"):
+                    if st.button(f"Edit", key=f"edit_top_{node_id}"):
                         session_state.selected_node = node_id
                         st.rerun()
                 with btn_col2:
-                    if st.button(f"Delete", key=f"del_{node_id}"):
+                    if st.button(f"Delete", key=f"del_top_{node_id}"):
                         del session_state.network.nodes[node_id]
                         st.success(f"Deleted: {node_id}")
                         st.rerun()
@@ -394,11 +394,11 @@ def render_node_list(session_state):
                 
                 btn_col1, btn_col2 = st.columns(2)
                 with btn_col1:
-                    if st.button(f"Edit", key=f"edit_{node_id}"):
+                    if st.button(f"Edit", key=f"edit_nested_{node_id}"):
                         session_state.selected_node = node_id
                         st.rerun()
                 with btn_col2:
-                    if st.button(f"Delete", key=f"del_{node_id}"):
+                    if st.button(f"Delete", key=f"del_nested_{node_id}"):
                         del session_state.network.nodes[node_id]
                         st.success(f"Deleted: {node_id}")
                         st.rerun()
@@ -517,10 +517,25 @@ def render_node_form(session_state):
         st.write("**Flow Parameters**")
         fcol1, fcol2 = st.columns(2)
         with fcol1:
-            min_flow_val = st.text_input("Min Flow", value=str(existing_node.min_flow.magnitude) if existing_node and hasattr(existing_node, "min_flow") else "")
-            max_flow_val = st.text_input("Max Flow", value=str(existing_node.max_flow.magnitude) if existing_node and hasattr(existing_node, "max_flow") else "")
-            design_flow_val = st.text_input("Design Flow", value=str(existing_node.design_flow.magnitude) if existing_node and hasattr(existing_node, "design_flow") else "")
-            power_val = st.text_input("Power Rating (W)", value=str(existing_node.power_rating.magnitude) if existing_node and hasattr(existing_node, "power_rating") else "")
+            default_flows = ["", "", ""]
+            if existing_node:
+                if hasattr(existing_node, "min_flow") and existing_node.min_flow:
+                    default_flows[0] = str(existing_node.min_flow.magnitude)
+                if hasattr(existing_node, "max_flow") and existing_node.max_flow:
+                    default_flows[1] = str(existing_node.max_flow.magnitude)
+                if hasattr(existing_node, "design_flow") and existing_node.design_flow:
+                    default_flows[2] = str(existing_node.design_flow.magnitude)
+            min_flow_val = st.text_input("Min Flow", value=default_flows[0])
+            max_flow_val = st.text_input("Max Flow", value=default_flows[1])
+            design_flow_val = st.text_input("Design Flow", value=default_flows[2])
+            power_val = st.text_input(
+                "Power Rating (W)", 
+                value=(
+                    str(existing_node.power_rating.magnitude) 
+                    if existing_node and hasattr(existing_node, "power_rating") and existing_node.power_rating
+                    else ""
+                )
+            )
         with fcol2:
             # TODO: default units should be displayed as well
             flow_unit = st.selectbox(
@@ -536,8 +551,16 @@ def render_node_form(session_state):
         st.write("**Elevation**")
         ecol1, ecol2 = st.columns(2)
         with ecol1:
-            elevation_val = st.text_input("Elevation", value=str(existing_node.elevation.magnitude) if existing_node and hasattr(existing_node, "elevation") else "")
+            elevation_val = st.text_input(
+                "Elevation", 
+                value=(
+                    str(existing_node.elevation.magnitude) 
+                    if existing_node and hasattr(existing_node, "elevation") and existing_node.elevation
+                    else ""
+                )
+            )
         with ecol2:
+            # TODO: default units should be selected as well
             elevation_unit = st.selectbox("Elevation Unit", ["m", "ft"])
         elevation = parse_unit_input(elevation_val, elevation_unit)
         
@@ -550,16 +573,32 @@ def render_node_form(session_state):
         st.write("**Volume**")
         vcol1, vcol2 = st.columns(2)
         with vcol1:
-            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") else "")
+            volume_val = st.text_input(
+                "Volume", 
+                value=(
+                    str(existing_node.volume.magnitude) 
+                    if existing_node and hasattr(existing_node, "volume") and existing_node.volume
+                    else ""
+                )
+            )
         with vcol2:
+            # TODO: default units should be selected as well
             volume_unit = st.selectbox("Volume Unit", ["m**3", "gallon", "L"])
         volume = parse_unit_input(volume_val, volume_unit)
         
         st.write("**Elevation**")
         ecol1, ecol2 = st.columns(2)
         with ecol1:
-            elevation_val = st.text_input("Elevation", value=str(existing_node.elevation.magnitude) if existing_node and hasattr(existing_node, "elevation") else "")
+            elevation_val = st.text_input(
+                "Elevation", 
+                value=(
+                    str(existing_node.elevation.magnitude) 
+                    if existing_node and hasattr(existing_node, "elevation") and existing_node.elevation
+                    else ""
+                )
+            )
         with ecol2:
+            # TODO: default units should be selected as well
             elevation_unit = st.selectbox("Elevation Unit", ["m", "ft"])
         elevation = parse_unit_input(elevation_val, elevation_unit)
         
@@ -570,9 +609,9 @@ def render_node_form(session_state):
         st.write("**Generation Capacity**")
         gcol1, gcol2 = st.columns(2)
         with gcol1:
-            min_gen_val = st.text_input("Min Capacity", value=str(existing_node.min_gen.magnitude) if existing_node and hasattr(existing_node, "min_gen") else "")
-            max_gen_val = st.text_input("Max Capacity", value=str(existing_node.max_gen.magnitude) if existing_node and hasattr(existing_node, "max_gen") else "")
-            design_gen_val = st.text_input("Design Capacity", value=str(existing_node.design_gen.magnitude) if existing_node and hasattr(existing_node, "design_gen") else "")
+            min_gen_val = st.text_input("Min Generation Capacity", value=str(existing_node.min_gen.magnitude) if existing_node and hasattr(existing_node, "min_gen") else "")
+            max_gen_val = st.text_input("Max Generation Capacity", value=str(existing_node.max_gen.magnitude) if existing_node and hasattr(existing_node, "max_gen") else "")
+            design_gen_val = st.text_input("Design Generation Capacity", value=str(existing_node.design_gen.magnitude) if existing_node and hasattr(existing_node, "design_gen") else "")
         with gcol2:
             gen_unit = st.selectbox("Capacity Unit", ["kW", "MW", "W"])
         
@@ -581,10 +620,28 @@ def render_node_form(session_state):
         design_gen = parse_unit_input(design_gen_val, gen_unit)
         
         st.write("**Efficiency**")
-        thermal_efficiency = st.number_input("Thermal Efficiency (0-1)", min_value=0.0, max_value=1.0, 
-                                            value=float(existing_node.thermal_efficiency) if existing_node and hasattr(existing_node, "thermal_efficiency") else 0.0, step=0.01)
-        electrical_efficiency = st.number_input("Electrical Efficiency (0-1)", min_value=0.0, max_value=1.0,
-                                                value=float(existing_node.electrical_efficiency) if existing_node and hasattr(existing_node, "electrical_efficiency") else 0.0, step=0.01)
+        thermal_efficiency = st.number_input(
+            "Thermal Efficiency (0-1)",
+            min_value=0.0, 
+            max_value=1.0, 
+            value=(
+                float(existing_node.thermal_efficiency) 
+                if existing_node and hasattr(existing_node, "thermal_efficiency") and existing_node.thermal_efficiency 
+                else 0.0
+            ),
+            step=0.01,
+        )
+        electrical_efficiency = st.number_input(
+            "Electrical Efficiency (0-1)", 
+            min_value=0.0, 
+            max_value=1.0,
+            value=(
+                float(existing_node.electrical_efficiency) 
+                if existing_node and hasattr(existing_node, "electrical_efficiency") and existing_node.electrical_efficiency
+                else 0.0
+            ), 
+            step=0.01,
+        )
         
         num_units = st.number_input("Number of Units", min_value=1, value=existing_node.num_units if existing_node and hasattr(existing_node, "num_units") else 1)
     
@@ -592,10 +649,19 @@ def render_node_form(session_state):
         st.write("**Flow Parameters**")
         fcol1, fcol2 = st.columns(2)
         with fcol1:
-            min_flow_val = st.text_input("Min Flow", value=str(existing_node.min_flow.magnitude) if existing_node and hasattr(existing_node, "min_flow") else "")
-            max_flow_val = st.text_input("Max Flow", value=str(existing_node.max_flow.magnitude) if existing_node and hasattr(existing_node, "max_flow") else "")
-            design_flow_val = st.text_input("Design Flow", value=str(existing_node.design_flow.magnitude) if existing_node and hasattr(existing_node, "design_flow") else "")
+            default_flows = ["", "", ""]
+            if existing_node:
+                if hasattr(existing_node, "min_flow") and existing_node.min_flow:
+                    default_flows[0] = str(existing_node.min_flow.magnitude)
+                if hasattr(existing_node, "max_flow") and existing_node.max_flow:
+                    default_flows[1] = str(existing_node.max_flow.magnitude)
+                if hasattr(existing_node, "design_flow") and existing_node.design_flow:
+                    default_flows[2] = str(existing_node.design_flow.magnitude)
+            min_flow_val = st.text_input("Min Flow", value=default_flows[0])
+            max_flow_val = st.text_input("Max Flow", value=default_flows[1])
+            design_flow_val = st.text_input("Design Flow", value=default_flows[2])
         with fcol2:
+            # TODO: default units should be selected as well
             flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
         
         min_flow = parse_unit_input(min_flow_val, flow_unit)
@@ -605,25 +671,41 @@ def render_node_form(session_state):
         st.write("**Volume**")
         vcol1, vcol2 = st.columns(2)
         with vcol1:
-            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") else "")
+            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") and existing_node.volume else "")
         with vcol2:
+            # TODO: default units should be selected as well
             volume_unit = st.selectbox("Volume Unit", ["m**3", "gallon", "L"])
         volume = parse_unit_input(volume_val, volume_unit)
         
         num_units = st.number_input("Number of Units", min_value=1, value=existing_node.num_units if existing_node and hasattr(existing_node, "num_units") else 1)
         
-        digester_type_str = st.selectbox("Digester Type", ["Mesophilic", "Thermophilic"],
-                                        index=["Mesophilic", "Thermophilic"].index(existing_node.digester_type.name) if existing_node and hasattr(existing_node, "digester_type") else 0)
+        digester_type_str = st.selectbox(
+            "Digester Type", ["Mesophilic", "Thermophilic"],
+            index=(
+                ["Mesophilic", "Thermophilic"].index(existing_node.digester_type.name) 
+                if existing_node and hasattr(existing_node, "digester_type") 
+                else 0
+            )
+        )
         digester_type = DigesterType[digester_type_str]
     
     elif node_type in ["Disinfection", "Chlorination", "UVSystem"]:
         st.write("**Flow Parameters**")
         fcol1, fcol2 = st.columns(2)
         with fcol1:
-            min_flow_val = st.text_input("Min Flow", value=str(existing_node.min_flow.magnitude) if existing_node and hasattr(existing_node, "min_flow") else "")
-            max_flow_val = st.text_input("Max Flow", value=str(existing_node.max_flow.magnitude) if existing_node and hasattr(existing_node, "max_flow") else "")
-            design_flow_val = st.text_input("Design Flow", value=str(existing_node.design_flow.magnitude) if existing_node and hasattr(existing_node, "design_flow") else "")
+            default_flows = ["", "", ""]
+            if existing_node:
+                if hasattr(existing_node, "min_flow") and existing_node.min_flow:
+                    default_flows[0] = str(existing_node.min_flow.magnitude)
+                if hasattr(existing_node, "max_flow") and existing_node.max_flow:
+                    default_flows[1] = str(existing_node.max_flow.magnitude)
+                if hasattr(existing_node, "design_flow") and existing_node.design_flow:
+                    default_flows[2] = str(existing_node.design_flow.magnitude)
+            min_flow_val = st.text_input("Min Flow", value=default_flows[0])
+            max_flow_val = st.text_input("Max Flow", value=default_flows[1])
+            design_flow_val = st.text_input("Design Flow", value=default_flows[2])
         with fcol2:
+            # TODO: default units should be selected as well
             flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
         
         min_flow = parse_unit_input(min_flow_val, flow_unit)
@@ -633,8 +715,9 @@ def render_node_form(session_state):
         st.write("**Volume**")
         vcol1, vcol2 = st.columns(2)
         with vcol1:
-            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") else "")
+            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") and existing_node.volume else "")
         with vcol2:
+            # TODO: default units should be selected as well
             volume_unit = st.selectbox("Volume Unit", ["m**3", "gallon", "L"])
         volume = parse_unit_input(volume_val, volume_unit)
         
@@ -644,9 +727,10 @@ def render_node_form(session_state):
             st.write("**UV-Specific Parameters**")
             ucol1, ucol2 = st.columns(2)
             with ucol1:
-                intensity_val = st.text_input("Intensity", value=str(existing_node.intensity.magnitude) if existing_node and hasattr(existing_node, "intensity") else "")
-                area_val = st.text_input("Area", value=str(existing_node.area.magnitude) if existing_node and hasattr(existing_node, "area") else "")
+                intensity_val = st.text_input("Intensity", value=str(existing_node.intensity.magnitude) if existing_node and hasattr(existing_node, "intensity") and existing_node.intensity else "")
+                area_val = st.text_input("Area", value=str(existing_node.area.magnitude) if existing_node and hasattr(existing_node, "area") and existing_node.area else "")
             with ucol2:
+                # TODO: default units should be selected as well
                 intensity_unit = st.selectbox("Intensity Unit", ["mW/cm**2", "W/m**2"])
                 area_unit = st.selectbox("Area Unit", ["m**2", "ft**2"])
             
@@ -657,8 +741,9 @@ def render_node_form(session_state):
             st.write("**Dosing & Residence Time**")
             rcol1, rcol2 = st.columns(2)
             with rcol1:
-                residence_time_val = st.text_input("Residence Time", value=str(existing_node.residence_time.magnitude) if existing_node and hasattr(existing_node, "residence_time") else "")
+                residence_time_val = st.text_input("Residence Time", value=str(existing_node.residence_time.magnitude) if existing_node and hasattr(existing_node, "residence_time") and existing_node.residence_time else "")
             with rcol2:
+                # TODO: default units should be selected as well
                 residence_unit = st.selectbox("Residence Time Unit", ["minute", "hour", "day"])
             
             residence_time = parse_unit_input(residence_time_val, residence_unit)
@@ -667,10 +752,19 @@ def render_node_form(session_state):
         st.write("**Flow Parameters**")
         fcol1, fcol2 = st.columns(2)
         with fcol1:
-            min_flow_val = st.text_input("Min Flow", value=str(existing_node.min_flow.magnitude) if existing_node and hasattr(existing_node, "min_flow") else "")
-            max_flow_val = st.text_input("Max Flow", value=str(existing_node.max_flow.magnitude) if existing_node and hasattr(existing_node, "max_flow") else "")
-            design_flow_val = st.text_input("Design Flow", value=str(existing_node.design_flow.magnitude) if existing_node and hasattr(existing_node, "design_flow") else "")
+            default_flows = ["", "", ""]
+            if existing_node:
+                if hasattr(existing_node, "min_flow") and existing_node.min_flow:
+                    default_flows[0] = str(existing_node.min_flow.magnitude)
+                if hasattr(existing_node, "max_flow") and existing_node.max_flow:
+                    default_flows[1] = str(existing_node.max_flow.magnitude)
+                if hasattr(existing_node, "design_flow") and existing_node.design_flow:
+                    default_flows[2] = str(existing_node.design_flow.magnitude)
+            min_flow_val = st.text_input("Min Flow", value=default_flows[0])
+            max_flow_val = st.text_input("Max Flow", value=default_flows[1])
+            design_flow_val = st.text_input("Design Flow", value=default_flows[2])
         with fcol2:
+            # TODO: default units should be selected as well
             flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
         
         min_flow = parse_unit_input(min_flow_val, flow_unit)
@@ -680,7 +774,7 @@ def render_node_form(session_state):
         st.write("**Volume**")
         vcol1, vcol2 = st.columns(2)
         with vcol1:
-            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") else "")
+            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") and existing_node.volume else "")
         with vcol2:
             volume_unit = st.selectbox("Volume Unit", ["m**3", "gallon", "L"])
         volume = parse_unit_input(volume_val, volume_unit)
@@ -694,8 +788,9 @@ def render_node_form(session_state):
             
             pcol1, pcol2 = st.columns(2)
             with pcol1:
-                permeability_val = st.text_input("Permeability", value=str(existing_node.permeability.magnitude) if existing_node and hasattr(existing_node, "permeability") else "")
+                permeability_val = st.text_input("Permeability", value=str(existing_node.permeability.magnitude) if existing_node and hasattr(existing_node, "permeability") and existing_node.permeability else "")
             with pcol2:
+                # TODO: default units should be selected as well
                 permeability_unit = st.selectbox("Permeability Unit", ["L/m**2/hour/bar", "gal/ft**2/day/psi"])
             
             permeability = parse_unit_input(permeability_val, permeability_unit)
@@ -703,10 +798,19 @@ def render_node_form(session_state):
         st.write("**Flow Parameters**")
         fcol1, fcol2 = st.columns(2)
         with fcol1:
-            min_flow_val = st.text_input("Min Flow", value=str(existing_node.min_flow.magnitude) if existing_node and hasattr(existing_node, "min_flow") else "")
-            max_flow_val = st.text_input("Max Flow", value=str(existing_node.max_flow.magnitude) if existing_node and hasattr(existing_node, "max_flow") else "")
-            design_flow_val = st.text_input("Design Flow", value=str(existing_node.design_flow.magnitude) if existing_node and hasattr(existing_node, "design_flow") else "")
+            default_flows = ["", "", ""]
+            if existing_node:
+                if hasattr(existing_node, "min_flow") and existing_node.min_flow:
+                    default_flows[0] = str(existing_node.min_flow.magnitude)
+                if hasattr(existing_node, "max_flow") and existing_node.max_flow:
+                    default_flows[1] = str(existing_node.max_flow.magnitude)
+                if hasattr(existing_node, "design_flow") and existing_node.design_flow:
+                    default_flows[2] = str(existing_node.design_flow.magnitude)
+            min_flow_val = st.text_input("Min Flow", value=default_flows[0])
+            max_flow_val = st.text_input("Max Flow", value=default_flows[1])
+            design_flow_val = st.text_input("Design Flow", value=default_flows[2])
         with fcol2:
+            # TODO: default units should be selected as well
             flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
         
         min_flow = parse_unit_input(min_flow_val, flow_unit)
@@ -716,8 +820,9 @@ def render_node_form(session_state):
         st.write("**Volume**")
         vcol1, vcol2 = st.columns(2)
         with vcol1:
-            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") else "")
+            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") and existing_node.volume else "")
         with vcol2:
+            # TODO: default units should be selected as well
             volume_unit = st.selectbox("Volume Unit", ["m**3", "gallon", "L"])
         volume = parse_unit_input(volume_val, volume_unit)
         
@@ -731,10 +836,19 @@ def render_node_form(session_state):
         st.write("**Flow Parameters**")
         fcol1, fcol2 = st.columns(2)
         with fcol1:
-            min_flow_val = st.text_input("Min Flow", value=str(existing_node.min_flow.magnitude) if existing_node and hasattr(existing_node, "min_flow") else "")
-            max_flow_val = st.text_input("Max Flow", value=str(existing_node.max_flow.magnitude) if existing_node and hasattr(existing_node, "max_flow") else "")
-            design_flow_val = st.text_input("Design Flow", value=str(existing_node.design_flow.magnitude) if existing_node and hasattr(existing_node, "design_flow") else "")
+            default_flows = ["", "", ""]
+            if existing_node:
+                if hasattr(existing_node, "min_flow") and existing_node.min_flow:
+                    default_flows[0] = str(existing_node.min_flow.magnitude)
+                if hasattr(existing_node, "max_flow") and existing_node.max_flow:
+                    default_flows[1] = str(existing_node.max_flow.magnitude)
+                if hasattr(existing_node, "design_flow") and existing_node.design_flow:
+                    default_flows[2] = str(existing_node.design_flow.magnitude)
+            min_flow_val = st.text_input("Min Flow", value=default_flows[0])
+            max_flow_val = st.text_input("Max Flow", value=default_flows[1])
+            design_flow_val = st.text_input("Design Flow", value=default_flows[2])
         with fcol2:
+            # TODO: default units should be selected as well
             flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
         
         min_flow = parse_unit_input(min_flow_val, flow_unit)
@@ -744,7 +858,7 @@ def render_node_form(session_state):
         st.write("**Volume**")
         vcol1, vcol2 = st.columns(2)
         with vcol1:
-            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") else "")
+            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") and existing_node.volume else "")
         with vcol2:
             volume_unit = st.selectbox("Volume Unit", ["m**3", "gallon", "L"])
         volume = parse_unit_input(volume_val, volume_unit)
@@ -755,8 +869,16 @@ def render_node_form(session_state):
             st.write("**Settling Time**")
             scol1, scol2 = st.columns(2)
             with scol1:
-                settling_time_val = st.text_input("Settling Time", value=str(existing_node.settling_time.magnitude) if existing_node and hasattr(existing_node, "settling_time") else "")
+                settling_time_val = st.text_input(
+                    "Settling Time", 
+                    value=(
+                        str(existing_node.settling_time.magnitude) 
+                        if existing_node and hasattr(existing_node, "settling_time") and existing_node.settling_time
+                        else ""
+                    )
+                )
             with scol2:
+                # TODO: default units should be selected as well
                 settling_unit = st.selectbox("Settling Time Unit", ["minute", "hour", "day"])
             
             settling_time = parse_unit_input(settling_time_val, settling_unit)
@@ -765,10 +887,19 @@ def render_node_form(session_state):
         st.write("**Flow Parameters**")
         fcol1, fcol2 = st.columns(2)
         with fcol1:
-            min_flow_val = st.text_input("Min Flow", value=str(existing_node.min_flow.magnitude) if existing_node and hasattr(existing_node, "min_flow") else "")
-            max_flow_val = st.text_input("Max Flow", value=str(existing_node.max_flow.magnitude) if existing_node and hasattr(existing_node, "max_flow") else "")
-            design_flow_val = st.text_input("Design Flow", value=str(existing_node.design_flow.magnitude) if existing_node and hasattr(existing_node, "design_flow") else "")
+            default_flows = ["", "", ""]
+            if existing_node:
+                if hasattr(existing_node, "min_flow") and existing_node.min_flow:
+                    default_flows[0] = str(existing_node.min_flow.magnitude)
+                if hasattr(existing_node, "max_flow") and existing_node.max_flow:
+                    default_flows[1] = str(existing_node.max_flow.magnitude)
+                if hasattr(existing_node, "design_flow") and existing_node.design_flow:
+                    default_flows[2] = str(existing_node.design_flow.magnitude)
+            min_flow_val = st.text_input("Min Flow", value=default_flows[0])
+            max_flow_val = st.text_input("Max Flow", value=default_flows[1])
+            design_flow_val = st.text_input("Design Flow", value=default_flows[2])
         with fcol2:
+            # TODO: default units should be selected as well
             flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
         
         min_flow = parse_unit_input(min_flow_val, flow_unit)
@@ -778,7 +909,7 @@ def render_node_form(session_state):
         st.write("**Volume**")
         vcol1, vcol2 = st.columns(2)
         with vcol1:
-            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") else "")
+            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") and existing_node.volume else "")
         with vcol2:
             volume_unit = st.selectbox("Volume Unit", ["m**3", "gallon", "L"])
         volume = parse_unit_input(volume_val, volume_unit)
@@ -789,10 +920,19 @@ def render_node_form(session_state):
         st.write("**Flow Parameters**")
         fcol1, fcol2 = st.columns(2)
         with fcol1:
-            min_flow_val = st.text_input("Min Flow", value=str(existing_node.min_flow.magnitude) if existing_node and hasattr(existing_node, "min_flow") else "")
-            max_flow_val = st.text_input("Max Flow", value=str(existing_node.max_flow.magnitude) if existing_node and hasattr(existing_node, "max_flow") else "")
-            design_flow_val = st.text_input("Design Flow", value=str(existing_node.design_flow.magnitude) if existing_node and hasattr(existing_node, "design_flow") else "")
+            default_flows = ["", "", ""]
+            if existing_node:
+                if hasattr(existing_node, "min_flow") and existing_node.min_flow:
+                    default_flows[0] = str(existing_node.min_flow.magnitude)
+                if hasattr(existing_node, "max_flow") and existing_node.max_flow:
+                    default_flows[1] = str(existing_node.max_flow.magnitude)
+                if hasattr(existing_node, "design_flow") and existing_node.design_flow:
+                    default_flows[2] = str(existing_node.design_flow.magnitude)
+            min_flow_val = st.text_input("Min Flow", value=default_flows[0])
+            max_flow_val = st.text_input("Max Flow", value=default_flows[1])
+            design_flow_val = st.text_input("Design Flow", value=default_flows[2])
         with fcol2:
+            # TODO: default units should be selected as well
             flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
         
         min_flow = parse_unit_input(min_flow_val, flow_unit)
@@ -802,8 +942,9 @@ def render_node_form(session_state):
         st.write("**Volume**")
         vcol1, vcol2 = st.columns(2)
         with vcol1:
-            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") else "")
+            volume_val = st.text_input("Volume", value=str(existing_node.volume.magnitude) if existing_node and hasattr(existing_node, "volume") and existing_node.volume else "")
         with vcol2:
+            # TODO: default units should be selected as well
             volume_unit = st.selectbox("Volume Unit", ["m**3", "gallon", "L"])
         volume = parse_unit_input(volume_val, volume_unit)
         
@@ -813,10 +954,32 @@ def render_node_form(session_state):
         st.write("**Energy Storage Parameters**")
         ecol1, ecol2 = st.columns(2)
         with ecol1:
-            energy_capacity_val = st.text_input("Energy Capacity", value=str(existing_node.energy_capacity.magnitude) if existing_node and hasattr(existing_node, "energy_capacity") else "")
-            charge_rate_val = st.text_input("Charge Rate", value=str(existing_node.charge_rate.magnitude) if existing_node and hasattr(existing_node, "charge_rate") else "")
-            discharge_rate_val = st.text_input("Discharge Rate", value=str(existing_node.discharge_rate.magnitude) if existing_node and hasattr(existing_node, "discharge_rate") else "")
+            energy_capacity_val = st.text_input(
+                "Energy Capacity", 
+                value=(
+                    str(existing_node.energy_capacity.magnitude) 
+                    if existing_node and hasattr(existing_node, "energy_capacity") and existing_node.energy_capacity
+                    else ""
+                )
+            )
+            charge_rate_val = st.text_input(
+                "Charge Rate", 
+                value=(
+                    str(existing_node.charge_rate.magnitude) 
+                    if existing_node and hasattr(existing_node, "charge_rate") and existing_node.charge_rate
+                    else ""
+                )
+            )
+            discharge_rate_val = st.text_input(
+                "Discharge Rate", 
+                value=(
+                    str(existing_node.discharge_rate.magnitude) 
+                    if existing_node and hasattr(existing_node, "discharge_rate") and existing_node.discharge_rate
+                    else ""
+                )
+            )
         with ecol2:
+            # TODO: default units should be selected as well
             energy_unit = st.selectbox("Energy Unit", ["kWh", "MWh", "Wh"])
             rate_unit = st.selectbox("Rate Unit", ["kW", "MW", "W"])
         
@@ -835,7 +998,7 @@ def render_node_form(session_state):
             st.write("**Elevation**")
             ecol1, ecol2 = st.columns(2)
             with ecol1:
-                elevation_val = st.text_input("Elevation", value=str(existing_node.elevation.magnitude) if existing_node and hasattr(existing_node, "elevation") else "")
+                elevation_val = st.text_input("Elevation", value=str(existing_node.elevation.magnitude) if existing_node and hasattr(existing_node, "elevation") and existing_node.elevation else "")
             with ecol2:
                 elevation_unit = st.selectbox("Elevation Unit", ["m", "ft"])
             elevation = parse_unit_input(elevation_val, elevation_unit)
@@ -844,10 +1007,19 @@ def render_node_form(session_state):
             st.write("**Flow Parameters**")
             fcol1, fcol2 = st.columns(2)
             with fcol1:
-                min_flow_val = st.text_input("Min Flow", value=str(existing_node.min_flow.magnitude) if existing_node and hasattr(existing_node, "min_flow") else "")
-                max_flow_val = st.text_input("Max Flow", value=str(existing_node.max_flow.magnitude) if existing_node and hasattr(existing_node, "max_flow") else "")
-                design_flow_val = st.text_input("Design Flow", value=str(existing_node.design_flow.magnitude) if existing_node and hasattr(existing_node, "design_flow") else "")
+                default_flows = ["", "", ""]
+                if existing_node:
+                    if hasattr(existing_node, "min_flow") and existing_node.min_flow:
+                        default_flows[0] = str(existing_node.min_flow.magnitude)
+                    if hasattr(existing_node, "max_flow") and existing_node.max_flow:
+                        default_flows[1] = str(existing_node.max_flow.magnitude)
+                    if hasattr(existing_node, "design_flow") and existing_node.design_flow:
+                        default_flows[2] = str(existing_node.design_flow.magnitude)
+                min_flow_val = st.text_input("Min Flow", value=default_flows[0])
+                max_flow_val = st.text_input("Max Flow", value=default_flows[1])
+                design_flow_val = st.text_input("Design Flow", value=default_flows[2])
             with fcol2:
+                # TODO: default units should be selected as well
                 flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
             
             min_flow = parse_unit_input(min_flow_val, flow_unit)
@@ -871,8 +1043,16 @@ def render_node_form(session_state):
         st.write("**Diameter**")
         dcol1, dcol2 = st.columns(2)
         with dcol1:
-            diameter_val = st.text_input("Diameter", value=str(existing_node.diameter.magnitude) if (existing_node and hasattr(existing_node, "diameter")) else "")
+            diameter_val = st.text_input(
+                "Diameter", 
+                value=(
+                    str(existing_node.diameter.magnitude) 
+                    if existing_node and hasattr(existing_node, "diameter") and existing_node.diameter
+                    else ""
+                )
+            )
         with dcol2:
+            # TODO: default units should be selected as well
             diameter_unit = st.selectbox("Diameter Unit", ["mm", "inch", "m"])
         
         diameter = parse_unit_input(diameter_val, diameter_unit)
@@ -885,7 +1065,7 @@ def render_node_form(session_state):
                     "Pressure Setting", 
                     value=(
                         str(existing_node.pressure_setting.magnitude) 
-                        if (existing_node and hasattr(existing_node, "pressure_setting")) 
+                        if existing_node and hasattr(existing_node, "pressure_setting") and existing_node.pressure_setting 
                         else ""
                     )
                 )

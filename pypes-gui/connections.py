@@ -26,7 +26,7 @@ def render_connections_tab(session_state):
 
 def render_connection_list(session_state):
     """Render list of existing connections"""
-    search = st.text_input("Search connections", "")
+    search = st.text_input("Search connections", "", key="search_connections")
     st.subheader("Top Level Connections")
     if session_state.network.connections:
         filtered_conns = {
@@ -63,12 +63,13 @@ def render_connection_list(session_state):
                     st.write(f"**Friction:** {conn_obj.friction}")
                 
                 btn_col1, btn_col2 = st.columns(2)
+                print("conn_id:", conn_id)
                 with btn_col1:
-                    if st.button(f"Edit", key=f"edit_conn_{conn_id}"):
+                    if st.button(f"Edit", key=f"edit_top_conn_{conn_id}"):
                         session_state.selected_connection = conn_id
                         st.rerun()
                 with btn_col2:
-                    if st.button(f"Delete", key=f"del_conn_{conn_id}"):
+                    if st.button(f"Delete", key=f"del_top_conn_{conn_id}"):
                         del session_state.network.connections[conn_id]
                         st.success(f"Deleted: {conn_id}")
                         st.rerun()
@@ -111,12 +112,13 @@ def render_connection_list(session_state):
                     st.write(f"**Friction:** {conn_obj.friction}")
                 
                 btn_col1, btn_col2 = st.columns(2)
+                print("conn_id:", conn_id)
                 with btn_col1:
-                    if st.button(f"Edit", key=f"edit_conn_{conn_id}"):
+                    if st.button(f"Edit", key=f"edit_nested_conn_{conn_id}"):
                         session_state.selected_connection = conn_id
                         st.rerun()
                 with btn_col2:
-                    if st.button(f"Delete", key=f"del_conn_{conn_id}"):
+                    if st.button(f"Delete", key=f"del_nested_conn_{conn_id}"):
                         del session_state.network.connections[conn_id]
                         st.success(f"Deleted: {conn_id}")
                         st.rerun()
@@ -136,7 +138,8 @@ def render_connection_form(session_state):
     
     existing_conn = None
     if session_state.selected_connection:
-        existing_conn = session_state.network.connections[session_state.selected_connection]
+        all_conns = {conn.id: conn for conn in session_state.network.get_all_connections(recurse=True)}
+        existing_conn = all_conns[session_state.selected_connection]
     
     # Connection ID and Type
     conn_types = get_connection_types()
@@ -151,7 +154,7 @@ def render_connection_form(session_state):
     
     # Source and Destination
     st.write("**Nodes**")
-    node_ids = [""] + list(session_state.network.nodes.keys())
+    node_ids = [""] + [node.id for node in session_state.network.get_all_nodes(recurse=True)]
     
     default_source = ""
     default_dest = ""
