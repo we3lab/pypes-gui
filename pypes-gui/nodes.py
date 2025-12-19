@@ -8,12 +8,7 @@ from pype_schema import node, tag
 from pype_schema.utils import ContentsType, DigesterType, PumpType
 
 # local imports
-from utils import get_node_types, parse_unit_input, get_contents_enum
-
-def remove_keys(original: dict, keys_to_remove: dict):
-    "Remove the keys of one dictionary from another dictionary"
-    keys_to_keep = set(original.keys()) - set(keys_to_remove.keys())
-    return {k: original[k] for k in keys_to_keep}
+from utils import get_node_types, parse_unit_input, get_contents_enum, remove_keys
 
 
 def render_nodes_tab(session_state):
@@ -167,10 +162,9 @@ def render_nested_connections_selector(session_state, existing_connections=None,
 
 def render_node_list(session_state):
     """Render list of existing nodes"""
+    search = st.text_input("Search nodes", "")
     st.subheader("Top Level Nodes")
     if session_state.network.nodes:
-        search = st.text_input("Search nodes", "")
-        
         filtered_nodes = {
             k: v for k, v in session_state.network.nodes.items()
             if search.lower() in k.lower() or search.lower() in type(v).__name__.lower()
@@ -290,14 +284,14 @@ def render_node_list(session_state):
     else:
         st.info("No nodes yet. Add one to get started!")
     
-    lower_level_nodes = {
+    all_nodes = {
         node.id: node for node in session_state.network.get_all_nodes(recurse=True)
         if search.lower() in node.id.lower() or search.lower() in type(node).__name__.lower()
     }
-    lower_level_nodes = remove_keys(lower_level_nodes, filtered_nodes)
-    st.subheader("Lower Level Nodes")
-    if lower_level_nodes:
-        for node_id, node_obj in lower_level_nodes.items():
+    nested_nodes = remove_keys(all_nodes, filtered_nodes)
+    st.subheader("Nested Nodes")
+    if nested_nodes:
+        for node_id, node_obj in nested_nodes.items():
             node_type = type(node_obj).__name__
             
             with st.expander(f"**{node_id}** ({node_type})"):
@@ -409,7 +403,7 @@ def render_node_list(session_state):
                         st.success(f"Deleted: {node_id}")
                         st.rerun()
     else:
-        st.info("No lower level nodes yet. Add one to get started!")
+        st.info("No nested nodes yet. Add one to get started!")
 
 
 def render_node_form(session_state):
@@ -528,7 +522,11 @@ def render_node_form(session_state):
             design_flow_val = st.text_input("Design Flow", value=str(existing_node.design_flow.magnitude) if existing_node and hasattr(existing_node, "design_flow") else "")
             power_val = st.text_input("Power Rating (W)", value=str(existing_node.power_rating.magnitude) if existing_node and hasattr(existing_node, "power_rating") else "")
         with fcol2:
-            flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
+            # TODO: default units should be displayed as well
+            flow_unit = st.selectbox(
+                "Flow Unit", 
+                ["m**3/day", "MGD", "GPM", "L/s"],
+            )
         
         min_flow = parse_unit_input(min_flow_val, flow_unit)
         max_flow = parse_unit_input(max_flow_val, flow_unit)

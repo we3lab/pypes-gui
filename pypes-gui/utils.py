@@ -3,6 +3,12 @@ from pype_schema.units import u
 from pype_schema import utils, tag
 
 
+def remove_keys(original: dict, keys_to_remove: dict):
+    "Remove the keys of one dictionary from another dictionary"
+    keys_to_keep = set(original.keys()) - set(keys_to_remove.keys())
+    return {k: original[k] for k in keys_to_keep}
+
+
 def parse_unit_input(value_str, unit_str):
     """Parse user input with units"""
     try:
@@ -15,9 +21,11 @@ def parse_unit_input(value_str, unit_str):
     except:
         return None
 
+
 def get_contents_enum():
     """Get all available ContentsType values"""
     return [member.name for member in utils.ContentsType]
+
 
 def get_node_types():
     """Get all available node types"""
@@ -30,9 +38,11 @@ def get_node_types():
         "Disinfection", "Chlorination", "UVSystem", "Flaring", 
     ]
 
+
 def get_connection_types():
     """Get all available connection types"""
     return ["Pipe", "Wire", "Wireless", "Delivery"]
+
 
 def get_tag_types():
     """Get all available TagType values"""
