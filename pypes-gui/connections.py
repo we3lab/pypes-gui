@@ -8,7 +8,14 @@ from pype_schema import connection
 from pype_schema.utils import ContentsType
 
 # local imports
-from utils import get_connection_types, parse_unit_input, get_contents_enum, remove_keys
+from utils import (
+    get_connection_types, 
+    parse_unit_input, 
+    get_contents_enum,
+    remove_keys,
+    quantity_to_unit_str,
+    get_unit_index
+)
 
 
 def render_connections_tab(session_state):
@@ -59,6 +66,14 @@ def render_connection_list(session_state):
                     st.write(f"**Min Flow:** {conn_obj.min_flow}")
                 if hasattr(conn_obj, "max_flow") and conn_obj.max_flow:
                     st.write(f"**Max Flow:** {conn_obj.max_flow}")
+                if hasattr(conn_obj, "design_flow") and conn_obj.design_flow:
+                    st.write(f"**Design Flow:** {conn_obj.design_flow}")
+                if hasattr(conn_obj, "min_pressure") and conn_obj.min_pressure:
+                    st.write(f"**Min Pressure:** {conn_obj.min_pressure}")
+                if hasattr(conn_obj, "max_pressure") and conn_obj.max_pressure:
+                    st.write(f"**Max Pressure:** {conn_obj.max_pressure}")
+                if hasattr(conn_obj, "design_pressure") and conn_obj.design_pressure:
+                    st.write(f"**Design Pressure:** {conn_obj.design_pressure}")
                 if hasattr(conn_obj, "friction") and conn_obj.friction:
                     st.write(f"**Friction:** {conn_obj.friction}")
                 
@@ -107,6 +122,14 @@ def render_connection_list(session_state):
                     st.write(f"**Min Flow:** {conn_obj.min_flow}")
                 if hasattr(conn_obj, "max_flow") and conn_obj.max_flow:
                     st.write(f"**Max Flow:** {conn_obj.max_flow}")
+                if hasattr(conn_obj, "design_flow") and conn_obj.design_flow:
+                    st.write(f"**Design Flow:** {conn_obj.design_flow}")
+                if hasattr(conn_obj, "min_pressure") and conn_obj.min_pressure:
+                    st.write(f"**Min Pressure:** {conn_obj.min_pressure}")
+                if hasattr(conn_obj, "max_pressure") and conn_obj.max_pressure:
+                    st.write(f"**Max Pressure:** {conn_obj.max_pressure}")
+                if hasattr(conn_obj, "design_pressure") and conn_obj.design_pressure:
+                    st.write(f"**Design Pressure:** {conn_obj.design_pressure}")
                 if hasattr(conn_obj, "friction") and conn_obj.friction:
                     st.write(f"**Friction:** {conn_obj.friction}")
                 
@@ -168,7 +191,6 @@ def render_connection_form(session_state):
         if hasattr(existing_conn, "entry_point") and existing_conn.entry_point:
             default_entry = existing_conn.entry_point.id
     
-    # TODO: add entry_point and exit_point to UI
     exit_point = entry_point = None
 
     ncol1, ncol2 = st.columns(2)
@@ -217,7 +239,6 @@ def render_connection_form(session_state):
     # Type-specific parameters
     if conn_type == "Pipe":
         st.write("**Pipe Parameters**")
-        
         # Diameter
         dcol1, dcol2 = st.columns(2)
         with dcol1:
@@ -227,23 +248,69 @@ def render_connection_form(session_state):
                     str(existing_conn.diameter.magnitude) 
                     if existing_conn and hasattr(existing_conn, "diameter") and existing_conn.diameter
                     else ""
-                )
+                ),
+                key=f"diameter_{conn_id}"
             )
         with dcol2:
-            # TODO: default units should be selected as well
-            diameter_unit = st.selectbox("Diameter Unit", ["m", "inch", "mm"])
+            diameter_units = ["m", "inch", "mm"]
+            diameter_unit = st.selectbox(
+                "Diameter Unit",
+                diameter_units,
+                index=get_unit_index(
+                    existing_conn.diameter if existing_conn and hasattr(existing_conn, "diameter") else None,
+                    diameter_units,
+                    fallback=0,
+                ),
+                key=f"diameter_unit_{conn_id}"
+            )
         diameter = parse_unit_input(diameter_val, diameter_unit)
         
         # Flow
         st.write("**Flow Parameters**")
         fcol1, fcol2 = st.columns(2)
         with fcol1:
-            min_flow_val = st.text_input("Min Flow", value=str(existing_conn.min_flow.magnitude) if existing_conn and hasattr(existing_conn, "min_flow") and existing_conn.min_flow else "")
-            max_flow_val = st.text_input("Max Flow", value=str(existing_conn.max_flow.magnitude) if existing_conn and hasattr(existing_conn, "max_flow") and existing_conn.max_flow else "")
-            design_flow_val = st.text_input("Design Flow", value=str(existing_conn.design_flow.magnitude) if existing_conn and hasattr(existing_conn, "design_flow") and existing_conn.design_flow else "")
+            min_flow_val = st.text_input(
+                "Min Flow", 
+                value=(
+                    str(existing_conn.min_flow.magnitude) 
+                    if existing_conn and hasattr(existing_conn, "min_flow") and existing_conn.min_flow 
+                    else ""
+                ),
+                key="min_flow_{conn_id}",
+            )
+            max_flow_val = st.text_input(
+                "Max Flow", 
+                value=(
+                    str(existing_conn.max_flow.magnitude) 
+                    if existing_conn and hasattr(existing_conn, "max_flow") and existing_conn.max_flow 
+                    else ""
+                ),
+                key="max_flow_{conn_id}",
+            )
+            design_flow_val = st.text_input(
+                "Design Flow", 
+                value=(
+                    str(existing_conn.design_flow.magnitude) 
+                    if existing_conn and hasattr(existing_conn, "design_flow") and existing_conn.design_flow 
+                    else ""
+                ),
+                key="design_flow_{conn_id}",
+            )
         with fcol2:
-            # TODO: default units should be selected as well
-            flow_unit = st.selectbox("Flow Unit", ["m**3/day", "MGD", "GPM", "L/s"])
+            flow_units = ["m**3/day", "MGD", "GPM", "L/s"]
+            default_flow_quantity = None
+            if existing_conn and hasattr(existing_conn, "min_flow") and existing_conn.min_flow:
+                default_flow_quantity = existing_conn.min_flow
+            elif existing_conn and hasattr(existing_conn, "max_flow") and existing_conn.max_flow:
+                default_flow_quantity = existing_conn.max_flow
+            elif existing_conn and hasattr(existing_conn, "design_flow") and existing_conn.design_flow:
+                default_flow_quantity = existing_conn.design_flow
+            flow_unit = st.selectbox(
+                "Flow Unit",
+                flow_units,
+                index=get_unit_index(default_flow_quantity, flow_units, fallback=0),
+                key=f"flow_unit_{conn_id}"
+            )
         
         min_flow = parse_unit_input(min_flow_val, flow_unit)
         max_flow = parse_unit_input(max_flow_val, flow_unit)
@@ -253,12 +320,48 @@ def render_connection_form(session_state):
         st.write("**Pressure Parameters**")
         pcol1, pcol2 = st.columns(2)
         with pcol1:
-            min_pres_val = st.text_input("Min Pressure", value=str(existing_conn.min_pres.magnitude) if existing_conn and hasattr(existing_conn, "min_pres") and existing_conn.min_pres else "")
-            max_pres_val = st.text_input("Max Pressure", value=str(existing_conn.max_pres.magnitude) if existing_conn and hasattr(existing_conn, "max_pres") and existing_conn.max_pres else "")
-            design_pres_val = st.text_input("Design Pressure", value=str(existing_conn.design_pres.magnitude) if existing_conn and hasattr(existing_conn, "design_pres") and existing_conn.design_pres else "")
+            min_pres_val = st.text_input(
+                "Min Pressure", 
+                value=(
+                    str(existing_conn.min_pressure.magnitude) 
+                    if existing_conn and hasattr(existing_conn, "min_pressure") and existing_conn.min_pressure 
+                    else ""
+                ),
+                key=f"min_pres_{conn_id}"
+            )
+            max_pres_val = st.text_input(
+                "Max Pressure", 
+                value=(
+                    str(existing_conn.max_pressure.magnitude) 
+                    if existing_conn and hasattr(existing_conn, "max_pressure") and existing_conn.max_pressure 
+                    else ""
+                ),
+                key=f"max_pres_{conn_id}"
+            )
+            design_pres_val = st.text_input(
+                "Design Pressure", 
+                value=(
+                    str(existing_conn.design_pressure.magnitude) 
+                    if existing_conn and hasattr(existing_conn, "design_pressure") and existing_conn.design_pressure
+                    else ""
+                ),
+                key=f"design_pres_{conn_id}"
+            )
         with pcol2:
-            # TODO: default units should be selected as well
-            pres_unit = st.selectbox("Pressure Unit", ["Pa", "psi", "bar"])
+            pres_units = ["Pa", "pound_force_per_square_inch", "bar"]
+            default_pres_quantity = None
+            if existing_conn and hasattr(existing_conn, "min_pressure") and existing_conn.min_pressure:
+                default_pres_quantity = existing_conn.min_pressure
+            elif existing_conn and hasattr(existing_conn, "max_pressure") and existing_conn.max_pressure:
+                default_flow_quantity = existing_conn.max_pressure
+            elif existing_conn and hasattr(existing_conn, "design_pressure") and existing_conn.design_pressure:
+                default_flow_quantity = existing_conn.design_pressure
+            pres_unit = st.selectbox(
+                "Pressure Unit",
+                pres_units,
+                index=get_unit_index(default_pres_quantity, pres_units, fallback=0),
+                key=f"pres_units_{conn_id}"
+            )
         
         min_pres = parse_unit_input(min_pres_val, pres_unit)
         max_pres = parse_unit_input(max_pres_val, pres_unit)
@@ -276,16 +379,26 @@ def render_connection_form(session_state):
         with hcol1:
             default_heat_values = ["", ""]
             # check that heating values are not none
-            if existing_conn and hasattr(existing_conn, "heating_values") and existing_conn.heating_values[0]:
-                default_heat_values = [
-                    str(existing_conn.heating_values[0].magnitude), 
-                    str(existing_conn.heating_values[1].magnitude)
-                ]
+            if existing_conn and hasattr(existing_conn, "heating_values"):
+                if existing_conn.heating_values[0]:
+                    default_heat_values[0] = str(existing_conn.heating_values[0].magnitude)
+                if existing_conn.heating_values[1]:
+                    default_heat_values[1] = str(existing_conn.heating_values[1].magnitude)
 
             low_heat_val = st.text_input("Lower Heating Value", value=default_heat_values[0])
             high_heat_val = st.text_input("Higher Heating Value", value=default_heat_values[1])
         with hcol2:
-            hval_unit = st.selectbox("Heating Value Unit", ["BTU/scf", "megajoule/m**3"])
+            hval_units = ["BTU/scf", "megajoule/m**3"]
+            existing_hv_quantity = None
+            if existing_conn and hasattr(existing_conn, "heating_values") and existing_conn.heating_values:
+                existing_hv_quantity = existing_conn.heating_values[0]
+                if existing_hv_quantity is None:
+                    existing_hv_quantity = existing_conn.heating_values[1]
+            hval_unit = st.selectbox(
+                "Heating Value Unit", 
+                hval_units,
+                index=get_unit_index(existing_hv_quantity, hval_units, fallback=0)
+            )
         
         lower_heating_value = parse_unit_input(low_heat_val, hval_unit)
         higher_heating_value = parse_unit_input(high_heat_val, hval_unit)
@@ -308,12 +421,12 @@ def render_connection_form(session_state):
             # Get node objects
             all_nodes = {node.id: node for node in session_state.network.get_all_nodes(recurse=True)}
             source_node = all_nodes.get(source_id)
-            dest_node = session_state.network.nodes.get(dest_id)
-            if entry_point is not None:
+            dest_node = all_nodes.get(dest_id)
+            if entry_point:
                 entry_point = all_nodes.get(entry_point)
                 if not entry_point:
                     st.error("Invalid entry point node!")
-            if exit_point is not None:
+            if exit_point:
                 exit_point = all_nodes.get(exit_point)
                 if not exit_point:
                     st.error("Invalid exit point node!")
@@ -384,12 +497,12 @@ def render_connection_form(session_state):
             
             if new_conn:
                 session_state.network.connections[conn_id] = new_conn
+                session_state.selected_connection = None
                 if existing_conn:
                     st.success(f"Updated connection: {conn_id}")
                 else:
                     st.success(f"Added connection: {conn_id}")
-                session_state.selected_connection = None
-                st.rerun()
+                st.rerun
             else:
                 st.error(f"Failed to create connection of type: {conn_type}")
                 

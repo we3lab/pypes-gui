@@ -3,6 +3,52 @@ from pype_schema.units import u
 from pype_schema import utils, tag
 
 
+def quantity_to_unit_str(q):
+    """Return a Pint unit string for a Quantity-like object, else None."""
+    try:
+        if q is None:
+            return None
+        # pint Quantity has `.units`
+        return str(q.units)
+    except Exception:
+        return None
+
+
+def get_unit_index(existing_quantity, allowed_units, fallback=0):
+    """
+    Pick the best default index for a unit selectbox, based on an existing pint Quantity.
+
+    Preference order:
+      1) exact string match to one of allowed_units
+      2) dimensionality match (e.g., m**3/day vs MGD are both volume/time)
+      3) fallback index
+    """
+    if not allowed_units:
+        return 0
+
+    unit_str = quantity_to_unit_str(existing_quantity)
+    if not unit_str:
+        return fallback
+
+    # 1) exact match
+    if unit_str in allowed_units:
+        return allowed_units.index(unit_str)
+
+    # 2) dimensionality match
+    try:
+        target_dim = u(unit_str).dimensionality
+        for i, cand in enumerate(allowed_units):
+            try:
+                if u(cand).dimensionality == target_dim:
+                    return i
+            except Exception:
+                continue
+    except Exception:
+        pass
+
+    return fallback
+
+
 def remove_keys(original: dict, keys_to_remove: dict):
     "Remove the keys of one dictionary from another dictionary"
     keys_to_keep = set(original.keys()) - set(keys_to_remove.keys())
