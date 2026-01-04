@@ -17,11 +17,11 @@ def render_export_tab(session_state):
         if st.button("Generate JSON", type="primary"):
             try:
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.json', mode='w') as tmp:
+                    json.dump({}, tmp)  # Write empty JSON object
                     tmp_path = tmp.name
                 
                 parser = parse_json.JSONParser(tmp_path)
-                parser.network_obj = session_state.network
-                json_data = parser.write()
+                json_data = parser.to_json(session_state.network)
                 
                 st.download_button(
                     "Download JSON",
