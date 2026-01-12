@@ -431,7 +431,7 @@ def render_virtual_tag_form(session_state, all_tags=None):
             )
             
             if custom_operations:
-                st.caption(f"⚠️ Ensure your lambda has {len(selected_tag_ids)} argument(s)")
+                st.caption(f"Ensure your lambda has {len(selected_tag_ids)} argument(s)")
             
             unary_operations = None
             binary_operations = None
