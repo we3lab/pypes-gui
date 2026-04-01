@@ -29,7 +29,7 @@ pypes-gui/
 ## Current Status
 - Remove backend: Most of the backend and trpc features in flows-app are removed. Instead, everything is now implemented and stored in the frontend.
     - TODO: Clean up the codebase to remove unused files and folders.
-- Simplified the pages: The pages are now simplified to focus on a single page of network editor, originally from flows-app's `data-ingestion` page. All login features are removed because now the app is only used for local usage.
+- Simplified the pages: The pages are now simplified to focus on a single page of network editor, originally from flows-app's `data-ingestion` page. All login features are removed because now the app is only used locally.
 - Network editor: Now it can create new nodes and connections with corresponding attributes. A simple export function is implemented to export the network as a JSON file, and a simple import function is implemented to import the network from a JSON file.
     - TODO: Implement the import and export functions to support the full pype-schema format. 
     - TODO: Add the icons for the new nodes.
