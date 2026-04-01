@@ -15,6 +15,7 @@ npm install
 ```bash
 npm run dev
 ```
+
 Then the local server will be running at [http://localhost:3000](http://localhost:3000).
 
 # Project Structure

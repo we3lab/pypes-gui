@@ -12,4 +12,4 @@ export NEXT_PUBLIC_BACKEND_API=http://localhost:3333/api
 # export DB_USER=postgres
 # export DB_PASS=pwd12345
 
-docker compose up --build -d frontend
+docker compose up --build -d pypes-gui
