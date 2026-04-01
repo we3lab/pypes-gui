@@ -15,7 +15,6 @@ import {
   GridRowModel,
   GridRowModes,
   GridRowsProp,
-  GridSaveAltIcon,
   GridToolbarContainer,
   GridToolbarExport,
   MuiEvent,
@@ -49,6 +48,7 @@ import { GridSlots } from "@mui/x-data-grid";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
+import SaveAlt from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import UploadTagCSVModal from "./uploadTagCSVModal";
 import VirtualTagModal from "./virtual-tag-modal";
@@ -179,7 +179,7 @@ function EditToolbar(props: EditToolbarProps) {
         <Button
           variant="contained"
           color="primary"
-          startIcon={<GridSaveAltIcon />}
+          startIcon={<SaveAlt />}
           onClick={handleDownloadTemplateClick}
         >
           Download template
