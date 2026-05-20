@@ -21,6 +21,11 @@ html {
   flex-grow: 1;
 }
 
+img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .customNodeBody img {
   pointer-events: none;
 }
