@@ -31,12 +31,14 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
+  isDev: process.env.NODE_ENV === "development",
   transformer: superjson,
   errorFormatter({ shape, error }) {
     return {
       ...shape,
       data: {
         ...shape.data,
+        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
         zodError:
           error.cause instanceof ZodError ? error.cause.flatten() : null,
       },
