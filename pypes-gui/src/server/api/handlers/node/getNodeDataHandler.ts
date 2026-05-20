@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { Context } from "vm";
+import { Context } from "../../trpc";
 
 export const getDataInputZ = z.object({
     network_id: z.string(),
