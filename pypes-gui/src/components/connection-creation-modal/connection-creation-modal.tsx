@@ -100,6 +100,9 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
     );
 
   useEffect(() => {
+    if (!source || !destination) {
+      return;
+    }
     sourceNodeRefetch().then((r) => {
       if (r.data?.data != "" && r.data?.data != undefined){
 
