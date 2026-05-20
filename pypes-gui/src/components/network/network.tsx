@@ -329,8 +329,11 @@ const Network = ({
           className="w-1/10 p-0 mr-5 capitalize font-normal"
           onClick={() => setShowNetworkUploads(true)}
         >
-          <div className={page_section_horizontal_css}>
-            <img src="import.svg" className="mr-2 w-6" />
+          <div className={page_section_horizontal_css} style={{
+            position: "relative",
+            display: "inline-block",
+          }}>
+            <img src="import.svg" className="mr-2 w-6"/>
             <span>Load JSON</span>
           </div>
         </FlowsButtonDark>
@@ -338,7 +341,10 @@ const Network = ({
           className="w-1/10 p-0 capitalize font-normal"
           onClick={() => setShowNetworkDownloads(true)}
         >
-          <div className={page_section_horizontal_css}>
+          <div className={page_section_horizontal_css} style={{
+            position: "relative",
+            display: "inline-block",
+          }}>
             <img src="export.svg" className="mr-2 w-6" />
             <span>Export JSON</span>
           </div>
