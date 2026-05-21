@@ -7,6 +7,7 @@ interface NodeComponentProps {
   border?: string;
   margins?: string;
   addition?: string;
+  draggable?: boolean;
 }
 
 const NodeComponent: React.FC<NodeComponentProps> = ({
@@ -15,6 +16,7 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
   border = "",
   margins = "",
   addition = "",
+  draggable = true,
 }) => {
   const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeType: string) => {
     event.dataTransfer.setData("application/reactflow", nodeType);
@@ -24,8 +26,12 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
   return (
     <div
       className="dndnode input"
-      onDragStart={(event) => onDragStart(event, text)}
-      draggable
+      onDragStart={(event) => {
+        if (draggable) {
+          onDragStart(event, text);
+        }
+      }}
+      draggable={draggable}
     >
       <div
         className={

@@ -52,8 +52,6 @@ export interface FacilityParams {
   connections: string[];
 }
 
-export interface DeliveryParams extends FacilityParams {}
-
 export interface ChlorinationParams {
   name: string;
   flowrate: Flowrate;

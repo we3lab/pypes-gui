@@ -228,6 +228,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
   useEffect(() => {
     switch (nodeType) {
       case "Tank":
+      case "StaticMixer":
         setName(tankParams.name);
         break;
       case "Reservoir":
@@ -237,19 +238,21 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
         setName(aerationParams.name);
         break;
       case "Filtration":
+      case "ROMembrane":
+      case "UVSystem":
         setName(filtrationParams.name);
         break;
       case "Battery":
         setName(batteryParams.name);
         break;
       case "Facility":
-      case "Delivery":
         setName(facilityParams.name);
         break;
       case "Chlorination":
         setName(chlorinationParams.name);
         break;
       case "Network":
+      case "Junction":
       case "ModularUnit":
         setName(networkParams.name);
         break;
@@ -369,7 +372,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
           </div>
         )}
 
-        {nodeType === "Tank" && (
+        {(nodeType === "Tank" || nodeType === "StaticMixer") && (
           <div className={modal_main_section_wrapper_css}>
             <SectionTitle title="TANK PARAMETERS" />
             <div className={modal_section_vertical_css}>
@@ -425,7 +428,9 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
           </div>
         )}
 
-        {(nodeType === "Network" || nodeType === "ModularUnit") && (
+        {(nodeType === "Network" ||
+          nodeType === "Junction" ||
+          nodeType === "ModularUnit") && (
           <div className={modal_main_section_wrapper_css}>
             <SectionTitle title="NETWORK PARAMETERS" />
             <div className={modal_section_horizontal_css}>
@@ -629,7 +634,9 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
           </div>
         )}
 
-        {nodeType === "Filtration" && (
+        {(nodeType === "Filtration" ||
+          nodeType === "ROMembrane" ||
+          nodeType === "UVSystem") && (
           <div className={modal_main_section_wrapper_css}>
             <SectionTitle title="FILTRATION PARAMETERS" />
             <div className={modal_section_vertical_css}>
@@ -989,7 +996,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
           </div>
         )}
 
-        {(nodeType === "Facility" || nodeType === "Delivery") && (
+        {nodeType === "Facility" && (
           <div className={modal_main_section_wrapper_css}>
             <SectionTitle title="FACILITY PARAMETERS" />
             <div className={modal_section_vertical_css}>
@@ -1943,6 +1950,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
             onClick={() => {
               switch (nodeType) {
                 case "Tank":
+                case "StaticMixer":
                   onCreate(tankParams);
                   setTankParams({ name: "", elevation: 0, volume: 0 });
                   break;
@@ -1961,6 +1969,8 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   });
                   break;
                 case "Filtration":
+                case "ROMembrane":
+                case "UVSystem":
                   onCreate(filtrationParams);
                   setFiltrationParams({
                     name: "",
@@ -1992,7 +2002,6 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   });
                   break;
                 case "Facility":
-                case "Delivery":
                   onCreate(facilityParams);
                   setFacilityParams({
                     name: "",
@@ -2089,6 +2098,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   });
                   break;
                 case "Network":
+                case "Junction":
                 case "ModularUnit":
                   onCreate(networkParams);
                   setNetworkParams({

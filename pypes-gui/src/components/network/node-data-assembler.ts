@@ -54,11 +54,27 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
       return newNode;
     }
 
+    case "Junction": {
+      const newNode = {
+        id: nodeName,
+        type: nodeType,
+        position,
+        additionalData: {
+          tags: {},
+        },
+        data: { label: `${nodeType} node` },
+      };
+
+      return newNode;
+    }
+
     case "Aeration":
     case "Chlorination":
     case "Clarification":
     case "Thickening":
-    case "Filtration": {
+    case "Filtration":
+    case "ROMembrane":
+    case "UVSystem": {
       const newNode = {
         id: nodeName,
         type: nodeType,
@@ -121,8 +137,7 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
       return newNode;
     }
 
-    case "Facility":
-    case "Delivery": {
+    case "Facility": {
       const newNode = {
         id: nodeName,
         type: nodeType,
@@ -137,6 +152,22 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
           },
           nodes: payload.nodes,
           connections: payload.connections,
+          tags: {},
+        },
+        data: { label: `${nodeType} node` },
+      };
+
+      return newNode;
+    }
+
+    case "StaticMixer": {
+      const newNode = {
+        id: nodeName,
+        type: nodeType,
+        position,
+        additionalData: {
+          volume: payload.volume,
+          elevation: payload.elevation,
           tags: {},
         },
         data: { label: `${nodeType} node` },

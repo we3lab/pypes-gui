@@ -2,7 +2,7 @@ import { Button, Grid, Paper } from "@mui/material";
 import React, { useState } from "react";
 import NodeComponentBlocked from "./node-component-blocked";
 
-export type ConnectionType = "Wire" | "Pipe" | null;
+export type ConnectionType = "Wire" | "Pipe" | "Wireless" | "Delivery" | null;
 
 interface SidebarProps {
   connection: ConnectionType | null;

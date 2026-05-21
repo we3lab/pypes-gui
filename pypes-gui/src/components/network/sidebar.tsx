@@ -3,7 +3,7 @@ import { Button } from "@mui/material";
 import React from "react";
 import NodeComponent from "./node-component";
 
-export type ConnectionType = "Wire" | "Pipe" | null;
+export type ConnectionType = "Wire" | "Pipe" | "Wireless" | "Delivery" | null;
 
 interface SidebarProps {
   connection: ConnectionType | null;
@@ -11,12 +11,6 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
-  const onDragStart = (event: React.DragEvent<HTMLElement>, nodeType: string) => {
-    console.log("Dragging node type from Sidebar:", nodeType);
-    event.dataTransfer.setData("application/reactflow", nodeType);
-    event.dataTransfer.effectAllowed = "move";
-  };
-
   return (
     <aside>
       <div className="flex flex-col overflow-y-auto h-full">
@@ -37,6 +31,16 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
                 <span>Pipe</span>
               </div>
             )}
+            {connection === "Wireless" && (
+              <div className="flex pr-2 pt-2 text-green-500 font-bold">
+                Wireless
+              </div>
+            )}
+            {connection === "Delivery" && (
+              <div className="flex pr-2 pt-2 text-flows-blue font-bold">
+                Delivery
+              </div>
+            )}
           </div>
           
           <div className="grid grid-cols-2 gap-1">
@@ -47,10 +51,8 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
                   connection === "Wire" ? "bg-flows-blue hover:bg-flows-light-blue text-white hover:text-black" : ""
                 } m-0`}
                 onClick={() => setConnection("Wire")}
-                onDragStart={(event) => onDragStart(event, "Wire")} // Add drag handler here
-                draggable // Make the button draggable
               >
-                <NodeComponent text="Wire" border="" margins="" src="/Wire.svg" />
+                <NodeComponent text="Wire" border="" margins="" src="/Wire.svg" draggable={false} />
               </Button>
             </div>
             <div>
@@ -60,10 +62,30 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
                   connection === "Pipe" ? "bg-flows-blue hover:bg-flows-light-blue text-white hover:text-black" : ""
                 } m-0`}
                 onClick={() => setConnection("Pipe")}
-                onDragStart={(event) => onDragStart(event, "Pipe")} // Add drag handler here
-                draggable // Make the button draggable
               >
-                <NodeComponent text="Pipe" border="" margins="" src="/Pipe.svg" />
+                <NodeComponent text="Pipe" border="" margins="" src="/Pipe.svg" draggable={false} />
+              </Button>
+            </div>
+            <div>
+              <Button
+                variant="contained"
+                className={`flex w-full h-full capitalize border border-dashed p-0 ml-1 mb-1 hover:bg-blue-200 ${
+                  connection === "Wireless" ? "bg-flows-blue hover:bg-flows-light-blue text-white hover:text-black" : ""
+                } m-0`}
+                onClick={() => setConnection("Wireless")}
+              >
+                <NodeComponent text="Wireless" border="" margins="" src="/Wireless.svg" draggable={false} />
+              </Button>
+            </div>
+            <div>
+              <Button
+                variant="contained"
+                className={`flex w-full h-full capitalize p-0 ml-1 mr-1 mb-1 hover:bg-blue-200 ${
+                  connection === "Delivery" ? "bg-flows-blue hover:bg-flows-light-blue text-white hover:text-black" : ""
+                } m-0`}
+                onClick={() => setConnection("Delivery")}
+              >
+                <NodeComponent text="Delivery" border="" margins="" src="/Delivery.svg" draggable={false} />
               </Button>
             </div>
           </div>
@@ -77,7 +99,9 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
               <NodeComponent text="Aeration" margins="ml-1 mb-1" src="/Aeration.svg" />
               <NodeComponent text="Battery" margins="ml-1 mb-1" src="/Battery.svg" />
               <NodeComponent text="Network" margins="ml-1 mb-1" src="/network.svg" />
-              <NodeComponent text="ModularUnit" margins="ml-1 mb-1" src="/network.svg" />
+              <NodeComponent text="ModularUnit" margins="ml-1 mb-1" src="/ModularUnit.svg" />
+              <NodeComponent text="StaticMixer" margins="ml-1 mb-1" src="/StaticMixer.svg" />
+              <NodeComponent text="ROMembrane" margins="ml-1 mb-1" src="/ROMembrane.svg" />
               <NodeComponent text="Pump" margins="ml-1 mb-1" src="/Pump.svg" />
               <NodeComponent text="Filtration" margins="ml-1 mb-1" src="/Filtration.svg" />
               <NodeComponent text="Facility" margins="ml-1 mb-1" src="/Facility.svg" />
@@ -91,7 +115,8 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
               <NodeComponent text="Thickening" margins="ml-1 mr-1 mb-1" src="/Thickening.svg" />
               <NodeComponent text="Flaring" margins="ml-1 mr-1 mb-1" src="/Flaring.svg" />
               <NodeComponent text="Cogeneration" margins="ml-1 mr-1 mb-1" src="/Cogenerator.svg" />
-              <NodeComponent text="Delivery" margins="ml-1 mr-1 mb-1" src="/Facility.svg" />
+              <NodeComponent text="Junction" margins="ml-1 mr-1 mb-1" src="/Junction.svg" />
+              <NodeComponent text="UVSystem" margins="ml-1 mr-1 mb-1" src="/UVSystem.svg" />
             </div>
           </div>
         </div>

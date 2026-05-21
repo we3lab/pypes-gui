@@ -37,6 +37,7 @@ import NetworkNode from "./nodes/network-node";
 import PumpNode from "./nodes/pump-node";
 import ScreeningNode from "./nodes/screening-node";
 import ThickeningNode from "./nodes/thickening-node";
+import IconNode from "./nodes/icon-node";
 import SectionTitle from "../global/section-title";
 import HelperText from "../global/helper-text";
 import {
@@ -71,24 +72,32 @@ const nodeTypes = {
   Screening: ScreeningNode,
   Conditioning: ConditioningNode,
   Network: NetworkNode,
-  ModularUnit: NetworkNode,
-  Delivery: FacilityNode,
+  Junction: IconNode,
+  ModularUnit: IconNode,
+  ROMembrane: IconNode,
+  StaticMixer: IconNode,
+  UVSystem: IconNode,
 };
 
 const edgeTypes: EdgeTypes = {
   floating: FloatingEdge,
+  Delivery: FloatingEdge,
   Pipe: FloatingEdge,
   Wire: FloatingEdge,
+  Wireless: FloatingEdge,
 };
 
-const hierarchyNodeTypes = new Set(["Facility", "Network", "ModularUnit", "Delivery"]);
+const hierarchyNodeTypes = new Set(["Facility", "Network", "ModularUnit"]);
 
 const getRenderableNodeType = (type: string | undefined) => {
   if (!type) {
     return "Network";
   }
   if (type === "StaticMixing") {
-    return "Tank";
+    return "StaticMixer";
+  }
+  if (type === "ROModule") {
+    return "ROMembrane";
   }
   if (type === "Boiler") {
     return "Cogeneration";
@@ -157,7 +166,7 @@ const buildStoreFromPypesJson = (jsonContents: any) => {
         id: connectionId,
         source: connectionData.source,
         target: connectionData.destination,
-        type: schemaType === "Wire" ? "Wire" : "Pipe",
+        type: schemaType,
       };
       const {
         tags = {},
@@ -334,12 +343,16 @@ const Network = ({
           ...edge,
           style: {
             stroke:
-              edgeType === "Wire"
+              edgeType === "Wire" || edgeType === "Wireless"
                 ? "rgb(34 197 94)"
-                : edgeType === "Pipe"
+                : edgeType === "Pipe" || edgeType === "Delivery"
                 ? "#2D4778"
                 : "blue",
             strokeWidth: 4,
+            strokeDasharray:
+              edgeType === "Wireless" || edgeType === "Delivery"
+                ? "8 6"
+                : undefined,
           },
         };
       })
@@ -353,6 +366,10 @@ const Network = ({
         ? "Wire"
         : connection === "Pipe"
         ? "Pipe"
+        : connection === "Wireless"
+        ? "Wireless"
+        : connection === "Delivery"
+        ? "Delivery"
         : undefined,
     markerEnd: {
       type: MarkerType.ArrowClosed,
@@ -665,10 +682,10 @@ const Network = ({
       />
       <div className={"flex flex-row dndflow " + page_subsection_wrapper_vertical_first_css}>
         <ReactFlowProvider>
-          <div className="w-1/10 mr-5 min-w-1">
+          <div className="mr-5 w-48 flex-none">
             <Sidebar connection={connection} setConnection={setConnection} />
           </div>
-          <div className="reactflow-wrapper w-9/10" ref={reactFlowWrapper}>
+          <div className="reactflow-wrapper flex-1" ref={reactFlowWrapper}>
             <ReactFlow
               nodes={nodes}
               edges={edgesWithUpdatedTypes}
