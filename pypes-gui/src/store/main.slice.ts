@@ -68,6 +68,8 @@ export interface MainSlice {
   networkIdSimulateScenario: string;
   parentId: string;
   setParentId: (id: string) => void;
+  globalTagList: any[];
+  addTagToGlobalTagList: (newTag: any) => void;
   setPreprocessingModalOpen: (status: boolean) => void;
   preprocessingModalOpen: boolean;
   setCleaningModalOpen: (status: boolean) => void;
@@ -109,6 +111,7 @@ const createMainSlice: StateCreator<MainSlice> = (set) => {
     networkIdAnalyticsPortal: "",
     networkIdSimulateScenario: "",
     parentId: "world",
+    globalTagList: [],
     selectedNodeId: "",
     selectedEdgeId: "",
     onCreate: (payload) => {},
@@ -351,6 +354,14 @@ const createMainSlice: StateCreator<MainSlice> = (set) => {
       set((state) => {
         return {
           selectedEdgeId: id,
+        };
+      });
+    },
+
+    addTagToGlobalTagList: (newTag: any) => {
+      set((state) => {
+        return {
+          globalTagList: [...state.globalTagList, newTag],
         };
       });
     },

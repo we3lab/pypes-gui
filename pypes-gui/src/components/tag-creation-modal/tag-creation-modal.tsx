@@ -124,6 +124,9 @@ const TagCreationModal: React.FC<TagCreationModalProps> = ({
   const { onCreateTag, selectedNodeId, networkIdDataIngestionPage } =
     useMainStore();
 
+  const globalTagList = useMainStore((state) => state.globalTagList);
+  const addToGlobalTagList = useMainStore((state) => state.addTagToGlobalTagList);
+
   const [selectedContentType, setSelectedContentType] = useState("");
   const [selectedUnitType, setSelectedUnitType] = useState("");
   const [selectedTagType, setSelectedTagType] = useState("");
@@ -321,16 +324,35 @@ const TagCreationModal: React.FC<TagCreationModalProps> = ({
               selectedTagType === ""
             }
             onClick={() => {
-              onCreateTag({
-                id: selectedId,
-                content: selectedContentType,
-                tagType: selectedTagType,
-                unit: selectedUnitType,
-                source_unit_id: sourceUnitID,
-                dest_unit_id: destUnitID,
-                totalized: isTotalized,
-              });
-              console.log("Connection created..."); //d
+              const handleCreateTag = async () => {
+                setIsLoading(true);
+                try {
+                  // Call the function that interacts with the API
+                  const newTag = await onCreateTag({
+                    id: selectedId,
+                    content: selectedContentType,
+                    tagType: selectedTagType,
+                    unit: selectedUnitType,
+                    source_unit_id: sourceUnitID,
+                    dest_unit_id: destUnitID,
+                    totalized: isTotalized,
+                  });
+                  // Update the local state with the new data
+                  addToGlobalTagList(newTag);
+                } catch (error) {
+                  // Use type guard for safe error handling
+                  if (error instanceof Error) {
+                      console.error("Failed to create tag:", error);
+                      alert(`Error creating tag: ${error.message}`);
+                  } else {
+                      console.error("Failed to create tag:", error);
+                      alert("Unknown error occurred while creating tag.");
+                  }
+                } finally {
+                  setIsLoading(false);
+                  console.log("Tag created..."); //d
+                }
+              };
             }}
           >
             Create
