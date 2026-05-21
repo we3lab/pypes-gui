@@ -111,14 +111,25 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
       const updatedEdge = {
         ...connectionData,
         id: payload.name || connectionData?.id,
-        contents: payload.content,
-        bidirectional: payload.bidirectional,
-        entry_point: payload.entry_point,
-        exit_point: payload.exit_point,
+        edge: {
+          ...connectionData?.edge,
+          id: payload.name || connectionData?.id,
+        },
+        data: {
+          ...(connectionData?.data ?? {}),
+          additionalData: {
+            ...(connectionData?.data?.additionalData ?? {}),
+            contents: payload.content,
+            bidirectional: payload.bidirectional,
+            entry_point: payload.entry_point,
+            exit_point: payload.exit_point,
+          },
+        },
       };
       const updatedEdges = edges.map((edge) =>
         edge.id === selectedEdgeId ? updatedEdge : edge
       );
+      useStore.setState({ edges: updatedEdges as EdgeWithData[] });
       setSelectedEdgeId(updatedEdge.id);
       callRedraw();
       closeEdgeUpdateModal();
@@ -136,7 +147,28 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
   };
 
   const prepareAndSendTag = (payload: any) => {
-    const newTag = payload.id; // Assuming tag ID is the tag name for simplicity
+    if (!connectionData) {
+      return;
+    }
+    const { id, unit, ...tagDetails } = payload;
+    const updatedEdges = edges.map((edge) =>
+      edge.id === connectionData.id
+        ? {
+            ...edge,
+            data: {
+              ...edge.data,
+              tags: {
+                ...(edge.data.tags ?? {}),
+                [id]: {
+                  ...tagDetails,
+                  units: unit,
+                },
+              },
+            },
+          }
+        : edge
+    );
+    useStore.setState({ edges: updatedEdges });
     closeTagCreationModal();
   };
 
@@ -158,16 +190,30 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
   };
 
   const onDeleteTag = (tag: string) => {
-    if (!tag.includes(tag)) {
+    if (!connectionData) {
       console.error(`Tag "${tag}" not found in the current tags.`);
       return;
     }
+    const updatedEdges = edges.map((edge) => {
+      if (edge.id !== connectionData.id) {
+        return edge;
+      }
+      const tags: Record<string, any> = { ...(edge.data.tags ?? {}) };
+      delete tags[tag];
+      return {
+        ...edge,
+        data: {
+          ...edge.data,
+          tags,
+        },
+      };
+    });
+    useStore.setState({ edges: updatedEdges });
     setDeleteTagModal(false);
   };
 
   // Extract tags from connectionData or default to empty array
-  const tags: string[] = Array.isArray(connectionData?.data?.tags)
-    ? (connectionData?.data?.tags as string[] ?? []) : [];
+  const tags = connectionData?.data?.tags ?? {};
 
   if (!selectedEdgeId) {
     return null;
@@ -253,7 +299,7 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
                 Add tag
               </FlowsButtonDark>
             </div>
-            {tags.length > 0 ? (
+            {Object.keys(tags).length > 0 ? (
               <TableContainer className="shadow-none mt-10" component={Paper}>
                 <Table className="text-sm">
                   <TableHead className="bg-flows-light-gray">
@@ -264,10 +310,10 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {tags.map((tag, index) => (
+                    {Object.entries(tags).map(([tag, tagValue], index) => (
                       <TableRow key={index}>
                         <TableCell className={page_tablecell_css + " w-full"}>
-                          {tag}
+                          {tag}: {typeof tagValue === "object" ? JSON.stringify(tagValue) : String(tagValue)}
                         </TableCell>
                         <TableCell className={page_tablecell_css + " "}>
                           <Button className="p-0 justify-end cursor-default">

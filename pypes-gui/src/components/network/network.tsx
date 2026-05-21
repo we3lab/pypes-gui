@@ -22,6 +22,7 @@ import FiltrationNode from "./nodes/filtration-node";
 import TankNode from "./nodes/tank-node";
 import FacilityNode from "./nodes/facility-node";
 import useMainStore from "@/store/store";
+import useStore, { EdgeWithData, NodeWithData } from "@/store/store";
 import AerationNode from "./nodes/aeration-node";
 import ChlorinationNode from "./nodes/chloriation-node";
 import BatteryNode from "./nodes/battery-node";
@@ -70,12 +71,191 @@ const nodeTypes = {
   Screening: ScreeningNode,
   Conditioning: ConditioningNode,
   Network: NetworkNode,
+  ModularUnit: NetworkNode,
+  Delivery: FacilityNode,
 };
 
 const edgeTypes: EdgeTypes = {
   floating: FloatingEdge,
   Pipe: FloatingEdge,
   Wire: FloatingEdge,
+};
+
+const hierarchyNodeTypes = new Set(["Facility", "Network", "ModularUnit", "Delivery"]);
+
+const getRenderableNodeType = (type: string | undefined) => {
+  if (!type) {
+    return "Network";
+  }
+  if (type === "StaticMixing") {
+    return "Tank";
+  }
+  if (type === "Boiler") {
+    return "Cogeneration";
+  }
+  return nodeTypes[type as keyof typeof nodeTypes] ? type : "Network";
+};
+
+const isHierarchyNode = (node?: NodeWithData | null) => {
+  const type = node?.data.additionalData?.type ?? node?.node.type;
+  return typeof type === "string" && hierarchyNodeTypes.has(type);
+};
+
+const makeNodePosition = (index: number) => ({
+  x: 120 + (index % 4) * 220,
+  y: 100 + Math.floor(index / 4) * 180,
+});
+
+const readStringList = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+
+const buildStoreFromPypesJson = (jsonContents: any) => {
+  const nodesByParent: Record<string, NodeWithData[]> = { world: [] };
+  const edgesWithData: EdgeWithData[] = [];
+  const visited = new Set<string>();
+
+  const visitLevel = (parent: string, nodeIds: string[], connectionIds: string[]) => {
+    if (visited.has(parent)) {
+      return;
+    }
+    visited.add(parent);
+
+    nodesByParent[parent] = nodeIds.map((nodeId, index) => {
+      const nodeData = jsonContents[nodeId] ?? {};
+      const schemaType = nodeData.type ?? "Network";
+      const { tags = {}, ...additionalData } = nodeData;
+      const node: Node = {
+        id: nodeId,
+        type: getRenderableNodeType(schemaType),
+        data: { label: nodeId },
+        position: nodeData.position ?? makeNodePosition(index),
+      };
+
+      return {
+        id: nodeId,
+        node,
+        data: {
+          parent,
+          tags,
+          additionalData: {
+            ...additionalData,
+            type: schemaType,
+          },
+        },
+      };
+    });
+
+    connectionIds.forEach((connectionId) => {
+      const connectionData = jsonContents[connectionId] ?? {};
+      if (!connectionData.source || !connectionData.destination) {
+        return;
+      }
+      const schemaType = connectionData.type ?? "Pipe";
+      const edge: Edge = {
+        id: connectionId,
+        source: connectionData.source,
+        target: connectionData.destination,
+        type: schemaType === "Wire" ? "Wire" : "Pipe",
+      };
+      const {
+        tags = {},
+        source: _source,
+        destination: _destination,
+        type: _type,
+        ...additionalData
+      } = connectionData;
+
+      edgesWithData.push({
+        id: connectionId,
+        edge,
+        type: schemaType,
+        data: {
+          parent,
+          tags,
+          additionalData,
+        },
+      });
+    });
+
+    nodeIds.forEach((nodeId) => {
+      const nodeData = jsonContents[nodeId];
+      if (!nodeData) {
+        return;
+      }
+      const childNodes = readStringList(nodeData.nodes);
+      const childConnections = readStringList(nodeData.connections);
+      if (childNodes.length > 0 || childConnections.length > 0) {
+        visitLevel(nodeId, childNodes, childConnections);
+      }
+    });
+  };
+
+  visitLevel(
+    "world",
+    readStringList(jsonContents.nodes),
+    readStringList(jsonContents.connections)
+  );
+  return { nodes: nodesByParent, edges: edgesWithData };
+};
+
+const buildPypesJsonFromStore = (
+  nodesByParent: Record<string, NodeWithData[]>,
+  edgesWithData: EdgeWithData[]
+) => {
+  const jsonContents: Record<string, any> = {
+    nodes: (nodesByParent.world ?? []).map((node) => node.id),
+    connections: edgesWithData
+      .filter((edge) => (edge.data.parent ?? "world") === "world")
+      .map((edge) => edge.id),
+    virtual_tags: {},
+  };
+
+  const writeLevel = (parent: string) => {
+    const levelNodes = nodesByParent[parent] ?? [];
+
+    levelNodes.forEach((node) => {
+      const schemaType = node.data.additionalData?.type ?? node.node.type ?? "Network";
+      const { type: _type, ...additionalData } = node.data.additionalData ?? {};
+      const childEdges = edgesWithData.filter(
+        (edge) => (edge.data.parent ?? "world") === node.id
+      );
+      const childNodes = nodesByParent[node.id] ?? [];
+
+      jsonContents[node.id] = {
+        type: schemaType,
+        ...additionalData,
+        tags: node.data.tags ?? {},
+      };
+
+      if (
+        hierarchyNodeTypes.has(schemaType) ||
+        childNodes.length > 0 ||
+        childEdges.length > 0
+      ) {
+        jsonContents[node.id].nodes = childNodes.map((child) => child.id);
+        jsonContents[node.id].connections = childEdges.map((edge) => edge.id);
+      }
+
+      writeLevel(node.id);
+    });
+
+    edgesWithData
+      .filter((edge) => (edge.data.parent ?? "world") === parent)
+      .forEach((edge) => {
+        jsonContents[edge.id] = {
+          type: edge.type,
+          source: edge.edge.source,
+          destination: edge.edge.target,
+          ...(edge.data.additionalData ?? {}),
+          tags: edge.data.tags ?? {},
+        };
+      });
+  };
+
+  writeLevel("world");
+  return jsonContents;
 };
 
 interface NetworkProps {
@@ -117,18 +297,33 @@ const Network = ({
     parentId,
     setParentId,
   } = useMainStore();
+  const {
+    addNode,
+    addWorld,
+    nodes: storedNodes,
+    edges: storedEdges,
+    setEdges: setStoredEdges,
+    selectedNode,
+    setSelectedNode,
+  } = useStore();
 
   const reactFlowWrapper = useRef<any>(null);
 
   useEffect(() => {
     if (refreshNetwork) {
-      console.log("Network refreshing...");
-      setNodes([]); 
-      setEdges([]); 
       setRefreshNetwork(false); 
       setNetworkUpdated(true);
     }
-  }, [refreshNetwork, setRefreshNetwork, setNetworkUpdated, setNodes, setEdges]);
+  }, [refreshNetwork, setRefreshNetwork, setNetworkUpdated]);
+
+  useEffect(() => {
+    setNodes((storedNodes[parentId] ?? []).map((node) => node.node));
+    setEdges(
+      storedEdges
+        .filter((edge) => (edge.data.parent ?? "world") === parentId)
+        .map((edge) => edge.edge)
+    );
+  }, [parentId, setEdges, setNodes, storedEdges, storedNodes]);
 
   // Handle edge styling
   useEffect(() => {
@@ -186,24 +381,66 @@ const Network = ({
         target: params.target,
         type: params.type,
       };
+      const edgeWithData: EdgeWithData = {
+        id: payload.name,
+        edge: drawConn,
+        type: params.type,
+        data: {
+          parent: parentId,
+          tags: {},
+          additionalData: {
+            contents: payload.content,
+            bidirectional: payload.bidirectional,
+            entry_point: payload.entry_point,
+            exit_point: payload.exit_point,
+          },
+        },
+      };
       setSelectedEdgeId(trpcConn.id);
-      setEdges((prevEdges) => [...prevEdges, drawConn]);
+      setStoredEdges([...storedEdges, edgeWithData]);
       setNetworkUpdated(true); // Notify parent of update
       closeEdgeCreationModal();
     },
-    [closeEdgeCreationModal, setEdges, setSelectedEdgeId, setNetworkUpdated]
+    [
+      closeEdgeCreationModal,
+      parentId,
+      setSelectedEdgeId,
+      setNetworkUpdated,
+      setStoredEdges,
+      storedEdges,
+    ]
   );
 
   const onConnect: OnConnect = useCallback(
     (params: any) => {
+      if (!params?.source || !params?.target) {
+        setElementNameForAlertModal("a connection without both source and destination nodes");
+        setElementAlertModal(true);
+        return;
+      }
+      const currentNodeIds = new Set((storedNodes[parentId] ?? []).map((node) => node.id));
+      if (!currentNodeIds.has(params.source) || !currentNodeIds.has(params.target)) {
+        setElementNameForAlertModal("a connection whose nodes are not in the current level");
+        setElementAlertModal(true);
+        return;
+      }
       const customEdgeId = getConnectionId();
+      const paramsWithType = { ...params, type: connection ?? "Pipe" };
       setSourceNodeConn(params.source);
       setDestNodeConn(params.target);
-      openEdgeCreationModal(params, (payload) =>
-        prepareAndSendConnection(params, payload, customEdgeId)
+      openEdgeCreationModal(paramsWithType.type, (payload) =>
+        prepareAndSendConnection(paramsWithType, payload, customEdgeId)
       );
     },
-    [openEdgeCreationModal, prepareAndSendConnection, setSourceNodeConn, setDestNodeConn]
+    [
+      openEdgeCreationModal,
+      parentId,
+      prepareAndSendConnection,
+      connection,
+      setSourceNodeConn,
+      setDestNodeConn,
+      storedNodes,
+    ]
   );
 
   const onDragOver = useCallback((event: any) => {
@@ -219,20 +456,41 @@ const Network = ({
         y: event.clientY - reactFlowBounds.top,
       }) || { x: 0, y: 0 };
 
-      const newNode = assembleNode(nodeName, nodeType, payload, position);
+      const newNode = assembleNode(nodeName, nodeType, payload, position) as any;
       const drawNode: Node = {
         id: newNode.id,
-        type: newNode.type,
+        type: getRenderableNodeType(newNode.type),
         data: {},
         position: newNode.position,
       };
+      const nodeWithData: NodeWithData = {
+        id: newNode.id,
+        node: drawNode,
+        data: {
+          parent: parentId,
+          tags: newNode.additionalData?.tags ?? {},
+          additionalData: {
+            ...(newNode.additionalData ?? {}),
+            type: newNode.type,
+          },
+        },
+      };
 
-      setNodes((prevNodes) => [...prevNodes, drawNode]);
+      addNode(nodeWithData);
+      if (hierarchyNodeTypes.has(newNode.type)) {
+        addWorld(newNode.id);
+      }
       setNetworkUpdated(true); // Notify parent of update
-      console.log("insert")
       closeNodeCreationModal();
     },
-    [reactFlowInstance, closeNodeCreationModal, setNodes, setNetworkUpdated]
+    [
+      addNode,
+      addWorld,
+      closeNodeCreationModal,
+      parentId,
+      reactFlowInstance,
+      setNetworkUpdated,
+    ]
   );
 
   const onDrop = useCallback(
@@ -249,47 +507,76 @@ const Network = ({
       openNodeCreationModal(type, callback);
       setRefreshNetwork(false); // Reset refreshNetwork state
       // log current nodes and edges
-      console.log("Current nodes:", nodes);
-      console.log("Current edges:", edges);
     },
-    [openNodeCreationModal, prepareAndSendNode]
+    [openNodeCreationModal, prepareAndSendNode, setRefreshNetwork]
   );
 
 
   const onDragStop = useCallback(
     (event: any, node: any) => {
       setSelectedNodeId(node.id);
+      setSelectedNode(node.id);
+      const updatedNodes = (storedNodes[parentId] ?? []).map((storedNode) =>
+        storedNode.id === node.id
+          ? { ...storedNode, node: { ...storedNode.node, position: node.position } }
+          : storedNode
+      );
+      useStore.setState({
+        nodes: {
+          ...storedNodes,
+          [parentId]: updatedNodes,
+        },
+      });
       setNetworkUpdated(true); // Notify parent of update
     },
-    [setSelectedNodeId, setNetworkUpdated]
+    [parentId, setSelectedNode, setSelectedNodeId, setNetworkUpdated, storedNodes]
   );
 
   const handleNetworkUpload = (jsonContents: any) => {
     if (jsonContents.nodes && jsonContents.connections) {
-      const transformedNodes: Node[] = jsonContents.nodes.map((nodeName: string, index: number) => {
-        const nodeData = jsonContents[nodeName] || {};
-        return {
-          id: nodeName,
-          type: nodeData.type || "default",
-          data: { label: nodeName, ...nodeData },
-          position: { x: index * 150, y: 100 },
-        };
+      const parsed = buildStoreFromPypesJson(jsonContents);
+      useStore.setState({
+        nodes: parsed.nodes,
+        edges: parsed.edges,
+        selectedNode: null,
+        selectedEdge: null,
       });
-
-      const transformedEdges: Edge[] = jsonContents.connections.map((connName: string) => {
-        const connData = jsonContents[connName] || {};
-        return {
-          id: connName,
-          source: connData.source || "",
-          target: connData.destination || "",
-          type: connData.type === "Pipe" ? "floating" : "default",
-        };
-      });
-
-      setNodes(transformedNodes);
-      setEdges(transformedEdges);
+      setSelectedNodeId("");
+      setSelectedEdgeId("");
+      setParentId("world");
       setNetworkUpdated(true); // Notify parent of update
     }
+  };
+
+  const selectedNodeData = selectedNodeId
+    ? Object.values(storedNodes)
+        .flat()
+        .find((node) => node.id === selectedNodeId)
+    : selectedNode;
+  const parentNode = parentId === "world"
+    ? null
+    : Object.values(storedNodes)
+        .flat()
+        .find((node) => node.id === parentId);
+  const canEnterSelectedNode = isHierarchyNode(selectedNodeData);
+
+  const enterSelectedNode = () => {
+    if (!selectedNodeData) {
+      return;
+    }
+    if (!storedNodes[selectedNodeData.id]) {
+      addWorld(selectedNodeData.id);
+    }
+    setParentId(selectedNodeData.id);
+    setSelectedNodeId("");
+    setSelectedNode(null);
+  };
+
+  const goToParentLevel = () => {
+    const nextParent = parentNode?.data.parent ?? "world";
+    setParentId(nextParent);
+    setSelectedNodeId("");
+    setSelectedNode(null);
   };
 
   return (
@@ -302,9 +589,9 @@ const Network = ({
       >
         <div>
           <p>
-            There is already an element in the network named as{" "}
+            Could not create{" "}
             {elementNameForAlertModal}.<br />
-            Please try again and use a different name.
+            Please select valid nodes and try again.
           </p>
         </div>
       </FlowsPopUpWindow>
@@ -321,34 +608,56 @@ const Network = ({
         onCloseAction={() => setShowNetworkDownloads(false)}
         networkId="local"
         nodes={nodes}
-        edges={edges}
+        edges={storedEdges}
+        networkJson={buildPypesJsonFromStore(storedNodes, storedEdges)}
       />
       <div className={page_section_horizontal_css}>
         <SectionTitle title="NETWORK DRAWING" />
         <FlowsButtonDark
-          className="w-1/10 p-0 mr-5 capitalize font-normal"
+          className="px-3 py-2 mr-3 capitalize font-normal"
           onClick={() => setShowNetworkUploads(true)}
         >
-          <div className={page_section_horizontal_css} style={{
-            position: "relative",
-            display: "inline-block",
-          }}>
-            <img src="import.svg" className="mr-2 w-6"/>
+          <div className="flex flex-row items-center justify-center whitespace-nowrap">
+            <img
+              src="import.svg"
+              className="network-action-icon mr-2"
+            />
             <span>Load JSON</span>
           </div>
         </FlowsButtonDark>
         <FlowsButtonDark
-          className="w-1/10 p-0 capitalize font-normal"
+          className="px-3 py-2 capitalize font-normal"
           onClick={() => setShowNetworkDownloads(true)}
         >
-          <div className={page_section_horizontal_css} style={{
-            position: "relative",
-            display: "inline-block",
-          }}>
-            <img src="export.svg" className="mr-2 w-6" />
+          <div className="flex flex-row items-center justify-center whitespace-nowrap">
+            <img
+              src="export.svg"
+              className="network-action-icon mr-2"
+            />
             <span>Export JSON</span>
           </div>
         </FlowsButtonDark>
+      </div>
+      <div className="flex flex-row items-center justify-between mt-4">
+        <div className="text-sm text-flows-sidebar-text">
+          Level: <span className="font-bold">{parentId === "world" ? "World" : parentId}</span>
+        </div>
+        <div className="flex flex-row">
+          <FlowsButtonDark
+            className="px-4 py-2 capitalize font-normal"
+            disabled={parentId === "world"}
+            onClick={goToParentLevel}
+          >
+            Up one level
+          </FlowsButtonDark>
+          <FlowsButtonDark
+            className="px-4 py-2 ml-3 capitalize font-normal"
+            disabled={!canEnterSelectedNode}
+            onClick={enterSelectedNode}
+          >
+            Enter selected
+          </FlowsButtonDark>
+        </div>
       </div>
       <HelperText
         bottomMargin=""
@@ -366,6 +675,11 @@ const Network = ({
               onInit={setReactFlowInstance}
               onNodesChange={onNodesChange}
               onNodeDragStop={onDragStop}
+              onEdgeClick={(_, edge) => {
+                setSelectedEdgeId(edge.id);
+                useStore.getState().setSelectedEdge(edge.id);
+                useStore.getState().openEdgeDetailsModal();
+              }}
               onEdgesChange={onEdgesChange}
               nodeDragThreshold={3}
               onConnect={onConnect}

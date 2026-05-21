@@ -37,7 +37,8 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
       return newNode;
     }
 
-    case "Network": {
+    case "Network":
+    case "ModularUnit": {
       const newNode = {
         id: nodeName,
         type: nodeType,
@@ -120,7 +121,8 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
       return newNode;
     }
 
-    case "Facility": {
+    case "Facility":
+    case "Delivery": {
       const newNode = {
         id: nodeName,
         type: nodeType,

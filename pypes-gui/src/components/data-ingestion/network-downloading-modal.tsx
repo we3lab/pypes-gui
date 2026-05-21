@@ -21,6 +21,7 @@ interface NetworkFileDownloadModalParams {
   networkName: string;
   nodes: any[];
   edges: any[];
+  networkJson?: Record<string, any>;
 }
 
 const NetworkFileDownloadModal: React.FC<NetworkFileDownloadModalParams> = ({
@@ -29,6 +30,7 @@ const NetworkFileDownloadModal: React.FC<NetworkFileDownloadModalParams> = ({
   networkName,
   nodes,
   edges,
+  networkJson,
 }) => {
   const [fileName, setFileName] = useState<string>("");
 
@@ -38,14 +40,14 @@ const NetworkFileDownloadModal: React.FC<NetworkFileDownloadModalParams> = ({
     // JSON FORMAT
     // { "nodes": [...], "connections": [...], "virtual_tags": [...], [...node ids: {}], [...connection ids: {}] }
 
-    const networkData: any = {
+    const networkData: any = networkJson ?? {
       nodes: Array.isArray(nodes) ? nodes.map((node: any) => node.id) : [],
       connections: Array.isArray(edges) ? edges.map((edge: any) => edge.id) : [],
       virtual_tags: [], // TODOS
     };
 
     // Add node id objects
-    if (Array.isArray(nodes)) {
+    if (!networkJson && Array.isArray(nodes)) {
       nodes.forEach((node: any) => {
       if (node && node.id) {
         const { id, ...nodeWithoutId } = node;
@@ -55,7 +57,7 @@ const NetworkFileDownloadModal: React.FC<NetworkFileDownloadModalParams> = ({
     }
 
     // Add connection id objects
-    if (Array.isArray(edges)) {
+    if (!networkJson && Array.isArray(edges)) {
       edges.forEach((edge: any) => {
       if (edge && edge.id) {
         const { id, ...edgeWithoutId } = edge;

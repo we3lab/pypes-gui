@@ -327,17 +327,16 @@ const TagCreationModal: React.FC<TagCreationModalProps> = ({
               const handleCreateTag = async () => {
                 setIsLoading(true);
                 try {
-                  // Call the function that interacts with the API
-                  const newTag = await onCreateTag({
+                  const newTag = {
                     id: selectedId,
                     content: selectedContentType,
-                    tagType: selectedTagType,
+                    type: selectedTagType,
                     unit: selectedUnitType,
                     source_unit_id: sourceUnitID,
                     dest_unit_id: destUnitID,
                     totalized: isTotalized,
-                  });
-                  // Update the local state with the new data
+                  };
+                  await onCreateTag(newTag);
                   addToGlobalTagList(newTag);
                 } catch (error) {
                   // Use type guard for safe error handling
@@ -353,6 +352,7 @@ const TagCreationModal: React.FC<TagCreationModalProps> = ({
                   console.log("Tag created..."); //d
                 }
               };
+              handleCreateTag();
             }}
           >
             Create

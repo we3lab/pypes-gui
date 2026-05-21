@@ -38,10 +38,14 @@ const FlowsTextField: React.FC<FlowsTextFieldProps> = ({
           "& > fieldset": { borderColor: "lightgray", borderWidth: 1 },
         },
         "& .MuiInputLabel-root": {
-           color: "gray", background: "transparent" ,
+           color: "gray",
+           background: "white",
+           paddingLeft: "4px",
+           paddingRight: "4px",
         },
         "& .MuiInputLabel-root.Mui-focused": {
-           color: "black", background: "transparent" 
+           color: "black",
+           background: "white",
         },
         ".MuiInputBase-input": { padding: 2 },
       }}

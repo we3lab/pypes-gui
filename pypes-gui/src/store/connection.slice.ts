@@ -25,7 +25,7 @@ const createConnectionSlice: StateCreator<ConnectionSlice> = (set) => {
       set((state) => {
         const { id } = payload;
         const edges = state.edges;
-        const edge = edges.find((edge) => edge.edge.id === id);
+        const edge = edges.find((edge) => edge.id === id || edge.edge.id === id);
         if (!edge) {
           return state;
         }
@@ -37,7 +37,7 @@ const createConnectionSlice: StateCreator<ConnectionSlice> = (set) => {
           },
         };
         const newEdges = edges.map((edge) => {
-          if (edge.edge.id === id) {
+          if (edge.id === id || edge.edge.id === id) {
             return newEdge;
           }
           return edge;
@@ -57,7 +57,9 @@ const createConnectionSlice: StateCreator<ConnectionSlice> = (set) => {
     deleteEdge: (payload) => {
       set((state) => {
         const edges = state.edges;
-        const newEdges = edges.filter((edge) => edge.edge.id !== payload);
+        const newEdges = edges.filter(
+          (edge) => edge.id !== payload && edge.edge.id !== payload
+        );
         return {
           edges: newEdges,
           selectedEdge: null,
@@ -67,7 +69,9 @@ const createConnectionSlice: StateCreator<ConnectionSlice> = (set) => {
     setSelectedEdge: (id) => {
       set((state) => {
         return {
-          selectedEdge: state.edges.find((edge) => edge.edge.id === id) ?? null,
+          selectedEdge:
+            state.edges.find((edge) => edge.id === id || edge.edge.id === id) ??
+            null,
           selectedNode: null,
         };
       });

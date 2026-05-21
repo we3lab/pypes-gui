@@ -153,14 +153,19 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
 
   const prepareAndSendTag = (payload: any) => {
     const newTagKey = payload.id; // Tag key (e.g., "tag1")
-    const newTagValue = payload.value || true; // Default to true if no value provided
+    const { id, unit, ...tagDetails } = payload;
+    const newTagValue = {
+      ...tagDetails,
+      units: unit,
+    };
     setTags((prevTags) => {
       const updatedTags = { ...prevTags, [newTagKey]: newTagValue };
       if (nodeData) {
         const parent = nodeData.data.parent || parentId || "world";
+        const levelNodes = nodes[parent] ?? [];
         const updatedNodes = {
           ...nodes,
-          [parent]: nodes[parent].map((node) =>
+          [parent]: levelNodes.map((node) =>
             node.id === selectedNodeId
               ? { ...node, data: { ...node.data, tags: updatedTags } }
               : node
@@ -183,9 +188,10 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
       delete updatedTags[tagKey];
       if (nodeData) {
         const parent = nodeData.data.parent || parentId || "world";
+        const levelNodes = nodes[parent] ?? [];
         const updatedNodes = {
           ...nodes,
-          [parent]: nodes[parent].map((node) =>
+          [parent]: levelNodes.map((node) =>
             node.id === selectedNodeId
               ? { ...node, data: { ...node.data, tags: updatedTags } }
               : node

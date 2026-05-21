@@ -30,6 +30,8 @@ export interface EdgeWithData {
   type: string;
   data: {
     tags: object;
+    parent?: string;
+    additionalData?: Record<string, any>;
   }
 }
 

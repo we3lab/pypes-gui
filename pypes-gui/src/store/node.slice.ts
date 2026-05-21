@@ -14,10 +14,10 @@ export interface NodeSlice {
   resetNetwork: () => void;
 } 
 
-const createNodeSlice: StateCreator<NodeSlice> = (set) => {
+const createNodeSlice: StateCreator<any, [], [], NodeSlice> = (set) => {
   return {
     addWorld: (payload) => {
-      set((state) => {
+      set((state: any) => {
         return {
           nodes: {
             ...state.nodes,
@@ -27,15 +27,17 @@ const createNodeSlice: StateCreator<NodeSlice> = (set) => {
       });
     },
     setSelectedNode: (id) => {
-      set((state) => {
+      set((state: any) => {
         if (id === null) {
           return {
             selectedNode: null,
             selectedEdge: null,
           };
         }
-        const nodes = state.nodes;
-        const node = Object.values(nodes).reduce((acc, val) => acc.concat(val), []).find((node) => node.id === id);
+        const nodes = state.nodes as Record<string, NodeWithData[]>;
+        const node = Object.values(nodes)
+          .flat()
+          .find((node: NodeWithData) => node.id === id);
         return {
           selectedNode: node ?? null,
           selectedEdge: null,
@@ -43,9 +45,9 @@ const createNodeSlice: StateCreator<NodeSlice> = (set) => {
       });
     },
     addNode: (payload) => {
-      set((state) => {
+      set((state: any) => {
         const { parent } = payload.data;
-        const nodes = state.nodes[parent];
+        const nodes = state.nodes[parent] ?? [];
         const newNodes = [...nodes, payload];
         return {
           nodes: {
@@ -56,11 +58,11 @@ const createNodeSlice: StateCreator<NodeSlice> = (set) => {
       });
     },
     modifyNode: (payload) => {
-      set((state) => {
+      set((state: any) => {
         const { id, parent } = payload;
-        const nodes = state.nodes[parent];
+        const nodes = state.nodes[parent] ?? [];
         
-        const newNodes = nodes.map((node) => {
+        const newNodes = nodes.map((node: NodeWithData) => {
           if (node.id === id) {
             return {
               ...node,
@@ -90,17 +92,22 @@ const createNodeSlice: StateCreator<NodeSlice> = (set) => {
       });
     },
     deleteNode: (payload) => {
-      set((state) => {
+      set((state: any) => {
         const { id } = payload;
         const { parent } = payload.data;
-        const nodes = state.nodes[parent];
-        const newNodes = nodes.filter((node) => node.id !== id);
+        const nodes = state.nodes[parent] ?? [];
+        const newNodes = nodes.filter((node: NodeWithData) => node.id !== id);
+        const edges = state.edges.filter(
+          (edge: any) => edge.edge.source !== id && edge.edge.target !== id
+        );
         return {
           selectedNode: null,
+          selectedEdge: null,
           nodes: {
             ...state.nodes,
             [parent]: newNodes,
           },
+          edges,
         };
       });
     },

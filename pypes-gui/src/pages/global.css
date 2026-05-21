@@ -26,6 +26,15 @@ img {
   max-height: 100%;
 }
 
+.network-action-icon {
+  inline-size: 1.1em;
+  block-size: 1.1em;
+  max-inline-size: 1.1em;
+  max-block-size: 1.1em;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
 .customNodeBody img {
   pointer-events: none;
 }

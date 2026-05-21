@@ -1,7 +1,6 @@
 // Sidebar.tsx
-import { Button, Grid, Paper } from "@mui/material";
-import Image from "next/image";
-import React, { useState } from "react";
+import { Button } from "@mui/material";
+import React from "react";
 import NodeComponent from "./node-component";
 
 export type ConnectionType = "Wire" | "Pipe" | null;
@@ -40,8 +39,8 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
             )}
           </div>
           
-          <Grid container>
-            <Grid item xs={6}>
+          <div className="grid grid-cols-2 gap-1">
+            <div>
               <Button
                 variant="contained"
                 className={`flex w-full h-full capitalize border border-dashed p-0 ml-1 mb-1 mt-1 hover:bg-blue-200 ${
@@ -53,8 +52,8 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
               >
                 <NodeComponent text="Wire" border="" margins="" src="/Wire.svg" />
               </Button>
-            </Grid>
-            <Grid item xs={6}>
+            </div>
+            <div>
               <Button
                 variant="contained"
                 className={`flex w-full h-full capitalize p-0 ml-1 mr-1 mb-1 mt-1 hover:bg-blue-200 ${
@@ -66,23 +65,24 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
               >
                 <NodeComponent text="Pipe" border="" margins="" src="/Pipe.svg" />
               </Button>
-            </Grid>
-          </Grid>
+            </div>
+          </div>
         </div>
         <div className="border border-dashed border-flows-gray bg-flows-light-gray">
           <div className="pl-2 pr-2 pt-2 text-flows-sidebar-text border border-dashed text-center">Available nodes:</div>
-          <Grid container>
-            <Grid item xs={6}>
+          <div className="grid grid-cols-2 gap-1">
+            <div>
               <NodeComponent text="Tank" margins="ml-1 mb-1 mt-1" src="/Tank.svg" />
               <NodeComponent text="Reservoir" margins="ml-1 mb-1" src="/Reservoir.svg" />
               <NodeComponent text="Aeration" margins="ml-1 mb-1" src="/Aeration.svg" />
               <NodeComponent text="Battery" margins="ml-1 mb-1" src="/Battery.svg" />
               <NodeComponent text="Network" margins="ml-1 mb-1" src="/network.svg" />
+              <NodeComponent text="ModularUnit" margins="ml-1 mb-1" src="/network.svg" />
               <NodeComponent text="Pump" margins="ml-1 mb-1" src="/Pump.svg" />
               <NodeComponent text="Filtration" margins="ml-1 mb-1" src="/Filtration.svg" />
               <NodeComponent text="Facility" margins="ml-1 mb-1" src="/Facility.svg" />
-            </Grid>
-            <Grid item xs={6}>
+            </div>
+            <div>
               <NodeComponent text="Chlorination" margins="ml-1 mr-1 mb-1 mt-1" src="/Chlorination.svg" />
               <NodeComponent text="Digestion" margins="ml-1 mr-1 mb-1" src="/Digestion.svg" />
               <NodeComponent text="Clarification" margins="ml-1 mr-1 mb-1" src="/Clarification.svg" />
@@ -91,8 +91,9 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
               <NodeComponent text="Thickening" margins="ml-1 mr-1 mb-1" src="/Thickening.svg" />
               <NodeComponent text="Flaring" margins="ml-1 mr-1 mb-1" src="/Flaring.svg" />
               <NodeComponent text="Cogeneration" margins="ml-1 mr-1 mb-1" src="/Cogenerator.svg" />
-            </Grid>
-          </Grid>
+              <NodeComponent text="Delivery" margins="ml-1 mr-1 mb-1" src="/Facility.svg" />
+            </div>
+          </div>
         </div>
       </div>
     </aside>

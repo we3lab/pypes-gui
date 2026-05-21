@@ -17,7 +17,6 @@ import {
 } from "../global/flows-style";
 import HelperText from "../global/helper-text";
 import { de } from "@faker-js/faker";
-import { trpc } from "@/utils/trpc";
 import FlowsTextField from "../global/flows-text-field";
 import FlowsSelect from "../global/flows-select";
 import FlowsButtonLight from "../global/flows-button-light";
@@ -78,58 +77,20 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
   const [destChildrenList, setDestChildrenList] = useState<string[]>([]);
   const [selectedExit, setSelectedExit] = useState<string>("");
   const [selectedEntry, setSelectedEntry] = useState<string>("");
-  const { data: sourceNodeData, refetch: sourceNodeRefetch } =
-    trpc.nodeRouter.nodedata.useQuery(
-      { network_id: networkId, node_id: source },
-      { enabled: false }
-    );
-  const { data: destNodeData, refetch: destNodeRefetch } =
-    trpc.nodeRouter.nodedata.useQuery(
-      { network_id: networkId, node_id: destination },
-      { enabled: false }
-    );
-  const { data: sourceChildrenData, refetch: sourceChildrenRefetch } =
-    trpc.nodeRouter.getbyparent.useQuery(
-      { network_id: networkId, parent_id: source },
-      { enabled: false }
-    );
-  const { data: destChildrenData, refetch: destChildrenRefetch } =
-    trpc.nodeRouter.getbyparent.useQuery(
-      { network_id: networkId, parent_id: destination },
-      { enabled: false }
-    );
+  const nodesByParent = useMainStore((state) => state.nodes);
 
   useEffect(() => {
     if (!source || !destination) {
       return;
     }
-    sourceNodeRefetch().then((r) => {
-      if (r.data?.data != "" && r.data?.data != undefined){
+    const sourceChildren = nodesByParent[source] ?? [];
+    const destinationChildren = nodesByParent[destination] ?? [];
 
-        const sourceNode = JSON.parse(r.data?.data!);
-        if (sourceNode.type == "Facility" || sourceNode.type == "Network") {
-          setExit(true);
-
-          sourceChildrenRefetch().then((r) => {
-            const childrenData = JSON.parse(r.data?.data!);
-            setSourceChildrenList(Object.keys(childrenData.nodes));
-          });
-        }
-      }
-    });
-    destNodeRefetch().then((r) => {
-      if (r.data?.data != "" && r.data?.data != undefined) {
-        const destNode = JSON.parse(r.data?.data!);
-        if (destNode.type == "Facility" || destNode.type == "Network") {
-          setEntry(true);
-          destChildrenRefetch().then((r) => {
-            const childrenData = JSON.parse(r.data?.data!);
-            setDestChildrenList(Object.keys(childrenData.nodes));
-          });
-        }
-      }
-    });
-  }, [open]);
+    setExit(sourceChildren.length > 0);
+    setEntry(destinationChildren.length > 0);
+    setSourceChildrenList(sourceChildren.map((node) => node.id));
+    setDestChildrenList(destinationChildren.map((node) => node.id));
+  }, [destination, nodesByParent, open, source]);
 
   useEffect(() => {
     setExit(false);

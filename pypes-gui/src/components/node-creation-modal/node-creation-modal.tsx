@@ -243,12 +243,14 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
         setName(batteryParams.name);
         break;
       case "Facility":
+      case "Delivery":
         setName(facilityParams.name);
         break;
       case "Chlorination":
         setName(chlorinationParams.name);
         break;
       case "Network":
+      case "ModularUnit":
         setName(networkParams.name);
         break;
       case "Pump":
@@ -423,7 +425,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
           </div>
         )}
 
-        {nodeType === "Network" && (
+        {(nodeType === "Network" || nodeType === "ModularUnit") && (
           <div className={modal_main_section_wrapper_css}>
             <SectionTitle title="NETWORK PARAMETERS" />
             <div className={modal_section_horizontal_css}>
@@ -987,7 +989,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
           </div>
         )}
 
-        {nodeType === "Facility" && (
+        {(nodeType === "Facility" || nodeType === "Delivery") && (
           <div className={modal_main_section_wrapper_css}>
             <SectionTitle title="FACILITY PARAMETERS" />
             <div className={modal_section_vertical_css}>
@@ -1990,6 +1992,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   });
                   break;
                 case "Facility":
+                case "Delivery":
                   onCreate(facilityParams);
                   setFacilityParams({
                     name: "",
@@ -2086,6 +2089,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   });
                   break;
                 case "Network":
+                case "ModularUnit":
                   onCreate(networkParams);
                   setNetworkParams({
                     name: "",

@@ -52,6 +52,8 @@ export interface FacilityParams {
   connections: string[];
 }
 
+export interface DeliveryParams extends FacilityParams {}
+
 export interface ChlorinationParams {
   name: string;
   flowrate: Flowrate;
@@ -64,6 +66,8 @@ export interface NetworkParams {
   nodes: [];
   connections: [];
 }
+
+export interface ModularUnitParams extends NetworkParams {}
 
 export interface PumpParams {
   name: string;
