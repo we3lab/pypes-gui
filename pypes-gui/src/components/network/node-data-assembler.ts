@@ -11,8 +11,9 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         type: nodeType,
         position,
         additionalData: {
-          volume: payload.volume,
-          elevation: payload.elevation,
+          volume: payload.volume ?? 0,
+          elevation: payload.elevation ?? 0,
+          num_units: payload.num_units ?? 1,
           tags: {},
         },
         data: { label: `${nodeType} node` },
@@ -27,8 +28,12 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         type: nodeType,
         position,
         additionalData: {
-          generation_capacity: payload.generation_capacity,
-          num_units: payload.num_units,
+          min_gen: payload.min_gen ?? 0,
+          max_gen: payload.max_gen ?? 0,
+          design_gen: payload.design_gen ?? 0,
+          electrical_efficiency: payload.electrical_efficiency ?? 0,
+          thermal_efficiency: payload.thermal_efficiency ?? 0,
+          num_units: payload.num_units ?? 1,
           tags: {},
         },
         data: { label: `${nodeType} node` },
@@ -44,8 +49,9 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         type: nodeType,
         position,
         additionalData: {
-          nodes: payload.nodes,
-          connections: payload.connections,
+          nodes: payload.nodes ?? [],
+          connections: payload.connections ?? [],
+          num_units: payload.num_units ?? 1,
           tags: {},
         },
         data: { label: `${nodeType} node` },
@@ -72,23 +78,80 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
     case "Chlorination":
     case "Clarification":
     case "Thickening":
+    case "StaticMixer": {
+      const newNode = {
+        id: nodeName,
+        type: nodeType,
+        position,
+        additionalData: {
+          volume: payload.volume ?? 0,
+          residence_time: payload.residence_time ?? 0,
+          dosing_rate: payload.dosing_rate ?? {},
+          pH: payload.pH ?? 7.0,
+          num_units: payload.num_units ?? 1,
+          flowrate: {
+            min: payload.flowrate?.min ?? 0,
+            max: payload.flowrate?.max ?? 0,
+            avg: payload.flowrate?.avg ?? 0,
+            units: payload.flowrate?.units ?? "m3/h",
+          },
+          tags: {},
+        },
+        data: { label: `${nodeType} node` },
+      };
+
+      return newNode;
+    }
+
     case "Filtration":
-    case "ROMembrane":
+    case "ROMembrane": {
+      const newNode = {
+        id: nodeName,
+        type: nodeType,
+        position,
+        additionalData: {
+          volume: payload.volume ?? 0,
+          residence_time: payload.residence_time ?? 0,
+          dosing_rate: payload.dosing_rate ?? {},
+          pH: payload.pH ?? 7.0,
+          num_units: payload.num_units ?? 1,
+          settling_time: payload.settling_time ?? 0,
+          area: payload.area ?? 0,
+          permeability: payload.permeability ?? 0,
+          selectivity: payload.selectivity ?? 0,
+          flowrate: {
+            min: payload.flowrate?.min ?? 0,
+            max: payload.flowrate?.max ?? 0,
+            avg: payload.flowrate?.avg ?? 0,
+            units: payload.flowrate?.units ?? "m3/h",
+          },
+          tags: {},
+        },
+        data: { label: `${nodeType} node` },
+      };
+
+      return newNode;
+    }
+
     case "UVSystem": {
       const newNode = {
         id: nodeName,
         type: nodeType,
         position,
         additionalData: {
-          volume: payload.volume,
-          num_units: payload.num_units,
+          volume: payload.volume ?? 0,
+          residence_time: payload.residence_time ?? 0,
+          dosing_rate: payload.dosing_rate ?? {},
+          pH: payload.pH ?? 7.0,
+          num_units: payload.num_units ?? 1,
+          intensity: payload.intensity ?? 0,
+          dosing_area: payload.dosing_area ?? 0,
           flowrate: {
-            min: payload.flowrate.min,
-            max: payload.flowrate.max,
-            avg: payload.flowrate.avg,
-            units: payload.flowrate.units,
+            min: payload.flowrate?.min ?? 0,
+            max: payload.flowrate?.max ?? 0,
+            avg: payload.flowrate?.avg ?? 0,
+            units: payload.flowrate?.units ?? "m3/h",
           },
-
           tags: {},
         },
         data: { label: `${nodeType} node` },
@@ -105,12 +168,12 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         type: nodeType,
         position,
         additionalData: {
-          num_units: payload.num_units,
+          num_units: payload.num_units ?? 1,
           flowrate: {
-            min: payload.flowrate.min,
-            max: payload.flowrate.max,
-            avg: payload.flowrate.avg,
-            units: payload.flowrate.units,
+            min: payload.flowrate?.min ?? 0,
+            max: payload.flowrate?.max ?? 0,
+            avg: payload.flowrate?.avg ?? 0,
+            units: payload.flowrate?.units ?? "m3/h",
           },
 
           tags: {},
@@ -127,8 +190,11 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         type: nodeType,
         position,
         additionalData: {
-          capacity: payload.capacity,
-          discharge_rate: payload.discharge_rate,
+          energy_capacity: payload.energy_capacity ?? 0,
+          charge_rate: payload.charge_rate ?? 0,
+          discharge_rate: payload.discharge_rate ?? 0,
+          rte: payload.rte ?? 0,
+          leakage: payload.leakage ?? 0,
           tags: {},
         },
         data: { label: `${nodeType} node` },
@@ -143,31 +209,16 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         type: nodeType,
         position,
         additionalData: {
-          elevation: payload.elevation,
+          elevation: payload.elevation ?? 0,
           flowrate: {
-            min: payload.flowrate.min,
-            max: payload.flowrate.max,
-            avg: payload.flowrate.avg,
-            units: payload.flowrate.units,
+            min: payload.flowrate?.min ?? 0,
+            max: payload.flowrate?.max ?? 0,
+            avg: payload.flowrate?.avg ?? 0,
+            units: payload.flowrate?.units ?? "m3/h",
           },
-          nodes: payload.nodes,
-          connections: payload.connections,
-          tags: {},
-        },
-        data: { label: `${nodeType} node` },
-      };
-
-      return newNode;
-    }
-
-    case "StaticMixer": {
-      const newNode = {
-        id: nodeName,
-        type: nodeType,
-        position,
-        additionalData: {
-          volume: payload.volume,
-          elevation: payload.elevation,
+          nodes: payload.nodes ?? [],
+          connections: payload.connections ?? [],
+          num_units: payload.num_units ?? 1,
           tags: {},
         },
         data: { label: `${nodeType} node` },
@@ -182,17 +233,18 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         type: nodeType,
         position,
         additionalData: {
-          elevation: payload.elevation,
-          num_units: payload.num_units,
+          elevation: payload.elevation ?? 0,
+          power_rating: payload.power_rating ?? 0,
+          num_units: payload.num_units ?? 1,
+          pump_type: payload.pump_type ?? "VFD",
+          efficiency: payload.efficiency ?? 0,
+          pump_curve: payload.pump_curve ?? {},
           flowrate: {
-            min: payload.flowrate.min,
-            max: payload.flowrate.max,
-            avg: payload.flowrate.avg,
-            units: payload.flowrate.units,
+            min: payload.flowrate?.min ?? 0,
+            max: payload.flowrate?.max ?? 0,
+            avg: payload.flowrate?.avg ?? 0,
+            units: payload.flowrate?.units ?? "m3/h",
           },
-          horsepower: payload.horsepower,
-          pump_type: payload.pump_type,
-
           tags: {},
         },
         data: { label: `${nodeType} node` },
@@ -206,16 +258,15 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         type: nodeType,
         position,
         additionalData: {
-          volume: payload.volume,
-          num_units: payload.num_units,
+          volume: payload.volume ?? 0,
+          digester_type: payload.digester_type ?? "Aerobic",
+          num_units: payload.num_units ?? 1,
           flowrate: {
-            min: payload.flowrate.min,
-            max: payload.flowrate.max,
-            avg: payload.flowrate.avg,
-            units: payload.flowrate.units,
+            min: payload.flowrate?.min ?? 0,
+            max: payload.flowrate?.max ?? 0,
+            avg: payload.flowrate?.avg ?? 0,
+            units: payload.flowrate?.units ?? "m3/h",
           },
-          digester_type: payload.pump_type,
-
           tags: {},
         },
         data: { label: `${nodeType} node` },

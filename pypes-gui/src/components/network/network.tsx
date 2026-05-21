@@ -37,7 +37,11 @@ import NetworkNode from "./nodes/network-node";
 import PumpNode from "./nodes/pump-node";
 import ScreeningNode from "./nodes/screening-node";
 import ThickeningNode from "./nodes/thickening-node";
-import IconNode from "./nodes/icon-node";
+import JunctionNode from "./nodes/junction-node";
+import ModularUnitNode from "./nodes/modular-unit-node";
+import ROMembraneNode from "./nodes/ro-membrane-node";
+import StaticMixerNode from "./nodes/static-mixer-node";
+import UVSystemNode from "./nodes/uv-system-node";
 import SectionTitle from "../global/section-title";
 import HelperText from "../global/helper-text";
 import {
@@ -72,11 +76,11 @@ const nodeTypes = {
   Screening: ScreeningNode,
   Conditioning: ConditioningNode,
   Network: NetworkNode,
-  Junction: IconNode,
-  ModularUnit: IconNode,
-  ROMembrane: IconNode,
-  StaticMixer: IconNode,
-  UVSystem: IconNode,
+  Junction: JunctionNode,
+  ModularUnit: ModularUnitNode,
+  ROMembrane: ROMembraneNode,
+  StaticMixer: StaticMixerNode,
+  UVSystem: UVSystemNode,
 };
 
 const edgeTypes: EdgeTypes = {
@@ -381,9 +385,10 @@ const Network = ({
 
   const prepareAndSendConnection = useCallback(
     (params: any, payload: any, customEdgeId: string) => {
+      const connectionType = payload.type || params.type;
       const trpcConn: connectionParams = {
         id: payload.name,
-        type: params.type,
+        type: connectionType,
         source: params.source,
         destination: params.target,
         contents: payload.content,
@@ -396,12 +401,12 @@ const Network = ({
         id: payload.name,
         source: params.source,
         target: params.target,
-        type: params.type,
+        type: connectionType,
       };
       const edgeWithData: EdgeWithData = {
         id: payload.name,
         edge: drawConn,
-        type: params.type,
+        type: connectionType,
         data: {
           parent: parentId,
           tags: {},
@@ -410,6 +415,7 @@ const Network = ({
             bidirectional: payload.bidirectional,
             entry_point: payload.entry_point,
             exit_point: payload.exit_point,
+            ...(payload.additionalData ?? {}),
           },
         },
       };

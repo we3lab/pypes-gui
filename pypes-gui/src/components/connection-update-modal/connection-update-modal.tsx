@@ -105,12 +105,13 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
   useEffect(() => {
     if (open) {
       connRefetch().then((r) => {    
-          const rdata = r.data?.data
-          const parsedConn = JSON.parse(r.data!.data);
+        if (r.data?.data) {
+          const parsedConn = JSON.parse(r.data.data);
           setCurrentConnection(parsedConn);
-    });
+        }
+      });
     }
-  }, [open]);
+  }, [open, connRefetch]);
 
   const setDefaultValueFromDB = useCallback(
     (currentConnection: any) => {

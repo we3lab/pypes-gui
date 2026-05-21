@@ -68,6 +68,10 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
     "Stormwater",
   ];
 
+  const connectionTypes: string[] = ["Wire", "Pipe", "Wireless", "Delivery"];
+
+  const initialConnectionType = useMainStore((state) => state.connectionType);
+  const [selectedConnectionType, setSelectedConnectionType] = useState(initialConnectionType);
   const [selectedContentType, setSelectedContentType] = useState("");
   const [isBidirectional, setIsBidirectional] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
@@ -77,6 +81,15 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
   const [destChildrenList, setDestChildrenList] = useState<string[]>([]);
   const [selectedExit, setSelectedExit] = useState<string>("");
   const [selectedEntry, setSelectedEntry] = useState<string>("");
+  const [diameter, setDiameter] = useState<number>(0);
+  const [minPressure, setMinPressure] = useState<number>(0);
+  const [maxPressure, setMaxPressure] = useState<number>(0);
+  const [designPressure, setDesignPressure] = useState<number>(0);
+  const [minFlow, setMinFlow] = useState<number>(0);
+  const [maxFlow, setMaxFlow] = useState<number>(0);
+  const [designFlow, setDesignFlow] = useState<number>(0);
+  const [frictionCoeff, setFrictionCoeff] = useState<number>(0);
+
   const nodesByParent = useMainStore((state) => state.nodes);
 
   useEffect(() => {
@@ -93,16 +106,25 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
   }, [destination, nodesByParent, open, source]);
 
   useEffect(() => {
-    setExit(false);
-    setEntry(false);
-    setSelectedExit("");
-    setSelectedEntry("");
-    setName("");
-    setSelectedContentType("");
-    setIsBidirectional(false);
-    destination = "";
-    source = "";
-  }, [onClose, open]);
+    if (open) {
+      setExit(false);
+      setEntry(false);
+      setSelectedExit("");
+      setSelectedEntry("");
+      setName("");
+      setSelectedContentType("");
+      setIsBidirectional(false);
+      setSelectedConnectionType(initialConnectionType || "Pipe");
+      setDiameter(0);
+      setMinPressure(0);
+      setMaxPressure(0);
+      setDesignPressure(0);
+      setMinFlow(0);
+      setMaxFlow(0);
+      setDesignFlow(0);
+      setFrictionCoeff(0);
+    }
+  }, [open, initialConnectionType]);
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -118,14 +140,34 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
 
           <div className={modal_section_vertical_css}>
             <div className={modal_top_subsection_wrapper_css}>
-              <FlowsTextField
-                className={modal_textfield_css}
-                label="Name"
-                type="text"
-                placeholder="Start typing..."
-                value={name}
-                onChange={(e: any) => setName(e.target.value)}
-              />
+              <div className={modal_section_horizontal_css + " items-center"}>
+                <div className="w-1/4">Name:</div>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  type="text"
+                  placeholder="Start typing..."
+                  value={name}
+                  onChange={(e: any) => setName(e.target.value)}
+                />
+              </div>
+              <div className={modal_section_horizontal_css + " items-center"}>
+                <div className="w-1/4">Connection Type:</div>
+                <FlowsSelect
+                  label="Type"
+                  placeholder="Please select"
+                  value={selectedConnectionType}
+                  onChange={(e: any) => {
+                    setSelectedConnectionType(e.target.value as string);
+                  }}
+                >
+                  {connectionTypes.map((item, index) => (
+                    <MenuItem key={index} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </FlowsSelect>
+              </div>
             </div>
             <div className={modal_bottom_subsection_wrapper_css}>
               <div className={modal_section_horizontal_css + " items-center"}>
@@ -202,6 +244,91 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
                   </FlowsSelect>
                 </div>
               )}
+              {selectedConnectionType === "Pipe" && (
+                <>
+                  <div className={modal_section_horizontal_css + " items-center"}>
+                    <div className="w-1/4">Diameter:</div>
+                    <FlowsTextField
+                      className={modal_textfield_css}
+                      label="Diameter"
+                      type="number"
+                      placeholder="0"
+                      value={diameter}
+                      onChange={(e: any) => setDiameter(Number(e.target.value))}
+                    />
+                  </div>
+                  <div className={modal_section_horizontal_css + " items-center"}>
+                    <div className="w-1/4">Friction Coeff:</div>
+                    <FlowsTextField
+                      className={modal_textfield_css}
+                      label="Friction Coeff"
+                      type="number"
+                      placeholder="0"
+                      value={frictionCoeff}
+                      onChange={(e: any) => setFrictionCoeff(Number(e.target.value))}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Min Flow:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Min Flow"
+                        type="number"
+                        placeholder="0"
+                        value={minFlow}
+                        onChange={(e: any) => setMinFlow(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Max Flow:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Max Flow"
+                        type="number"
+                        placeholder="0"
+                        value={maxFlow}
+                        onChange={(e: any) => setMaxFlow(Number(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Min Press:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Min Pressure"
+                        type="number"
+                        placeholder="0"
+                        value={minPressure}
+                        onChange={(e: any) => setMinPressure(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Max Press:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Max Pressure"
+                        type="number"
+                        placeholder="0"
+                        value={maxPressure}
+                        onChange={(e: any) => setMaxPressure(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Design Press:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Design Pressure"
+                        type="number"
+                        placeholder="0"
+                        value={designPressure}
+                        onChange={(e: any) => setDesignPressure(Number(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -217,11 +344,22 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
             disabled={selectedContentType === "" || name === ""}
             onClick={() => {
               onCreateConnection({
+                type: selectedConnectionType,
                 content: selectedContentType,
                 bidirectional: isBidirectional,
                 name: name,
                 entry_point: selectedEntry,
                 exit_point: selectedExit,
+                additionalData: {
+                  diameter: diameter,
+                  friction_coeff: frictionCoeff,
+                  min_flow: minFlow,
+                  max_flow: maxFlow,
+                  design_flow: designFlow,
+                  min_pressure: minPressure,
+                  max_pressure: maxPressure,
+                  design_pressure: designPressure,
+                }
               });
             }}
           >
