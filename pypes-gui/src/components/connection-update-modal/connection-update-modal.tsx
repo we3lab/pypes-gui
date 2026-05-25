@@ -1,7 +1,6 @@
 import { Box, MenuItem, Modal } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import useMainStore from "@/store/store";
-import { trpc } from "@/utils/trpc";
 import SectionTitle from "../global/section-title";
 import {
   modal_box_css,
@@ -29,7 +28,7 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
   onClose,
   networkId,
 }) => {
-  const { onUpdateConnection, networkIdDataIngestionPage, selectedEdgeId } =
+  const { onUpdateConnection, selectedEdgeId, edges, nodes } =
     useMainStore();
   const contentTypes: string[] = [
     "UntreatedSewage",
@@ -72,51 +71,35 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
   const [selectedEntry, setSelectedEntry] = useState<string>("");
   const [currentConnection, setCurrentConnection] = useState<any>({});
 
-  const { data: sourceNodeData, refetch: sourceNodeRefetch } =
-    trpc.nodeRouter.nodedata.useQuery(
-      { network_id: networkId, node_id: currentConnection.source },
-      { enabled: false }
-    );
-  const { data: destNodeData, refetch: destNodeRefetch } =
-    trpc.nodeRouter.nodedata.useQuery(
-      { network_id: networkId, node_id: currentConnection.destination },
-      { enabled: false }
-    );
-  const { data: sourceChildrenData, refetch: sourceChildrenRefetch } =
-    trpc.nodeRouter.getbyparent.useQuery(
-      { network_id: networkId, parent_id: currentConnection.source },
-      { enabled: false }
-    );
-  const { data: destChildrenData, refetch: destChildrenRefetch } =
-    trpc.nodeRouter.getbyparent.useQuery(
-      { network_id: networkId, parent_id: currentConnection.destination },
-      { enabled: false }
-    );
-
-  const { data: connection, refetch: connRefetch } =
-    trpc.connectionRouter.get.useQuery(
-      {
-        network_id: networkIdDataIngestionPage,
-        connection_id: selectedEdgeId,
-      },
-      { enabled: false }
-    );
-
   useEffect(() => {
+    const fetchData = async () => {
+      // Strictly get data from the store (memory)
+      const storeEdge = edges.find((e) => e.id === selectedEdgeId);
+      if (storeEdge && storeEdge.data && storeEdge.data.additionalData) {
+        setCurrentConnection({
+          ...storeEdge.data.additionalData,
+          source: storeEdge.edge.source,
+          destination: storeEdge.edge.target,
+          id: storeEdge.id,
+        });
+      } else if (storeEdge) {
+        setCurrentConnection({
+          source: storeEdge.edge.source,
+          destination: storeEdge.edge.target,
+          id: storeEdge.id,
+        });
+      }
+    };
+
     if (open) {
-      connRefetch().then((r) => {    
-        if (r.data?.data) {
-          const parsedConn = JSON.parse(r.data.data);
-          setCurrentConnection(parsedConn);
-        }
-      });
+      fetchData();
     }
-  }, [open, connRefetch]);
+  }, [open, selectedEdgeId, edges]);
 
   const setDefaultValueFromDB = useCallback(
     (currentConnection: any) => {
-      setSelectedContentType(currentConnection.contents);
-      setIsBidirectional(currentConnection.bidirectional);
+      setSelectedContentType(currentConnection.contents ?? currentConnection.content ?? "");
+      setIsBidirectional(currentConnection.bidirectional ?? false);
       setName(selectedEdgeId);
       if (currentConnection.exit_point != undefined)
         {setSelectedExit(currentConnection.exit_point);}
@@ -132,38 +115,28 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
   }, [currentConnection]);
 
   useEffect(() => {
-    if(currentConnection.source != undefined && currentConnection.source != ""){
-    sourceNodeRefetch().then((r) => {
-      if (r.data?.data != "" && r.data?.data != undefined) {
-        const sourceNode = JSON.parse(r.data?.data!);
-        if (sourceNode.type == "Facility" || sourceNode.type == "Network") {
-          setExit(() => {
-            return true;
-          });
+    if (currentConnection.source != undefined && currentConnection.source != "") {
+      const allNodes = Object.values(nodes).flat();
+      const sourceNode = allNodes.find(n => n.id === currentConnection.source);
+      
+      if (sourceNode) {
+        if (sourceNode.node.type === "Facility" || sourceNode.node.type === "Network") {
+          setExit(true);
+          const children = nodes[sourceNode.id] ?? [];
+          setSourceChildrenList(children.map(n => n.id));
+        }
+      }
 
-          sourceChildrenRefetch().then((r) => {
-            const childrenData = JSON.parse(r.data?.data!);
-            setSourceChildrenList(Object.keys(childrenData.nodes));
-          });
+      const destNode = allNodes.find(n => n.id === currentConnection.destination);
+      if (destNode) {
+        if (destNode.node.type === "Facility" || destNode.node.type === "Network") {
+          setEntry(true);
+          const children = nodes[destNode.id] ?? [];
+          setDestChildrenList(children.map(n => n.id));
         }
       }
-    });
-    destNodeRefetch().then((r) => {
-      if (r.data?.data != "" && r.data?.data != undefined) {
-        const destNode = JSON.parse(r.data?.data!);
-        if (destNode.type == "Facility" || destNode.type == "Network") {
-          setEntry(() => {
-            return true;
-          });
-          destChildrenRefetch().then((r) => {
-            const childrenData = JSON.parse(r.data?.data!);
-            setDestChildrenList(Object.keys(childrenData.nodes));
-          });
-        }
-      }
-    });
-  }
-  }, [currentConnection]);
+    }
+  }, [currentConnection, nodes]);
 
   return (
     <Modal

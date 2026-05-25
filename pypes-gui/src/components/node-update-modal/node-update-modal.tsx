@@ -1,7 +1,6 @@
 import { NodeWithData } from "@/store/store";
 import { Box, Button, MenuItem, Modal } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import { trpc } from "@/utils/trpc";
 import {
   TankParams,
   FiltrationParams,
@@ -52,35 +51,37 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     nodeType,
     onUpdate,
     closeNodeDetailsModal,
-    networkIdDataIngestionPage,
     selectedNodeId,
+    nodes,
   } = useMainStore();
-  const { data: node, refetch: nodeRefetch } =
-    trpc.nodeRouter.nodedata.useQuery(
-      { network_id: networkIdDataIngestionPage, node_id: selectedNodeId },
-      { enabled: false }
-    );
+
   const [currentNode, setCurrentNode] = useState<any>({});
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        await nodeRefetch();
-        if (node) {
-          const parsedNode = JSON.parse(node.data);
-          await setCurrentNode(parsedNode);
-        } else {
-          console.log("Node is null");
-        }
-      } catch (error) {
-        console.error("Error fetching node data:", error);
+      // Strictly get data from the store (memory)
+      const allNodes = Object.values(nodes).flat();
+      const storeNode = allNodes.find((n) => n.id === selectedNodeId);
+
+      if (storeNode && storeNode.data && storeNode.data.additionalData) {
+        setCurrentNode({
+          ...storeNode.data.additionalData,
+          type: storeNode.node.type,
+          id: storeNode.id,
+        });
+      } else if (storeNode) {
+        // Handle case where additionalData might be missing but node exists
+        setCurrentNode({
+          type: storeNode.node.type,
+          id: storeNode.id,
+        });
       }
     };
 
     if (open) {
       fetchData();
     }
-  }, [open, node, nodeRefetch]);
+  }, [open, selectedNodeId, nodes]);
 
   const [tankParams, setTankParams] = useState<TankParams>({
     name: "",
@@ -256,190 +257,191 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
   });
 
   const addDefaultValueFromDB = useCallback((currentNode: any, id: string) => {
+    if (!currentNode || !currentNode.type) return;
+
     switch (currentNode["type"]) {
       case "Tank":
         setTankParams({
           name: id,
-          elevation: currentNode["elevation"],
-          volume: currentNode["volume (cubic meters)"],
+          elevation: currentNode["elevation"] ?? 0,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
         });
         break;
       case "Reservoir":
         setReservoirParams({
           name: id,
-          elevation: currentNode.elevation,
-          volume: currentNode["volume (cubic meters)"],
+          elevation: currentNode["elevation"] ?? 10,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
         });
         break;
       case "Aeration":
         setAerationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate.avg,
-            max: currentNode.flowrate.max,
-            min: currentNode.flowrate.min,
-            units: currentNode.flowrate.units,
+            avg: currentNode.flowrate?.avg ?? 0,
+            max: currentNode.flowrate?.max ?? 0,
+            min: currentNode.flowrate?.min ?? 0,
+            units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"],
-          volume: currentNode["volume (cubic meters)"],
+          num_units: currentNode["num_units"] ?? 0,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
         });
         break;
       case "Filtration":
         setFiltrationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate.avg,
-            max: currentNode.flowrate.max,
-            min: currentNode.flowrate.min,
-            units: currentNode.flowrate.units,
+            avg: currentNode.flowrate?.avg ?? 0,
+            max: currentNode.flowrate?.max ?? 0,
+            min: currentNode.flowrate?.min ?? 0,
+            units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"],
-          volume: currentNode["volume (cubic meters)"],
+          num_units: currentNode["num_units"] ?? 0,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
         });
         break;
       case "Battery":
         setBatteryParams({
           name: id,
-          capacity: currentNode.capacity,
-          discharge_rate: currentNode["discharge_rate"],
+          capacity: currentNode["capacity"] ?? 0,
+          discharge_rate: currentNode["discharge_rate"] ?? 0,
         });
         break;
       case "Facility":
-        console.log("currentNode", currentNode);
         setFacilityParams({
           name: id,
-          elevation: currentNode.elevation,
+          elevation: currentNode["elevation"] ?? 0,
           flowrate: {
-            avg: currentNode.flowrate.avg,
-            max: currentNode.flowrate.max,
-            min: currentNode.flowrate.min,
-            units: currentNode.flowrate.units,
+            avg: currentNode.flowrate?.avg ?? 0,
+            max: currentNode.flowrate?.max ?? 0,
+            min: currentNode.flowrate?.min ?? 0,
+            units: currentNode.flowrate?.units ?? "MGD",
           },
-          nodes: currentNode.nodes,
-          connections: currentNode.connections,
+          nodes: currentNode["nodes"] ?? [],
+          connections: currentNode["connections"] ?? [],
         });
         break;
       case "Chlorination":
         setChlorinationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate.avg,
-            max: currentNode.flowrate.max,
-            min: currentNode.flowrate.min,
-            units: currentNode.flowrate.units,
+            avg: currentNode.flowrate?.avg ?? 0,
+            max: currentNode.flowrate?.max ?? 0,
+            min: currentNode.flowrate?.min ?? 0,
+            units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"],
-          volume: currentNode["volume (cubic meters)"],
+          num_units: currentNode["num_units"] ?? 0,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
         });
         break;
       case "Network":
         setNetworkParams({
           name: id,
-          nodes: currentNode.nodes,
-          connections: currentNode.connections,
+          nodes: currentNode["nodes"] ?? [],
+          connections: currentNode["connections"] ?? [],
         });
         break;
       case "Pump":
         setPumpParams({
           name: id,
-          elevation: currentNode.elevation,
-          horsepower: currentNode.horsepower,
-          num_units: currentNode["num_units"],
+          elevation: currentNode["elevation"] ?? 0,
+          horsepower: currentNode["horsepower"] ?? 0,
+          num_units: currentNode["num_units"] ?? 0,
           flowrate: {
-            avg: currentNode.flowrate.avg,
-            max: currentNode.flowrate.max,
-            min: currentNode.flowrate.min,
-            units: currentNode.flowrate.units,
+            avg: currentNode.flowrate?.avg ?? 0,
+            max: currentNode.flowrate?.max ?? 0,
+            min: currentNode.flowrate?.min ?? 0,
+            units: currentNode.flowrate?.units ?? "MGD",
           },
-          pump_type: currentNode["pump_type"],
+          pump_type: currentNode["pump_type"] ?? "VFD",
         });
         break;
       case "Digestion":
         setDigestionParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate.avg,
-            max: currentNode.flowrate.max,
-            min: currentNode.flowrate.min,
-            units: currentNode.flowrate.units,
+            avg: currentNode.flowrate?.avg ?? 0,
+            max: currentNode.flowrate?.max ?? 0,
+            min: currentNode.flowrate?.min ?? 0,
+            units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"],
-          volume: currentNode["volume (cubic meters)"],
-          digester_type: currentNode["digester_type"],
+          num_units: currentNode["num_units"] ?? 0,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
+          digester_type: currentNode["digester_type"] ?? "Anaerobic",
         });
         break;
       case "Cogeneration":
         setCogenerationParams({
           name: id,
           generation_capacity: {
-            avg: currentNode.generation_capacity.avg,
-            max: currentNode.generation_capacity.max,
-            min: currentNode.generation_capacity.min,
-            units: currentNode.generation_capacity.units,
+            avg: currentNode.generation_capacity?.avg ?? 0,
+            max: currentNode.generation_capacity?.max ?? 0,
+            min: currentNode.generation_capacity?.min ?? 0,
+            units: currentNode.generation_capacity?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"],
+          num_units: currentNode["num_units"] ?? 0,
         });
         break;
       case "Clarification":
         setClarificationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate.avg,
-            max: currentNode.flowrate.max,
-            min: currentNode.flowrate.min,
-            units: currentNode.flowrate.units,
+            avg: currentNode.flowrate?.avg ?? 0,
+            max: currentNode.flowrate?.max ?? 0,
+            min: currentNode.flowrate?.min ?? 0,
+            units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"],
-          volume: currentNode["volume (cubic meters)"],
+          num_units: currentNode["num_units"] ?? 0,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
         });
         break;
       case "Screening":
         setScreeningParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate.avg,
-            max: currentNode.flowrate.max,
-            min: currentNode.flowrate.min,
-            units: currentNode.flowrate.units,
+            avg: currentNode.flowrate?.avg ?? 0,
+            max: currentNode.flowrate?.max ?? 0,
+            min: currentNode.flowrate?.min ?? 0,
+            units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"],
+          num_units: currentNode["num_units"] ?? 0,
         });
         break;
       case "Conditioning":
         setConditioningParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate.avg,
-            max: currentNode.flowrate.max,
-            min: currentNode.flowrate.min,
-            units: currentNode.flowrate.units,
+            avg: currentNode.flowrate?.avg ?? 0,
+            max: currentNode.flowrate?.max ?? 0,
+            min: currentNode.flowrate?.min ?? 0,
+            units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"],
+          num_units: currentNode["num_units"] ?? 0,
         });
         break;
       case "Thickening":
         setThickeningParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate.avg,
-            max: currentNode.flowrate.max,
-            min: currentNode.flowrate.min,
-            units: currentNode.flowrate.units,
+            avg: currentNode.flowrate?.avg ?? 0,
+            max: currentNode.flowrate?.max ?? 0,
+            min: currentNode.flowrate?.min ?? 0,
+            units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"],
-          volume: currentNode["volume (cubic meters)"],
+          num_units: currentNode["num_units"] ?? 0,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
         });
         break;
       case "Flaring":
         setFlaringParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate.avg,
-            max: currentNode.flowrate.max,
-            min: currentNode.flowrate.min,
-            units: currentNode.flowrate.units,
+            avg: currentNode.flowrate?.avg ?? 0,
+            max: currentNode.flowrate?.max ?? 0,
+            min: currentNode.flowrate?.min ?? 0,
+            units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"],
+          num_units: currentNode["num_units"] ?? 0,
         });
         break;
       default:

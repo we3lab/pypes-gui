@@ -47,13 +47,16 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
     modifyNode,
     openNodeUpdateModal,
     openTagCreationModal,
+    openTagEditModal,
     closeTagCreationModal,
+    closeTagEditModal,
     closeNodeUpdateModal,
     closeNodeDetailsModal,
     setSelectedNodeId,
     nodes,
     parentId,
     tagCreationModalOpen,
+    tagEditModalOpen,
   } = useStore();
 
   const [deleteNodeModal, setDeleteNodeModal] = useState<boolean>(false);
@@ -64,12 +67,14 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
     () => import("@/components/tag-creation-modal/tag-creation-modal"),
     { ssr: false }
   );
+  const TagEditModal = dynamic(
+    () => import("@/components/tag-edit-modal/tag-edit-modal"),
+    { ssr: false }
+  );
 
   // Find the selected node from the nodes object
   const getNodeData = useCallback(() => {
-    console.log("nodes: ", nodes);
     const allNodes = Object.values(nodes).flat();
-    console.log("allNodes: ", allNodes);
     return allNodes.find((node) => node.id === selectedNodeId);
   }, [nodes, selectedNodeId]);
 
@@ -178,8 +183,40 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
     closeTagCreationModal();
   };
 
+  const prepareAndEditTag = (payload: any) => {
+    const tagKey = payload.id;
+    const { id, unit, ...tagDetails } = payload;
+    const updatedTagValue = {
+      ...tagDetails,
+      units: unit,
+    };
+    setTags((prevTags) => {
+      const updatedTags = { ...prevTags, [tagKey]: updatedTagValue };
+      if (nodeData) {
+        const parent = nodeData.data.parent || parentId || "world";
+        const levelNodes = nodes[parent] ?? [];
+        const updatedNodes = {
+          ...nodes,
+          [parent]: levelNodes.map((node) =>
+            node.id === selectedNodeId
+              ? { ...node, data: { ...node.data, tags: updatedTags } }
+              : node
+          ),
+        };
+        useStore.setState({ nodes: updatedNodes });
+      }
+      return updatedTags;
+    });
+    closeTagEditModal();
+  };
+
   const onAddTag = () => {
     openTagCreationModal((payload) => prepareAndSendTag(payload));
+  };
+
+  const onEditTag = (tagKey: string) => {
+    setSelectedTag(tagKey);
+    openTagEditModal((payload) => prepareAndEditTag(payload));
   };
 
   const onDeleteTag = (tagKey: string) => {
@@ -224,6 +261,11 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
             onClose={closeTagCreationModal}
             source={[]} // Pass an empty array or adjust as needed
             destination={[]} // No destination for nodes
+          />
+          <TagEditModal
+            open={tagEditModalOpen}
+            onClose={closeTagEditModal}
+            tag={selectedTag}
           />
         </div>
         <FlowsPopUpWindow
@@ -284,7 +326,7 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
                           <Button className="p-0 justify-end cursor-default">
                             <div
                               className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
-                              onClick={onAddTag} // Simplified: reopens tag modal
+                              onClick={() => onEditTag(tagKey)}
                             >
                               <img src="/edit.svg" className="w-4" />
                             </div>

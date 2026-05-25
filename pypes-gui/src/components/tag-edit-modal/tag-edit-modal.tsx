@@ -23,7 +23,6 @@ import FlowsSelect from "../global/flows-select";
 import FlowsButtonLight from "../global/flows-button-light";
 import FlowsButtonDark from "../global/flows-button-dark";
 import { FaTimes } from "react-icons/fa";
-import { trpc } from "@/utils/trpc";
 import { convertUnits } from "../utils/unitParser";
 import {
   unitTypes,
@@ -116,7 +115,7 @@ const TagEditModal: React.FC<TagEditModalProps> = ({
   destination,
   tag,
 }) => {
-  const { onEditTag, selectedNodeId, networkIdDataIngestionPage } =
+  const { onEditTag, selectedNodeId, nodes, edges } =
     useMainStore();
 
   const [selectedContentType, setSelectedContentType] = useState("");
@@ -136,36 +135,42 @@ const TagEditModal: React.FC<TagEditModalProps> = ({
   }, [selectedNodeId]);
 
   useEffect(() => {
-    setSelectedContentType("");
-    setSelectedUnitType("");
-    setSelectedTagType("");
-    setSelectedId("");
-    setSelectedContentType("");
-    setIsTotalized(false);
-  }, [onClose, open]);
-
-  const { data: tagData, refetch: tagDataRefetch } =
-    trpc.tagRouter.get.useQuery(
-      { network_id: networkIdDataIngestionPage, tag_id: tag },
-      { enabled: false }
-    );
-
-  useEffect(() => {
-    if (open) {
-      setSelectedId(tag);
-      tagDataRefetch().then((r) => {
-        setSelectedContentType(r.data?.data.contents);
-        setSelectedTagType(r.data?.data.type);
-        const units = convertUnits(
-          r.data?.data.units.trim().toLowerCase().replace(/[_\s]/g, "")
-        );
-        setSelectedUnitType(units);
-        setSourceUnitID(r.data?.data.source_unit_id);
-        setDestUnitID(r.data?.data.dest_unit_id);
-        setIsTotalized(r.data?.data.totalized);
-      });
+    if (!open) {
+      setSelectedContentType("");
+      setSelectedUnitType("");
+      setSelectedTagType("");
+      setSelectedId("");
+      setIsTotalized(false);
     }
   }, [open]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setSelectedId(tag);
+      
+      // Strictly get data from store (memory)
+      const allNodes = Object.values(nodes).flat();
+      const nodeWithTag = allNodes.find(n => n.data?.tags?.[tag]);
+      const edgeWithTag = edges.find(e => e.data?.tags?.[tag]);
+      const storeTag = nodeWithTag?.data?.tags?.[tag] || edgeWithTag?.data?.tags?.[tag];
+
+      if (storeTag) {
+        setSelectedContentType(storeTag.contents ?? storeTag.content ?? "");
+        setSelectedTagType(storeTag.type ?? storeTag.tagType ?? "");
+        const units = convertUnits(
+          (storeTag.units ?? storeTag.unit ?? "").trim().toLowerCase().replace(/[_\s]/g, "")
+        );
+        setSelectedUnitType(units);
+        setSourceUnitID(storeTag.source_unit_id ?? "");
+        setDestUnitID(storeTag.dest_unit_id ?? "");
+        setIsTotalized(storeTag.totalized ?? false);
+      }
+    };
+
+    if (open && tag) {
+      fetchData();
+    }
+  }, [open, tag, nodes, edges]);
 
   return (
     <Modal open={open} onClose={onClose}>
