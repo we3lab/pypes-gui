@@ -305,6 +305,7 @@ const Network = ({
     openEdgeCreationModal,
     closeEdgeCreationModal,
     selectedNodeId,
+    selectedEdgeId,
     setSelectedEdgeId,
     setSelectedNodeId,
     parentId,
@@ -662,8 +663,30 @@ const Network = ({
         </FlowsButtonDark>
       </div>
       <div className="flex flex-row items-center justify-between mt-4">
-        <div className="text-sm text-flows-sidebar-text">
-          Level: <span className="font-bold">{parentId === "world" ? "World" : parentId}</span>
+        <div className="flex flex-row items-center w-1/2">
+          <div className="text-sm text-flows-sidebar-text w-1/3 flex flex-row items-center">
+            <span className="italic">Level:&nbsp;&nbsp;</span>
+            <span className="font-bold">{parentId === "world" ? "World" : parentId}</span>
+          </div>
+          <div className="text-sm text-flows-sidebar-text w-1/3 flex flex-row items-center">
+            <span className="italic">Selected:&nbsp;&nbsp;</span>
+            <span className="font-bold">{selectedNodeId || selectedEdgeId || "None"}</span>
+          </div>
+          <div className="w-1/3">
+            <FlowsButtonDark
+              className="px-3 py-1 capitalize font-normal text-xs"
+              disabled={!selectedNodeId && !selectedEdgeId}
+              onClick={() => {
+                if (selectedNodeId) {
+                  useStore.getState().openNodeDetailsModal();
+                } else if (selectedEdgeId) {
+                  useStore.getState().openEdgeDetailsModal();
+                }
+              }}
+            >
+              {selectedNodeId ? "Open Node" : selectedEdgeId ? "Open Connection" : "Open"}
+            </FlowsButtonDark>
+          </div>
         </div>
         <div className="flex flex-row">
           <FlowsButtonDark
@@ -697,11 +720,32 @@ const Network = ({
               edges={edgesWithUpdatedTypes}
               onInit={setReactFlowInstance}
               onNodesChange={onNodesChange}
+              onNodeClick={(_, node) => {
+                if (selectedNodeId === node.id) {
+                  useStore.getState().openNodeDetailsModal();
+                } else {
+                  setSelectedNodeId(node.id);
+                  setSelectedNode(node.id);
+                  setSelectedEdgeId("");
+                  useStore.getState().setSelectedEdge("");
+                }
+              }}
               onNodeDragStop={onDragStop}
               onEdgeClick={(_, edge) => {
-                setSelectedEdgeId(edge.id);
-                useStore.getState().setSelectedEdge(edge.id);
-                useStore.getState().openEdgeDetailsModal();
+                if (selectedEdgeId === edge.id) {
+                  useStore.getState().openEdgeDetailsModal();
+                } else {
+                  setSelectedEdgeId(edge.id);
+                  useStore.getState().setSelectedEdge(edge.id);
+                  setSelectedNodeId("");
+                  setSelectedNode(null);
+                }
+              }}
+              onPaneClick={() => {
+                setSelectedNodeId("");
+                setSelectedNode(null);
+                setSelectedEdgeId("");
+                useStore.getState().setSelectedEdge("");
               }}
               onEdgesChange={onEdgesChange}
               nodeDragThreshold={3}
