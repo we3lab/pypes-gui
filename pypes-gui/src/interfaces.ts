@@ -1,52 +1,52 @@
 export interface TankParams {
   name: string;
-  elevation?: number;
-  volume: number;
+  elevation?: number | null;
+  volume: number | null;
 }
 
 export interface ReservoirParams {
   name: string;
-  elevation?: number;
-  volume: number;
+  elevation?: number | null;
+  volume: number | null;
 }
 
 export interface Flowrate {
-  min?: number;
-  max?: number;
-  avg: number;
+  min?: number | null;
+  max?: number | null;
+  avg: number | null;
   units?: string;
 }
 
 export interface GenerationCapacity {
-  min?: number;
-  max?: number;
-  avg: number;
+  min?: number | null;
+  max?: number | null;
+  avg: number | null;
   units?: string;
 }
 
 export interface FiltrationParams {
   name: string;
   flowrate: Flowrate;
-  num_units: number;
-  volume: number;
+  num_units: number | null;
+  volume: number | null;
 }
 
 export interface AerationParams {
   name: string;
   flowrate: Flowrate;
-  num_units: number;
-  volume: number;
+  num_units: number | null;
+  volume: number | null;
 }
 
 export interface BatteryParams {
   name: string;
-  capacity: number;
-  discharge_rate: number;
+  capacity: number | null;
+  discharge_rate: number | null;
 }
 
 export interface FacilityParams {
   name: string;
-  elevation: number;
+  elevation: number | null;
   flowrate: Flowrate;
   nodes: string[];
   connections: string[];
@@ -55,8 +55,8 @@ export interface FacilityParams {
 export interface ChlorinationParams {
   name: string;
   flowrate: Flowrate;
-  num_units: number;
-  volume: number;
+  num_units: number | null;
+  volume: number | null;
 }
 
 export interface NetworkParams {
@@ -69,9 +69,9 @@ export interface ModularUnitParams extends NetworkParams {}
 
 export interface PumpParams {
   name: string;
-  elevation?: number;
-  horsepower: number;
-  num_units: number;
+  elevation?: number | null;
+  horsepower: number | null;
+  num_units: number | null;
   flowrate: Flowrate;
   pump_type: string;
 }
@@ -79,47 +79,47 @@ export interface PumpParams {
 export interface DigestionParams {
   name: string;
   flowrate: Flowrate;
-  num_units: number;
-  volume: number;
+  num_units: number | null;
+  volume: number | null;
   digester_type: string;
 }
 
 export interface CogenerationParams {
   name: string;
   generation_capacity: GenerationCapacity;
-  num_units: number;
+  num_units: number | null;
 }
 
 export interface ClarificationParams {
   name: string;
   flowrate: Flowrate;
-  num_units: number;
-  volume: number;
+  num_units: number | null;
+  volume: number | null;
 }
 
 export interface ScreeningParams {
   name: string;
   flowrate: Flowrate;
-  num_units: number;
+  num_units: number | null;
 }
 
 export interface ConditioningParams {
   name: string;
   flowrate: Flowrate;
-  num_units: number;
+  num_units: number | null;
 }
 
 export interface ThickeningParams {
   name: string;
   flowrate: Flowrate;
-  num_units: number;
-  volume: number;
+  num_units: number | null;
+  volume: number | null;
 }
 
 export interface FlaringParams {
   name: string;
   flowrate: Flowrate;
-  num_units: number;
+  num_units: number | null;
 }
 
 export interface connectionParams {
@@ -135,34 +135,34 @@ export interface connectionParams {
 }
 
 export interface OptimizationBatteryParams {
-  starting_state: number;
+  starting_state: number | null;
   leakage: number | null;
-  SOC_range: number[] | null;
+  SOC_range: (number | null)[] | null;
   RTE: number | null;
   SOH: number | null;
 }
 
 export interface WasteWaterTankparams {
-  starting_state: number;
-  hard_outflow_range: number[];
-  soft_outflow_range: number[];
-  soft_outflow_range_penalties: number[];
-  wastewater_storage_penalty: number;
-  max_storage_HRT: number;
-  HRT_constraint_window_increment: number;
-  flow_equalization_penalty: number;
-  net_flow_variability_penalty: number;
+  starting_state: number | null;
+  hard_outflow_range: (number | null)[];
+  soft_outflow_range: (number | null)[];
+  soft_outflow_range_penalties: (number | null)[];
+  wastewater_storage_penalty: number | null;
+  max_storage_HRT: number | null;
+  HRT_constraint_window_increment: number | null;
+  flow_equalization_penalty: number | null;
+  net_flow_variability_penalty: number | null;
 }
 
 export interface BioSolidsTankParams {
-  starting_state: number;
+  starting_state: number | null;
   max_storage_HRT: number | null;
   HRT_constraint_window_increment: number | null;
 }
 
 export interface GasTankParams {
-  starting_state: number;
-  leakage: number;
+  starting_state: number | null;
+  leakage: number | null;
 }
 
 export interface networkType {

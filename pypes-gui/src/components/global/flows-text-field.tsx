@@ -50,7 +50,7 @@ const FlowsTextField: React.FC<FlowsTextFieldProps> = ({
         ".MuiInputBase-input": { padding: 2 },
       }}
       type={type}
-      value={value}
+      value={value ?? ""}
       onChange={onChange}
       disabled={disabled}
       required={required}

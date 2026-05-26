@@ -1,6 +1,5 @@
 import { NodeWithData } from "@/store/store";
 import { Box, Button, Modal, Slider } from "@mui/material";
-import TextField from "@mui/material/TextField";
 import { trpc } from "@/utils/trpc";
 import {
   TankParams,
@@ -40,6 +39,7 @@ import {
   modal_section_vertical_css,
   modal_top_subsection_wrapper_css,
 } from "../global/flows-style";
+import FlowsTextField from "../global/flows-text-field";
 
 interface NodeoptimizeModalProps {
   open: boolean;
@@ -55,6 +55,13 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
     networkIdSimulateScenario,
     selectedNodeId,
   } = useMainStore();
+
+  const handleNumericInput = (val: string) => {
+    if (val === "") return null;
+    const parsed = parseFloat(val);
+    return isNaN(parsed) ? null : parsed;
+  };
+
   const { data: node, refetch: nodeRefetch, isFetched: nodeFetched, isFetching: nodeFetching } =
     trpc.nodeRouter.nodedata.useQuery(
       { network_id: networkIdSimulateScenario, node_id: selectedNodeId },
@@ -128,34 +135,34 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
   }, [nodeOptimizeModalOpen]);
 
   const [optimizationBattery, setOptimizationBattery] = useState<OptimizationBatteryParams>({
-    starting_state: 0,
-    leakage: 0,
-    SOC_range: [0,0],
-    RTE: 0,
-    SOH: 0,
+    starting_state: null,
+    leakage: null,
+    SOC_range: [null, null],
+    RTE: null,
+    SOH: null,
   });
 
   const [wasteWaterTank, setWasteWaterTank] = useState<WasteWaterTankparams>({
-    starting_state: 0,
-    hard_outflow_range: [0,0],
-    soft_outflow_range: [0,0],
-    soft_outflow_range_penalties: [0,0],
-    wastewater_storage_penalty: 0,
-    max_storage_HRT: 0,
-    HRT_constraint_window_increment: 0,
-    flow_equalization_penalty: 0,
-    net_flow_variability_penalty: 0,
+    starting_state: null,
+    hard_outflow_range: [null, null],
+    soft_outflow_range: [null, null],
+    soft_outflow_range_penalties: [null, null],
+    wastewater_storage_penalty: null,
+    max_storage_HRT: null,
+    HRT_constraint_window_increment: null,
+    flow_equalization_penalty: null,
+    net_flow_variability_penalty: null,
   });
 
   const [bioSolidsTank, setBioSolidsTank] = useState<BioSolidsTankParams>({
-    starting_state: 0,
-    max_storage_HRT: 0,
-    HRT_constraint_window_increment: 0,
+    starting_state: null,
+    max_storage_HRT: null,
+    HRT_constraint_window_increment: null,
   });
 
   const [gasTank, setGasTank] = useState<GasTankParams>({
-    starting_state:0,
-    leakage: 0,
+    starting_state: null,
+    leakage: null,
   });  
 
   const wastewater_types = ["UntreatedSewage", "PrimaryEffluent", "SecondaryEffluent", "TertiaryEffluent"]
@@ -205,15 +212,14 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
   const optimizeBatteryParams = () => {
     return (
           <div className={modal_top_subsection_wrapper_css}>
-            <TextField
+            <FlowsTextField
               className={modal_textfield_css}
               label="Starting State"
               type="number"
-              InputLabelProps={{ shrink: true }}
               value={optimizationBattery.starting_state}
-              onChange={(e) =>
+              onChange={(e: any) =>
                 setOptimizationBattery({
-                  starting_state: parseFloat(e.target.value),
+                  starting_state: handleNumericInput(e.target.value),
                   leakage: optimizationBattery.leakage,
                   SOC_range: optimizationBattery.SOC_range,
                   RTE: optimizationBattery.RTE,
@@ -221,83 +227,78 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
                 })
               }
             />
-            <TextField
+            <FlowsTextField
               className={modal_textfield_css}
               label="Leakage"
               type="number"
-              InputLabelProps={{ shrink: true }}
               value={optimizationBattery.leakage}
-              onChange={(e) =>
+              onChange={(e: any) =>
                 setOptimizationBattery({
                   starting_state: optimizationBattery.starting_state,
-                  leakage: parseFloat(e.target.value),
+                  leakage: handleNumericInput(e.target.value),
                   SOC_range: optimizationBattery.SOC_range,
                   RTE: optimizationBattery.RTE,
                   SOH: optimizationBattery.SOH,
                 })
               }
             />
-            {optimizationBattery.SOC_range && <TextField
+            {optimizationBattery.SOC_range && <FlowsTextField
               className={modal_textfield_css}
               label="SOC Range Start"
               type="number"
-              InputLabelProps={{ shrink: true }}
               value={optimizationBattery.SOC_range[0]}
-              onChange={(e) =>
+              onChange={(e: any) =>
                 setOptimizationBattery({
                   starting_state: optimizationBattery.starting_state,
                   leakage: optimizationBattery.leakage,
-                  SOC_range: [parseFloat(e.target.value), optimizationBattery.SOC_range![1]],
+                  SOC_range: [handleNumericInput(e.target.value), optimizationBattery.SOC_range![1]],
                   RTE: optimizationBattery.RTE,
                   SOH: optimizationBattery.SOH,
                 })
               }
             />}
-            {optimizationBattery.SOC_range && <TextField
+            {optimizationBattery.SOC_range && <FlowsTextField
               className={modal_textfield_css}
               label="SOC Range End"
               type="number"
-              InputLabelProps={{ shrink: true }}
               value={optimizationBattery.SOC_range[1]}
-              onChange={(e) =>
+              onChange={(e: any) =>
                 setOptimizationBattery({
                   starting_state: optimizationBattery.starting_state,
                   leakage: optimizationBattery.leakage,
-                  SOC_range: [optimizationBattery.SOC_range![0], parseFloat(e.target.value)],
+                  SOC_range: [optimizationBattery.SOC_range![0], handleNumericInput(e.target.value)],
                   RTE: optimizationBattery.RTE,
                   SOH: optimizationBattery.SOH,
                 })
               }
             />}
-            <TextField
+            <FlowsTextField
               className={modal_textfield_css}
               label="RTE"
               type="number"
-              InputLabelProps={{ shrink: true }}
               value={optimizationBattery.RTE}
-              onChange={(e) =>
+              onChange={(e: any) =>
                 setOptimizationBattery({
                   starting_state: optimizationBattery.starting_state,
                   leakage: optimizationBattery.leakage,
                   SOC_range: optimizationBattery.SOC_range,
-                  RTE: parseFloat(e.target.value),
+                  RTE: handleNumericInput(e.target.value),
                   SOH: optimizationBattery.SOH,
                 })
               }
             />
-            <TextField
+            <FlowsTextField
               className={modal_textfield_css}
               label="SOH"
               type="number"
-              InputLabelProps={{ shrink: true }}
               value={optimizationBattery.SOH}
-              onChange={(e) =>
+              onChange={(e: any) =>
                 setOptimizationBattery({
                   starting_state: optimizationBattery.starting_state,
                   leakage: optimizationBattery.leakage,
                   SOC_range: optimizationBattery.SOC_range,
                   RTE: optimizationBattery.RTE,
-                  SOH: parseFloat(e.target.value),
+                  SOH: handleNumericInput(e.target.value),
                 })
               }
             />
@@ -308,45 +309,42 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
   const bioSolidsTankParams = () => {
     return (
       <div className={modal_top_subsection_wrapper_css}>
-        <TextField
+        <FlowsTextField
           className={modal_textfield_css}
           label="Starting State"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={bioSolidsTank.starting_state}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setBioSolidsTank({
-              starting_state: parseFloat(e.target.value),
+              starting_state: handleNumericInput(e.target.value),
               max_storage_HRT: bioSolidsTank.max_storage_HRT,
               HRT_constraint_window_increment: bioSolidsTank.HRT_constraint_window_increment,
             })
           }
         />
-        <TextField
+        <FlowsTextField
           className={modal_textfield_css}
           label="Max storage HRT"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={bioSolidsTank.max_storage_HRT}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setBioSolidsTank({
               starting_state: bioSolidsTank.starting_state,
-              max_storage_HRT: parseFloat(e.target.value),
+              max_storage_HRT: handleNumericInput(e.target.value),
               HRT_constraint_window_increment: bioSolidsTank.HRT_constraint_window_increment,
             })
           }
         />
-        <TextField
+        <FlowsTextField
           className={modal_textfield_css}
           label="HRT constraint window increment"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={bioSolidsTank.HRT_constraint_window_increment}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setBioSolidsTank({
               starting_state: bioSolidsTank.starting_state,
               max_storage_HRT: bioSolidsTank.max_storage_HRT,
-              HRT_constraint_window_increment: parseFloat(e.target.value),
+              HRT_constraint_window_increment: handleNumericInput(e.target.value),
             })
           }
         />
@@ -357,29 +355,27 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
   const gasTankParams = () => {
     return (
       <div className={modal_top_subsection_wrapper_css}>
-        <TextField
+        <FlowsTextField
           className={modal_textfield_css}
           label="Starting State"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={gasTank.starting_state}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setGasTank({
-              starting_state: parseFloat(e.target.value),
+              starting_state: handleNumericInput(e.target.value),
               leakage: gasTank.leakage,
             })
           }
         />
-        <TextField
+        <FlowsTextField
           className={modal_textfield_css}
           label="Leakage"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={gasTank.leakage}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setGasTank({
               starting_state: gasTank.starting_state,
-              leakage: parseFloat(e.target.value),
+              leakage: handleNumericInput(e.target.value),
             })
           }
         />
@@ -391,15 +387,14 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
   const wasteWaterTankParams = () => {
     return (
       <div className={modal_top_subsection_wrapper_css}>
-        <TextField
+        <FlowsTextField
           className={modal_textfield_css}
           label="Starting State"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={wasteWaterTank.starting_state}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setWasteWaterTank({
-              starting_state: parseFloat(e.target.value),
+              starting_state: handleNumericInput(e.target.value),
               hard_outflow_range: wasteWaterTank.hard_outflow_range,
               soft_outflow_range: wasteWaterTank.soft_outflow_range,
               soft_outflow_range_penalties: wasteWaterTank.soft_outflow_range_penalties,
@@ -411,13 +406,12 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
             })
           }
         />
-        <TextField
+        <FlowsTextField
           className={modal_textfield_css}
           label="HRT constraint window increment"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={wasteWaterTank.HRT_constraint_window_increment}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setWasteWaterTank({
               starting_state: wasteWaterTank.starting_state,
               hard_outflow_range: wasteWaterTank.hard_outflow_range,
@@ -425,23 +419,22 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
               soft_outflow_range_penalties: wasteWaterTank.soft_outflow_range_penalties,
               wastewater_storage_penalty: wasteWaterTank.wastewater_storage_penalty,
               max_storage_HRT: wasteWaterTank.max_storage_HRT,
-              HRT_constraint_window_increment: parseFloat(e.target.value),
+              HRT_constraint_window_increment: handleNumericInput(e.target.value),
               flow_equalization_penalty: wasteWaterTank.flow_equalization_penalty,
               net_flow_variability_penalty: wasteWaterTank.net_flow_variability_penalty,
             })
           }
         />
         <div>
-          <TextField
+          <FlowsTextField
           className={modal_textfield_css}
           label="Hard outflow range min"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={wasteWaterTank.hard_outflow_range[0]}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setWasteWaterTank({
               starting_state: wasteWaterTank.starting_state,
-              hard_outflow_range: [parseFloat(e.target.value), wasteWaterTank.hard_outflow_range![1]],
+              hard_outflow_range: [handleNumericInput(e.target.value), wasteWaterTank.hard_outflow_range![1]],
               soft_outflow_range: wasteWaterTank.soft_outflow_range,
               soft_outflow_range_penalties: wasteWaterTank.soft_outflow_range_penalties,
               wastewater_storage_penalty: wasteWaterTank.wastewater_storage_penalty,
@@ -452,16 +445,15 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
             })
           }
           />
-          <TextField
+          <FlowsTextField
             className={modal_textfield_css}
             label="Hard outflow range max"
             type="number"
-            InputLabelProps={{ shrink: true }}
             value={wasteWaterTank.hard_outflow_range[1]}
-            onChange={(e) =>
+            onChange={(e: any) =>
               setWasteWaterTank({
                 starting_state: wasteWaterTank.starting_state,
-                hard_outflow_range: [wasteWaterTank.hard_outflow_range![0], parseFloat(e.target.value)],
+                hard_outflow_range: [wasteWaterTank.hard_outflow_range![0], handleNumericInput(e.target.value)],
                 soft_outflow_range: wasteWaterTank.soft_outflow_range,
                 soft_outflow_range_penalties: wasteWaterTank.soft_outflow_range_penalties,
                 wastewater_storage_penalty: wasteWaterTank.wastewater_storage_penalty,
@@ -474,17 +466,16 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
           />
         </div>
         <div>
-          <TextField
+          <FlowsTextField
           className={modal_textfield_css}
           label="Soft outflow range min"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={wasteWaterTank.soft_outflow_range[0]}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setWasteWaterTank({
               starting_state: wasteWaterTank.starting_state,
               hard_outflow_range: wasteWaterTank.hard_outflow_range,
-              soft_outflow_range: [parseFloat(e.target.value), wasteWaterTank.soft_outflow_range![1]],
+              soft_outflow_range: [handleNumericInput(e.target.value), wasteWaterTank.soft_outflow_range![1]],
               soft_outflow_range_penalties: wasteWaterTank.soft_outflow_range_penalties,
               wastewater_storage_penalty: wasteWaterTank.wastewater_storage_penalty,
               max_storage_HRT: wasteWaterTank.max_storage_HRT,
@@ -494,17 +485,16 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
             })
           }
           />
-          <TextField
+          <FlowsTextField
             className={modal_textfield_css}
             label="Soft outflow range max"
             type="number"
-            InputLabelProps={{ shrink: true }}
             value={wasteWaterTank.soft_outflow_range[1]}
-            onChange={(e) =>
+            onChange={(e: any) =>
               setWasteWaterTank({
                 starting_state: wasteWaterTank.starting_state,
                 hard_outflow_range: wasteWaterTank.hard_outflow_range,
-                soft_outflow_range: [wasteWaterTank.soft_outflow_range![0], parseFloat(e.target.value)],
+                soft_outflow_range: [wasteWaterTank.soft_outflow_range![0], handleNumericInput(e.target.value)],
                 soft_outflow_range_penalties: wasteWaterTank.soft_outflow_range_penalties,
                 wastewater_storage_penalty: wasteWaterTank.wastewater_storage_penalty,
                 max_storage_HRT: wasteWaterTank.max_storage_HRT,
@@ -516,18 +506,17 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
           />
         </div>
         <div>
-          <TextField
+          <FlowsTextField
           className={modal_textfield_css}
           label="Soft outflow range penalties min"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={wasteWaterTank.soft_outflow_range_penalties[0]}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setWasteWaterTank({
               starting_state: wasteWaterTank.starting_state,
               hard_outflow_range: wasteWaterTank.hard_outflow_range,
               soft_outflow_range: wasteWaterTank.soft_outflow_range,
-              soft_outflow_range_penalties: [parseFloat(e.target.value), wasteWaterTank.soft_outflow_range_penalties![1]],
+              soft_outflow_range_penalties: [handleNumericInput(e.target.value), wasteWaterTank.soft_outflow_range_penalties![1]],
               wastewater_storage_penalty: wasteWaterTank.wastewater_storage_penalty,
               max_storage_HRT: wasteWaterTank.max_storage_HRT,
               HRT_constraint_window_increment: wasteWaterTank.HRT_constraint_window_increment,
@@ -536,18 +525,17 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
             })
           }
           />
-          <TextField
+          <FlowsTextField
             className={modal_textfield_css}
             label="Soft outflow range penalties max"
             type="number"
-            InputLabelProps={{ shrink: true }}
             value={wasteWaterTank.soft_outflow_range_penalties[1]}
-            onChange={(e) =>
+            onChange={(e: any) =>
               setWasteWaterTank({
                 starting_state: wasteWaterTank.starting_state,
                 hard_outflow_range: wasteWaterTank.hard_outflow_range,
                 soft_outflow_range: wasteWaterTank.soft_outflow_range,
-                soft_outflow_range_penalties: [wasteWaterTank.soft_outflow_range_penalties![0], parseFloat(e.target.value)],
+                soft_outflow_range_penalties: [wasteWaterTank.soft_outflow_range_penalties![0], handleNumericInput(e.target.value)],
                 wastewater_storage_penalty: wasteWaterTank.wastewater_storage_penalty,
                 max_storage_HRT: wasteWaterTank.max_storage_HRT,
                 HRT_constraint_window_increment: wasteWaterTank.HRT_constraint_window_increment,
@@ -558,19 +546,18 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
           />
         </div>
         <div>
-          <TextField
+          <FlowsTextField
           className={modal_textfield_css}
           label="Wastewater storage penalty"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={wasteWaterTank.wastewater_storage_penalty}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setWasteWaterTank({
               starting_state: wasteWaterTank.starting_state,
               hard_outflow_range: wasteWaterTank.hard_outflow_range,
               soft_outflow_range: wasteWaterTank.soft_outflow_range,
               soft_outflow_range_penalties: wasteWaterTank.soft_outflow_range_penalties,
-              wastewater_storage_penalty: parseFloat(e.target.value),
+              wastewater_storage_penalty: handleNumericInput(e.target.value),
               max_storage_HRT: wasteWaterTank.max_storage_HRT,
               HRT_constraint_window_increment: wasteWaterTank.HRT_constraint_window_increment,
               flow_equalization_penalty: wasteWaterTank.flow_equalization_penalty,
@@ -578,20 +565,19 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
             })
           }
           />
-          <TextField
+          <FlowsTextField
             className={modal_textfield_css}
             label="Max storage HRT"
             type="number"
-            InputLabelProps={{ shrink: true }}
             value={wasteWaterTank.max_storage_HRT}
-            onChange={(e) =>
+            onChange={(e: any) =>
               setWasteWaterTank({
                 starting_state: wasteWaterTank.starting_state,
                 hard_outflow_range: wasteWaterTank.hard_outflow_range,
                 soft_outflow_range: wasteWaterTank.soft_outflow_range,
                 soft_outflow_range_penalties: wasteWaterTank.soft_outflow_range_penalties,
                 wastewater_storage_penalty: wasteWaterTank.wastewater_storage_penalty,
-                max_storage_HRT: parseFloat(e.target.value),
+                max_storage_HRT: handleNumericInput(e.target.value),
                 HRT_constraint_window_increment: wasteWaterTank.HRT_constraint_window_increment,
                 flow_equalization_penalty: wasteWaterTank.flow_equalization_penalty,
                 net_flow_variability_penalty: wasteWaterTank.net_flow_variability_penalty,
@@ -600,13 +586,12 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
             
           />
         </div>
-        <TextField
+        <FlowsTextField
           className={modal_textfield_css}
           label="Flow equalization penalty"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={wasteWaterTank.flow_equalization_penalty}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setWasteWaterTank({
               starting_state: wasteWaterTank.starting_state,
               hard_outflow_range: wasteWaterTank.hard_outflow_range,
@@ -615,18 +600,17 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
               wastewater_storage_penalty: wasteWaterTank.wastewater_storage_penalty,
               max_storage_HRT: wasteWaterTank.max_storage_HRT,
               HRT_constraint_window_increment: wasteWaterTank.HRT_constraint_window_increment,
-              flow_equalization_penalty: parseFloat(e.target.value),
+              flow_equalization_penalty: handleNumericInput(e.target.value),
               net_flow_variability_penalty: wasteWaterTank.net_flow_variability_penalty,
             })
           }
         />
-        <TextField
+        <FlowsTextField
           className={modal_textfield_css}
           label="Net flow variability penalty"
           type="number"
-          InputLabelProps={{ shrink: true }}
           value={wasteWaterTank.net_flow_variability_penalty}
-          onChange={(e) =>
+          onChange={(e: any) =>
             setWasteWaterTank({
               starting_state: wasteWaterTank.starting_state,
               hard_outflow_range: wasteWaterTank.hard_outflow_range,
@@ -636,7 +620,7 @@ const NodeOptimizeModal: React.FC<NodeoptimizeModalProps> = ({ open, onClose }) 
               max_storage_HRT: wasteWaterTank.max_storage_HRT,
               HRT_constraint_window_increment: wasteWaterTank.HRT_constraint_window_increment,
               flow_equalization_penalty: wasteWaterTank.flow_equalization_penalty,
-              net_flow_variability_penalty: parseFloat(e.target.value),
+              net_flow_variability_penalty: handleNumericInput(e.target.value),
             })
           }
         />

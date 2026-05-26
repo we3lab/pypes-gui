@@ -55,6 +55,13 @@ const RateScheduleEditor: React.FC<RateScheduleEditorProps> = ({
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
     21, 22, 23, 24,
   ];
+
+  const handleNumericInput = (val: string) => {
+    if (val === "") return null;
+    const parsed = parseFloat(val);
+    return isNaN(parsed) ? null : parsed;
+  };
+
   const CHARGE_DATA = [
     "Name",
     "Utility",
@@ -289,7 +296,7 @@ const RateScheduleEditor: React.FC<RateScheduleEditorProps> = ({
                     onChange={(e: any) => {
                       setBillingItem((prevState) => ({
                         ...prevState,
-                        basic_charge_limit: parseFloat(e.target.value),
+                        basic_charge_limit: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -325,7 +332,7 @@ const RateScheduleEditor: React.FC<RateScheduleEditorProps> = ({
                     onChange={(e: any) => {
                       setBillingItem((prevState) => ({
                         ...prevState,
-                        month_start: parseFloat(e.target.value),
+                        month_start: handleNumericInput(e.target.value),
                       }));
                     }}
                   >
@@ -344,7 +351,7 @@ const RateScheduleEditor: React.FC<RateScheduleEditorProps> = ({
                     onChange={(e: any) => {
                       setBillingItem((prevState) => ({
                         ...prevState,
-                        month_end: parseFloat(e.target.value),
+                        month_end: handleNumericInput(e.target.value),
                       }));
                     }}
                   >
@@ -363,7 +370,7 @@ const RateScheduleEditor: React.FC<RateScheduleEditorProps> = ({
                     onChange={(e: any) => {
                       setBillingItem((prevState) => ({
                         ...prevState,
-                        weekday_start: parseFloat(e.target.value),
+                        weekday_start: handleNumericInput(e.target.value),
                       }));
                     }}
                   >
@@ -382,7 +389,7 @@ const RateScheduleEditor: React.FC<RateScheduleEditorProps> = ({
                     onChange={(e: any) => {
                       setBillingItem((prevState) => ({
                         ...prevState,
-                        weekday_end: parseFloat(e.target.value),
+                        weekday_end: handleNumericInput(e.target.value),
                       }));
                     }}
                   >
@@ -402,7 +409,7 @@ const RateScheduleEditor: React.FC<RateScheduleEditorProps> = ({
                     onChange={(e: any) => {
                       setBillingItem((prevState) => ({
                         ...prevState,
-                        hour_start: parseFloat(e.target.value),
+                        hour_start: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -415,7 +422,7 @@ const RateScheduleEditor: React.FC<RateScheduleEditorProps> = ({
                     onChange={(e: any) => {
                       setBillingItem((prevState) => ({
                         ...prevState,
-                        hour_end: parseFloat(e.target.value),
+                        hour_end: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -427,7 +434,7 @@ const RateScheduleEditor: React.FC<RateScheduleEditorProps> = ({
                     onChange={(e: any) => {
                       setBillingItem((prevState) => ({
                         ...prevState,
-                        charge: parseFloat(e.target.value),
+                        charge: handleNumericInput(e.target.value),
                       }));
                     }}
                   />

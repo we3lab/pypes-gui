@@ -57,6 +57,12 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
   const [currentNode, setCurrentNode] = useState<any>({});
 
+  const handleNumericInput = (val: string) => {
+    if (val === "") return null;
+    const parsed = parseFloat(val);
+    return isNaN(parsed) ? null : parsed;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       // Strictly get data from the store (memory)
@@ -85,54 +91,54 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
   const [tankParams, setTankParams] = useState<TankParams>({
     name: "",
-    elevation: 0,
-    volume: 0,
+    elevation: null,
+    volume: null,
   });
 
   const [reservoirParamas, setReservoirParams] = useState<ReservoirParams>({
     name: "",
-    elevation: 10,
-    volume: 0,
+    elevation: null,
+    volume: null,
   });
 
   const [aerationParams, setAerationParams] = useState<AerationParams>({
     name: "",
     flowrate: {
-      avg: 0,
-      max: 0,
-      min: 0,
+      avg: null,
+      max: null,
+      min: null,
       units: "MGD",
     },
-    num_units: 0,
-    volume: 0,
+    num_units: null,
+    volume: null,
   });
 
   const [filtrationParams, setFiltrationParams] = useState<FiltrationParams>({
     name: "",
     flowrate: {
-      avg: 0,
-      max: 0,
-      min: 0,
+      avg: null,
+      max: null,
+      min: null,
       units: "MGD",
     },
 
-    num_units: 0,
-    volume: 0,
+    num_units: null,
+    volume: null,
   });
 
   const [batteryParams, setBatteryParams] = useState<BatteryParams>({
     name: "",
-    capacity: 0,
-    discharge_rate: 0,
+    capacity: null,
+    discharge_rate: null,
   });
 
   const [facilityParams, setFacilityParams] = useState<FacilityParams>({
     name: "",
-    elevation: 0,
+    elevation: null,
     flowrate: {
-      avg: 0,
-      max: 0,
-      min: 0,
+      avg: null,
+      max: null,
+      min: null,
       units: "MGD",
     },
     nodes: [],
@@ -143,13 +149,13 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     useState<ChlorinationParams>({
       name: "",
       flowrate: {
-        avg: 0,
-        max: 0,
-        min: 0,
+        avg: null,
+        max: null,
+        min: null,
         units: "MGD",
       },
-      num_units: 0,
-      volume: 0,
+      num_units: null,
+      volume: null,
     });
 
   const [networkParams, setNetworkParams] = useState<NetworkParams>({
@@ -160,13 +166,13 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
   const [pumpParams, setPumpParams] = useState<PumpParams>({
     name: "",
-    elevation: 0,
-    horsepower: 0,
-    num_units: 0,
+    elevation: null,
+    horsepower: null,
+    num_units: null,
     flowrate: {
-      avg: 0,
-      max: 0,
-      min: 0,
+      avg: null,
+      max: null,
+      min: null,
       units: "MGD",
     },
     pump_type: "VFD",
@@ -175,13 +181,13 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
   const [digestionParams, setDigestionParams] = useState<DigestionParams>({
     name: "",
     flowrate: {
-      avg: 0,
-      max: 0,
-      min: 0,
+      avg: null,
+      max: null,
+      min: null,
       units: "MGD",
     },
-    num_units: 0,
-    volume: 0,
+    num_units: null,
+    volume: null,
     digester_type: "Anaerobic",
   });
 
@@ -189,71 +195,71 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     useState<CogenerationParams>({
       name: "",
       generation_capacity: {
-        avg: 0,
-        max: 0,
-        min: 0,
+        avg: null,
+        max: null,
+        min: null,
         units: "MGD",
       },
-      num_units: 0,
+      num_units: null,
     });
 
   const [clarificationParams, setClarificationParams] =
     useState<ClarificationParams>({
       name: "",
       flowrate: {
-        avg: 0,
-        max: 0,
-        min: 0,
+        avg: null,
+        max: null,
+        min: null,
         units: "MGD",
       },
-      num_units: 0,
-      volume: 0,
+      num_units: null,
+      volume: null,
     });
 
   const [screeningParams, setScreeningParams] = useState<ScreeningParams>({
     name: "",
     flowrate: {
-      avg: 0,
-      max: 0,
-      min: 0,
+      avg: null,
+      max: null,
+      min: null,
       units: "MGD",
     },
-    num_units: 0,
+    num_units: null,
   });
 
   const [conditioningParams, setConditioningParams] =
     useState<ConditioningParams>({
       name: "",
       flowrate: {
-        avg: 0,
-        max: 0,
-        min: 0,
+        avg: null,
+        max: null,
+        min: null,
         units: "MGD",
       },
-      num_units: 0,
+      num_units: null,
     });
 
   const [thickeningParams, setThickeningParams] = useState<ThickeningParams>({
     name: "",
     flowrate: {
-      avg: 0,
-      max: 0,
-      min: 0,
+      avg: null,
+      max: null,
+      min: null,
       units: "MGD",
     },
-    num_units: 0,
-    volume: 0,
+    num_units: null,
+    volume: null,
   });
 
   const [flaringParams, setFlaringParams] = useState<FlaringParams>({
     name: "",
     flowrate: {
-      avg: 0,
-      max: 0,
-      min: 0,
+      avg: null,
+      max: null,
+      min: null,
       units: "MGD",
     },
-    num_units: 0,
+    num_units: null,
   });
 
   const addDefaultValueFromDB = useCallback((currentNode: any, id: string) => {
@@ -263,58 +269,58 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
       case "Tank":
         setTankParams({
           name: id,
-          elevation: currentNode["elevation"] ?? 0,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
+          elevation: currentNode["elevation"] ?? null,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
         });
         break;
       case "Reservoir":
         setReservoirParams({
           name: id,
-          elevation: currentNode["elevation"] ?? 10,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
+          elevation: currentNode["elevation"] ?? null,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
         });
         break;
       case "Aeration":
         setAerationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? 0,
-            max: currentNode.flowrate?.max ?? 0,
-            min: currentNode.flowrate?.min ?? 0,
+            avg: currentNode.flowrate?.avg ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"] ?? 0,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
+          num_units: currentNode["num_units"] ?? null,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
         });
         break;
       case "Filtration":
         setFiltrationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? 0,
-            max: currentNode.flowrate?.max ?? 0,
-            min: currentNode.flowrate?.min ?? 0,
+            avg: currentNode.flowrate?.avg ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"] ?? 0,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
+          num_units: currentNode["num_units"] ?? null,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
         });
         break;
       case "Battery":
         setBatteryParams({
           name: id,
-          capacity: currentNode["capacity"] ?? 0,
-          discharge_rate: currentNode["discharge_rate"] ?? 0,
+          capacity: currentNode["capacity"] ?? null,
+          discharge_rate: currentNode["discharge_rate"] ?? null,
         });
         break;
       case "Facility":
         setFacilityParams({
           name: id,
-          elevation: currentNode["elevation"] ?? 0,
+          elevation: currentNode["elevation"] ?? null,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? 0,
-            max: currentNode.flowrate?.max ?? 0,
-            min: currentNode.flowrate?.min ?? 0,
+            avg: currentNode.flowrate?.avg ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
           },
           nodes: currentNode["nodes"] ?? [],
@@ -325,13 +331,13 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setChlorinationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? 0,
-            max: currentNode.flowrate?.max ?? 0,
-            min: currentNode.flowrate?.min ?? 0,
+            avg: currentNode.flowrate?.avg ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"] ?? 0,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
+          num_units: currentNode["num_units"] ?? null,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
         });
         break;
       case "Network":
@@ -344,13 +350,13 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
       case "Pump":
         setPumpParams({
           name: id,
-          elevation: currentNode["elevation"] ?? 0,
-          horsepower: currentNode["horsepower"] ?? 0,
-          num_units: currentNode["num_units"] ?? 0,
+          elevation: currentNode["elevation"] ?? null,
+          horsepower: currentNode["horsepower"] ?? null,
+          num_units: currentNode["num_units"] ?? null,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? 0,
-            max: currentNode.flowrate?.max ?? 0,
-            min: currentNode.flowrate?.min ?? 0,
+            avg: currentNode.flowrate?.avg ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
           },
           pump_type: currentNode["pump_type"] ?? "VFD",
@@ -360,13 +366,13 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setDigestionParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? 0,
-            max: currentNode.flowrate?.max ?? 0,
-            min: currentNode.flowrate?.min ?? 0,
+            avg: currentNode.flowrate?.avg ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"] ?? 0,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
+          num_units: currentNode["num_units"] ?? null,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
           digester_type: currentNode["digester_type"] ?? "Anaerobic",
         });
         break;
@@ -374,74 +380,74 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setCogenerationParams({
           name: id,
           generation_capacity: {
-            avg: currentNode.generation_capacity?.avg ?? 0,
-            max: currentNode.generation_capacity?.max ?? 0,
-            min: currentNode.generation_capacity?.min ?? 0,
+            avg: currentNode.generation_capacity?.avg ?? null,
+            max: currentNode.generation_capacity?.max ?? null,
+            min: currentNode.generation_capacity?.min ?? null,
             units: currentNode.generation_capacity?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"] ?? 0,
+          num_units: currentNode["num_units"] ?? null,
         });
         break;
       case "Clarification":
         setClarificationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? 0,
-            max: currentNode.flowrate?.max ?? 0,
-            min: currentNode.flowrate?.min ?? 0,
+            avg: currentNode.flowrate?.avg ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"] ?? 0,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
+          num_units: currentNode["num_units"] ?? null,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
         });
         break;
       case "Screening":
         setScreeningParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? 0,
-            max: currentNode.flowrate?.max ?? 0,
-            min: currentNode.flowrate?.min ?? 0,
+            avg: currentNode.flowrate?.avg ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"] ?? 0,
+          num_units: currentNode["num_units"] ?? null,
         });
         break;
       case "Conditioning":
         setConditioningParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? 0,
-            max: currentNode.flowrate?.max ?? 0,
-            min: currentNode.flowrate?.min ?? 0,
+            avg: currentNode.flowrate?.avg ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"] ?? 0,
+          num_units: currentNode["num_units"] ?? null,
         });
         break;
       case "Thickening":
         setThickeningParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? 0,
-            max: currentNode.flowrate?.max ?? 0,
-            min: currentNode.flowrate?.min ?? 0,
+            avg: currentNode.flowrate?.avg ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"] ?? 0,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? 0,
+          num_units: currentNode["num_units"] ?? null,
+          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
         });
         break;
       case "Flaring":
         setFlaringParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? 0,
-            max: currentNode.flowrate?.max ?? 0,
-            min: currentNode.flowrate?.min ?? 0,
+            avg: currentNode.flowrate?.avg ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
           },
-          num_units: currentNode["num_units"] ?? 0,
+          num_units: currentNode["num_units"] ?? null,
         });
         break;
       default:
@@ -491,7 +497,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     value={batteryParams.capacity}
                     onChange={(e: any) =>
                       setBatteryParams({
-                        capacity: parseFloat(e.target.value),
+                        capacity: handleNumericInput(e.target.value),
                         discharge_rate: batteryParams.discharge_rate,
                         name: batteryParams.name,
                       })
@@ -507,7 +513,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) =>
                       setBatteryParams({
                         capacity: batteryParams.capacity,
-                        discharge_rate: parseFloat(e.target.value),
+                        discharge_rate: handleNumericInput(e.target.value),
                         name: batteryParams.name,
                       })
                     }
@@ -547,7 +553,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     value={tankParams.elevation}
                     onChange={(e: any) =>
                       setTankParams({
-                        elevation: parseFloat(e.target.value),
+                        elevation: handleNumericInput(e.target.value),
                         volume: tankParams.volume,
                         name: tankParams.name,
                       })
@@ -563,7 +569,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) =>
                       setTankParams({
                         elevation: tankParams.elevation,
-                        volume: parseFloat(e.target.value),
+                        volume: handleNumericInput(e.target.value),
                         name: tankParams.name,
                       })
                     }
@@ -627,7 +633,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     value={reservoirParamas.elevation}
                     onChange={(e: any) =>
                       setReservoirParams({
-                        elevation: parseFloat(e.target.value),
+                        elevation: handleNumericInput(e.target.value),
                         volume: reservoirParamas.volume,
                         name: reservoirParamas.name,
                       })
@@ -643,7 +649,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) =>
                       setReservoirParams({
                         elevation: reservoirParamas.elevation,
-                        volume: parseFloat(e.target.value),
+                        volume: handleNumericInput(e.target.value),
                         name: reservoirParamas.name,
                       })
                     }
@@ -688,7 +694,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -704,7 +710,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -720,7 +726,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -751,7 +757,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setAerationParams((prevState) => ({
                         ...prevState,
-                        num_units: parseFloat(e.target.value),
+                        num_units: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -764,7 +770,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setAerationParams((prevState) => ({
                         ...prevState,
-                        volume: parseFloat(e.target.value),
+                        volume: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -808,7 +814,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -824,7 +830,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -840,7 +846,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -871,7 +877,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setFiltrationParams((prevState) => ({
                         ...prevState,
-                        num_units: parseFloat(e.target.value),
+                        num_units: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -884,7 +890,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setFiltrationParams((prevState) => ({
                         ...prevState,
-                        volume: parseFloat(e.target.value),
+                        volume: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -928,7 +934,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -944,7 +950,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -960,7 +966,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -991,7 +997,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setClarificationParams((prevState) => ({
                         ...prevState,
-                        num_units: parseFloat(e.target.value),
+                        num_units: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1004,7 +1010,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setClarificationParams((prevState) => ({
                         ...prevState,
-                        volume: parseFloat(e.target.value),
+                        volume: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1048,7 +1054,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1064,7 +1070,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1080,7 +1086,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1111,7 +1117,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setThickeningParams((prevState) => ({
                         ...prevState,
-                        num_units: parseFloat(e.target.value),
+                        num_units: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1124,7 +1130,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setThickeningParams((prevState) => ({
                         ...prevState,
-                        volume: parseFloat(e.target.value),
+                        volume: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1168,7 +1174,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1184,7 +1190,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1200,7 +1206,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1231,7 +1237,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setFacilityParams((prevState) => ({
                         ...prevState,
-                        elevation: parseFloat(e.target.value),
+                        elevation: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1275,7 +1281,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1291,7 +1297,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1307,7 +1313,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1338,7 +1344,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setChlorinationParams((prevState) => ({
                         ...prevState,
-                        num_units: parseFloat(e.target.value),
+                        num_units: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1351,7 +1357,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setChlorinationParams((prevState) => ({
                         ...prevState,
-                        volume: parseFloat(e.target.value),
+                        volume: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1395,7 +1401,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1411,7 +1417,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1427,7 +1433,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1458,7 +1464,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setFlaringParams((prevState) => ({
                         ...prevState,
-                        num_units: parseFloat(e.target.value),
+                        num_units: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1502,7 +1508,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1518,7 +1524,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1534,7 +1540,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1565,7 +1571,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setConditioningParams((prevState) => ({
                         ...prevState,
-                        num_units: parseFloat(e.target.value),
+                        num_units: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1609,7 +1615,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1625,7 +1631,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1641,7 +1647,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1672,7 +1678,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setScreeningParams((prevState) => ({
                         ...prevState,
-                        num_units: parseFloat(e.target.value),
+                        num_units: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1716,7 +1722,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1732,7 +1738,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1748,7 +1754,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1779,7 +1785,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setPumpParams((prevState) => ({
                         ...prevState,
-                        num_units: parseFloat(e.target.value),
+                        num_units: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1792,7 +1798,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setPumpParams((prevState) => ({
                         ...prevState,
-                        elevation: parseFloat(e.target.value),
+                        elevation: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1805,7 +1811,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setPumpParams((prevState) => ({
                         ...prevState,
-                        horsepower: parseFloat(e.target.value),
+                        horsepower: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1864,7 +1870,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1880,7 +1886,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1896,7 +1902,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1927,7 +1933,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setDigestionParams((prevState) => ({
                         ...prevState,
-                        num_units: parseFloat(e.target.value),
+                        num_units: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1940,7 +1946,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setDigestionParams((prevState) => ({
                         ...prevState,
-                        volume: parseFloat(e.target.value),
+                        volume: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
@@ -1999,7 +2005,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         generation_capacity: {
                           ...prevState.generation_capacity,
-                          min: parseFloat(e.target.value),
+                          min: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -2015,7 +2021,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         generation_capacity: {
                           ...prevState.generation_capacity,
-                          max: parseFloat(e.target.value),
+                          max: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -2031,7 +2037,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         generation_capacity: {
                           ...prevState.generation_capacity,
-                          avg: parseFloat(e.target.value),
+                          avg: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -2062,7 +2068,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any) => {
                       setCogenerationParams((prevState) => ({
                         ...prevState,
-                        num_units: parseFloat(e.target.value),
+                        num_units: handleNumericInput(e.target.value),
                       }));
                     }}
                   />
