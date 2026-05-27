@@ -52,7 +52,6 @@ const handleButtonClick = () => {
               <Select
                 className="mr-5 bg-white w-80 h-9"
                 label="option"
-                placeholder="Please select an upload option"
                 value={uploadOption}
                 onChange={(e) => {
                   setUploadOption(e.target.value);

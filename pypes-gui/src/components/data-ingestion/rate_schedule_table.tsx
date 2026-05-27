@@ -314,11 +314,7 @@ function EditToolbar(props: EditToolbarProps) {
       >
         Add record
       </Button>
-      <GridToolbarExport
-        slotProps={{
-          button: { variant: "contained", color: "primary", size: "medium" },
-        }}
-      />
+      <GridToolbarExport />
       <Button
         variant="contained"
         color="primary"
@@ -428,6 +424,7 @@ export default function RateScheduleGrid(input: RateScheduleGridProps) {
   };
 
   const handleMonthStartChange = (id: GridRowId, value: number) => {
+    if (!apiRef.current) return;
     const row = apiRef.current.getRow(id);
     if (value > row.monthEnd) {
       alert("monthStart cannot be bigger than monthEnd");
@@ -729,9 +726,6 @@ export default function RateScheduleGrid(input: RateScheduleGridProps) {
             <GridActionsCellItem
               icon={<SaveIcon />}
               label="Save"
-              sx={{
-                color: "textPrimary",
-              }}
               onClick={handleSaveClick(id)}
             />,
             <GridActionsCellItem
@@ -787,10 +781,10 @@ export default function RateScheduleGrid(input: RateScheduleGridProps) {
         apiRef={apiRef}
         isCellEditable={isCellEditable}
         slots={{
-          toolbar: EditToolbar as GridSlots["toolbar"],
+          toolbar: EditToolbar as unknown as GridSlots["toolbar"],
         }}
         slotProps={{
-          toolbar: { setRows, setRowModesModel },
+          toolbar: { setRows, setRowModesModel } as any,
         }}
       />
     </Box>

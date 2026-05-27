@@ -16,9 +16,9 @@ function getBaseUrl() {
 
 
 export const trpc = createTRPCNext<AppRouter>({
+  transformer: superjson,
   config() {
     return {
-      transformer: superjson,
       links: [
         loggerLink({
           enabled: (opts) =>
@@ -31,6 +31,7 @@ export const trpc = createTRPCNext<AppRouter>({
            * @link https://trpc.io/docs/ssr
            **/
           url: `${getBaseUrl()}/api/trpc`,
+          transformer: superjson,
           // You can pass any HTTP headers you wish here
           async headers() {
             return {

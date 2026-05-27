@@ -292,6 +292,7 @@ const Network = ({
   const [showNetworkDownloads, setShowNetworkDownloads] = useState<boolean>(false);
   const [showNetworkUploads, setShowNetworkUploads] = useState<boolean>(false);
   const [elementAlertModal, setElementAlertModal] = useState<boolean>(false);
+  const [clearLevelModal, setClearLevelModal] = useState<boolean>(false);
   const [elementNameForAlertModal, setElementNameForAlertModal] = useState<string>("");
   const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
@@ -556,6 +557,28 @@ const Network = ({
     [parentId, setSelectedNode, setSelectedNodeId, setNetworkUpdated, storedNodes]
   );
 
+  const handleClearLevel = () => {
+    // Filter out edges in this level
+    const updatedEdges = storedEdges.filter((edge) => (edge.data.parent ?? "world") !== parentId);
+    
+    // Remove nodes in this level from the nodes object
+    const updatedNodes = { ...storedNodes };
+    updatedNodes[parentId] = [];
+    
+    // Clear selection
+    setSelectedNodeId("");
+    setSelectedEdgeId("");
+    setSelectedNode(null);
+
+    useStore.setState({
+      nodes: updatedNodes,
+      edges: updatedEdges,
+    });
+
+    setNetworkUpdated(true);
+    setClearLevelModal(false);
+  };
+
   const handleNetworkUpload = (jsonContents: any) => {
     if (jsonContents.nodes && jsonContents.connections) {
       const parsed = buildStoreFromPypesJson(jsonContents);
@@ -626,6 +649,13 @@ const Network = ({
         setPageNetworkId={() => {}}
         networkRefetch={handleNetworkUpload}
       />
+      <FlowsPopUpWindow
+        title="Clear Level"
+        question="Are you sure you want to erase this level of the network?"
+        onClose={() => setClearLevelModal(false)}
+        onClick={handleClearLevel}
+        open={clearLevelModal}
+      />
       <NetworkFileDownloadModal
         open={showNetworkDownloads}
         networkName={selectedNetworkName}
@@ -635,58 +665,75 @@ const Network = ({
         edges={storedEdges}
         networkJson={buildPypesJsonFromStore(storedNodes, storedEdges)}
       />
-      <div className={page_section_horizontal_css}>
+      <div
+        className={page_section_horizontal_css}
+        style={{
+          position: "relative",
+          display: "inline-block",
+        }}
+      >
         <SectionTitle title="NETWORK DRAWING" />
-        <FlowsButtonDark
-          className="px-3 py-2 mr-3 capitalize font-normal"
-          onClick={() => setShowNetworkUploads(true)}
-        >
-          <div className="flex flex-row items-center justify-center whitespace-nowrap">
-            <img
-              src="import.svg"
-              className="network-action-icon mr-2"
-            />
-            <span>Load JSON</span>
-          </div>
-        </FlowsButtonDark>
-        <FlowsButtonDark
-          className="px-3 py-2 capitalize font-normal"
-          onClick={() => setShowNetworkDownloads(true)}
-        >
-          <div className="flex flex-row items-center justify-center whitespace-nowrap">
-            <img
-              src="export.svg"
-              className="network-action-icon mr-2"
-            />
-            <span>Export JSON</span>
-          </div>
-        </FlowsButtonDark>
       </div>
       <div className="flex flex-row items-center justify-between mt-4">
-        <div className="flex flex-row items-center w-1/2">
-          <div className="text-sm text-flows-sidebar-text w-1/3 flex flex-row items-center">
+        <div className="flex flex-row items-center w-3/4 justify-between">
+          <div className="text-sm text-flows-sidebar-text flex flex-row items-center whitespace-nowrap">
             <span className="italic">Level:&nbsp;&nbsp;</span>
             <span className="font-bold">{parentId === "world" ? "World" : parentId}</span>
           </div>
-          <div className="text-sm text-flows-sidebar-text w-1/3 flex flex-row items-center">
+          <div className="text-sm text-flows-sidebar-text flex flex-row items-center whitespace-nowrap">
             <span className="italic">Selected:&nbsp;&nbsp;</span>
             <span className="font-bold">{selectedNodeId || selectedEdgeId || "None"}</span>
           </div>
-          <div className="w-1/3">
-            <FlowsButtonDark
-              className="px-3 py-1 capitalize font-normal text-xs"
-              disabled={!selectedNodeId && !selectedEdgeId}
-              onClick={() => {
-                if (selectedNodeId) {
-                  useStore.getState().openNodeDetailsModal();
-                } else if (selectedEdgeId) {
-                  useStore.getState().openEdgeDetailsModal();
-                }
-              }}
-            >
-              {selectedNodeId ? "Open Node" : selectedEdgeId ? "Open Connection" : "Open"}
-            </FlowsButtonDark>
-          </div>
+          <FlowsButtonDark
+            className="px-3 py-2 capitalize font-normal"
+            disabled={!selectedNodeId && !selectedEdgeId}
+            onClick={() => {
+              if (selectedNodeId) {
+                useStore.getState().openNodeDetailsModal();
+              } else if (selectedEdgeId) {
+                useStore.getState().openEdgeDetailsModal();
+              }
+            }}
+          >
+            {selectedNodeId ? "Open Node" : selectedEdgeId ? "Open Connection" : "Open"}
+          </FlowsButtonDark>
+          <FlowsButtonDark
+            className="px-3 py-2 capitalize font-normal border-red-500 text-red-500 hover:bg-red-50"
+            onClick={() => setClearLevelModal(true)}
+          >
+            <div className="flex flex-row items-center justify-center whitespace-nowrap">
+              <img
+                src="trash-delete.svg"
+                className="network-action-icon mr-2"
+                style={{ filter: "invert(39%) sepia(91%) saturate(3195%) hue-rotate(338deg) brightness(97%) contrast(91%)" }}
+              />
+              <span>Clear Level</span>
+            </div>
+          </FlowsButtonDark>
+          <FlowsButtonDark
+            className="px-3 py-2 capitalize font-normal"
+            onClick={() => setShowNetworkUploads(true)}
+          >
+            <div className="flex flex-row items-center justify-center whitespace-nowrap">
+              <img
+                src="import.svg"
+                className="network-action-icon mr-2"
+              />
+              <span>Import file</span>
+            </div>
+          </FlowsButtonDark>
+          <FlowsButtonDark
+            className="px-3 py-2 capitalize font-normal"
+            onClick={() => setShowNetworkDownloads(true)}
+          >
+            <div className="flex flex-row items-center justify-center whitespace-nowrap">
+              <img
+                src="export.svg"
+                className="network-action-icon mr-2"
+              />
+              <span>Export JSON</span>
+            </div>
+          </FlowsButtonDark>
         </div>
         <div className="flex flex-row">
           <FlowsButtonDark

@@ -29,7 +29,6 @@ import {
   GridValidRowModel,
   GridRowSelectionCheckboxParams,
   useGridApiRef,
-  useGridApiEventHandler,
   GridRowSelectionModel,
   GridCellModesModel,
   GridRowEditStartReasons,
@@ -109,11 +108,7 @@ function EditToolbar(props: EditToolbarProps) {
       >
         Add record
       </Button>
-      <GridToolbarExport
-        slotProps={{
-          button: { variant: "contained", color: "primary", size: "medium" },
-        }}
-      />
+      <GridToolbarExport />
     </GridToolbarContainer>
   );
 }
@@ -531,9 +526,6 @@ export default function UploadTagCSVGrid({
             <GridActionsCellItem
               icon={<SaveIcon />}
               label="Save"
-              sx={{
-                color: "textPrimary",
-              }}
               onClick={handleSaveClick(id)}
             />,
             <GridActionsCellItem
@@ -595,10 +587,10 @@ export default function UploadTagCSVGrid({
         processRowUpdate={processRowUpdate}
         onRowEditStart={handleOnRowEditStart}
         slots={{
-          toolbar: EditToolbar as GridSlots["toolbar"],
+          toolbar: EditToolbar as unknown as GridSlots["toolbar"],
         }}
         slotProps={{
-          toolbar: { setRows, setRowModesModel },
+          toolbar: { setRows, setRowModesModel } as any,
         }}
       />
     </Box>

@@ -10,15 +10,15 @@ import {
 import SectionTitle from "../global/section-title";
 import HelperText from "../global/helper-text";
 import { FaTimes } from "react-icons/fa";
+import { trpc } from "@/utils/trpc";
 
-const readFileAsJson = async (file: File): Promise<any> => {
+const readFileAsText = async (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
       const fileContents = reader.result;
       if (typeof fileContents === "string") {
-        const jsonContents = JSON.parse(fileContents);
-        resolve(jsonContents);
+        resolve(fileContents);
       }
     };
     reader.onerror = (error) => {
@@ -27,6 +27,11 @@ const readFileAsJson = async (file: File): Promise<any> => {
     };
     reader.readAsText(file);
   });
+};
+
+const readFileAsJson = async (file: File): Promise<any> => {
+  const text = await readFileAsText(file);
+  return JSON.parse(text);
 };
 
 type UploadButtonProps = {
@@ -71,8 +76,8 @@ const ExportSvg = ({ fill = "#2D4778" }) => (
 const UploadNetworkFields = () => {
   return (
     <div className={modal_main_section_wrapper_css}>
-      <SectionTitle title="UPLOAD A JSON NETWORK" />
-      <HelperText text="Upload a network in JSON format by selecting a file below." />
+      <SectionTitle title="IMPORT NETWORK FILE" />
+      <HelperText text="Import a network from a JSON (.json) or EPANET (.inp) file by selecting it below." />
     </div>
   );
 };
@@ -87,7 +92,7 @@ const UploadButton = ({ uploadStatus, handleFileChange }: UploadButtonProps) => 
           className="bg-flows-green text-flows-white"
           disabled
         >
-          JSON network uploaded successfully!
+          Network file imported successfully!
         </Button>
       ) : uploadStatus.status === "failure" ? (
         <Button
@@ -100,7 +105,7 @@ const UploadButton = ({ uploadStatus, handleFileChange }: UploadButtonProps) => 
         </Button>
       ) : (
         <div>
-          <label htmlFor="upload-json-input">
+          <label htmlFor="upload-network-input">
             <Button
               fullWidth
               variant="contained"
@@ -109,19 +114,17 @@ const UploadButton = ({ uploadStatus, handleFileChange }: UploadButtonProps) => 
                 "bg-flows-blue hover:bg-flows-light-blue text-flows-white hover:text-black shadow-none"
               }
               component="span"
-              onClick={() => console.log("Upload JSON Network button clicked")}
             >
-              Upload JSON Network
+              Import JSON or EPANET (.inp)
             </Button>
           </label>
           <input
-            id="upload-json-input"
+            id="upload-network-input"
             onChange={(e) => {
-              console.log("File input changed", e.target.files);
               handleFileChange(e);
             }}
             type="file"
-            accept=".json"
+            accept=".json,.inp"
             hidden
           />
         </div>
@@ -142,30 +145,36 @@ const UploadNetworkModal = ({
     errorMessage: "",
   });
 
+  const { mutateAsync: importEpanet } = trpc.filesRouter.importEpanet.useMutation();
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
 
-    console.log("Selected file:", file);
-
     if (!file) {
-      console.log("No file selected");
       return;
     }
 
     try {
-      console.log("Reading file as JSON...");
-      const jsonContents = await readFileAsJson(file);
-      console.log("Parsed JSON contents:", jsonContents);
+      const fileName = file.name.toLowerCase();
+      let jsonContents;
 
-      if (!jsonContents.nodes || !jsonContents.connections) {
-        throw new Error("Invalid JSON format: 'nodes' and 'connections' are required.");
+      if (fileName.endsWith('.json')) {
+        jsonContents = await readFileAsJson(file);
+      } else if (fileName.endsWith('.inp')) {
+        const fileContent = await readFileAsText(file);
+        const result = await importEpanet({ fileContent });
+        jsonContents = result.data;
+      } else {
+        throw new Error("Unsupported file type. Please upload a .json or .inp file.");
       }
 
-      console.log("JSON format valid, updating state...");
+      if (!jsonContents || !jsonContents.nodes || !jsonContents.connections) {
+        throw new Error("Invalid format: 'nodes' and 'connections' are required.");
+      }
+
       setUploadStatus({ status: "success", errorMessage: "" });
       setPageNetworkId("local");
       networkRefetch(jsonContents);
-      console.log("Network refetch called with JSON contents");
     } catch (error: any) {
       console.error("Error handling file change:", error);
       setUploadStatus({ status: "failure", errorMessage: error.message });

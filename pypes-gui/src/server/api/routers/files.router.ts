@@ -33,6 +33,7 @@ import saveDataStreamHandler, { saveDataStreamInputZ, saveDataStreamOutputZ } fr
 import getAllStreamsHandler, { getAllStreamsInputZ, getAllStreamsOutputZ } from "../handlers/file/getAllStreamsHandler";
 import removeDataStreamHandler, { removeDataStreamInputZ, removeDataStreamOutputZ } from "../handlers/file/removeDataStream";
 import saveSCADASetupHandler, { saveSCADASetupInputZ, saveSCADASetupOutputZ } from "../handlers/file/saveSCADASetupHandler";
+import importEpanetHandler, { importEpanetInputZ, importEpanetOutputZ } from "../handlers/file/importEpanetHandler";
 
 export const filesRouter = router({
   list: publicProcedure
@@ -47,6 +48,13 @@ export const filesRouter = router({
     .output(uploadFilesOutputZ)
     .mutation(({ input, ctx }) => {
       return uploadFilesHandler(input, ctx);
+    }),
+
+  importEpanet: publicProcedure
+    .input(importEpanetInputZ)
+    .output(importEpanetOutputZ)
+    .mutation(({ input, ctx }) => {
+      return importEpanetHandler(input, ctx);
     }),
 
   uploadRateSchedule: publicProcedure

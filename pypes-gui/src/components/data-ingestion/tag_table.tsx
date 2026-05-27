@@ -163,11 +163,7 @@ function EditToolbar(props: EditToolbarProps) {
         >
           Add tag
         </Button>
-        <GridToolbarExport
-          slotProps={{
-            button: { variant: "contained", color: "primary", size: "medium" },
-          }}
-        />
+        <GridToolbarExport />
         <Button
           variant="contained"
           color="primary"
@@ -482,9 +478,6 @@ const TagSection = () => {
             <GridActionsCellItem
               icon={<SaveIcon />}
               label="Save"
-              sx={{
-                color: "textPrimary",
-              }}
               onClick={handleSaveClick(id)}
             />,
             <GridActionsCellItem
@@ -880,19 +873,18 @@ const TagSection = () => {
                   onRowEditStart={handleOnRowEditStart}
                   processRowUpdate={processRowUpdate}
                   slots={{
-                    toolbar: EditToolbar as GridSlots["toolbar"],
+                   toolbar: EditToolbar as unknown as GridSlots["toolbar"],
                   }}
                   slotProps={{
-                    toolbar: {
-                      setRows,
-                      setRowModesModel,
-                      setUpdateTable,
-                      setSelectedTableParent,
-                      setSelectedRowId,
-                      rows,
-                    },
-                  }}
-                  //pageSizeOptions={[5]}
+                   toolbar: {
+                     setRows,
+                     setRowModesModel,
+                     setUpdateTable,
+                     setSelectedTableParent,
+                     setSelectedRowId,
+                     rows,
+                   } as any,
+                  }}                  //pageSizeOptions={[5]}
                   disableRowSelectionOnClick
                 />
               )

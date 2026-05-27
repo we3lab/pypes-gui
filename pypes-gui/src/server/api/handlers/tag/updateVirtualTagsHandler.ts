@@ -10,11 +10,11 @@ const VirtualTag = z.object({
   operations: z.string().optional(),
 });
 
-const VirtualTags = z.record(VirtualTag);
+const VirtualTags = z.record(z.string(), VirtualTag);
 
 export const updateVirtualTagInputZ = z.object({
   network_id: z.string(),
-  virtual_tag_data: z.record(VirtualTags),
+  virtual_tag_data: z.record(z.string(), VirtualTags),
 });
 
 export const updateVirtualTagOutputZ = z.object({

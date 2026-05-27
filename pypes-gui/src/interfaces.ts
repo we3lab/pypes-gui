@@ -191,7 +191,7 @@ export interface billingItem {
   hour_end: number | null;
   weekday_start: number | null;
   weekday_end: number | null;
-  charge: number;
+  charge: number | null;
   units: string;
 }
 

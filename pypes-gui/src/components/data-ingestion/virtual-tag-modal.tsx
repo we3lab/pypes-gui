@@ -47,22 +47,22 @@ interface MultiSelectComponentProps {
   virtualTags: NodeConVirtualTags;
 }
 
-interface VirtualTag {
+type VirtualTag = {
   tags?: string[];
   type?: string;
   units?: string;
   contents?: string;
   parent_id?: string;
   operations?: string;
-}
+};
 
-interface VirtualTags {
+type VirtualTags = {
   [key: string]: VirtualTag;
-}
+};
 
-interface NodeConVirtualTags {
+type NodeConVirtualTags = {
   [key: string]: VirtualTags;
-}
+};
 
 const MultiSelectComponent = ({
   spanName,
@@ -294,7 +294,6 @@ const VariableSelection = ({
     <Select
       className="w-1/2 bg-white h-9"
       label="Network id"
-      placeholder="Please select"
       value={selectedVariable}
       onChange={(e) => {
         setSelectedVariable(e.target.value);

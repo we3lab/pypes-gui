@@ -6,7 +6,7 @@ import createNodeSlice from "./node.slice";
 import createMainSlice from "./main.slice";
 
 export interface NodeData {
-  tags: object;
+  tags: Record<string, any>;
   parent: string;
   additionalData?: Record<string, any>;
 }
@@ -29,7 +29,7 @@ export interface EdgeWithData {
   edge: Edge;
   type: string;
   data: {
-    tags: object;
+    tags: Record<string, any>;
     parent?: string;
     additionalData?: Record<string, any>;
   }
@@ -40,14 +40,14 @@ export interface ModifyNodeDTO {
   parent: string;
   node?: Node;
   data?: {
-    tags: object;
+    tags: Record<string, any>;
   };
 }
 
 export interface ModifyEdgeDTO {
   id: string;
   data: {
-    tags: object;
+    tags: Record<string, any>;
   }
 }
 

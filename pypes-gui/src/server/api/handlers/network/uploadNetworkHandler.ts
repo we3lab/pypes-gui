@@ -3,7 +3,7 @@ import * as z from "zod";
 import ELK, { ElkNode } from "elkjs/lib/elk.bundled.js";
 
 export const uploadNetworksInputZ = z.object({
-  network_file: z.record(z.unknown()),
+  network_file: z.record(z.string(), z.unknown()),
   network_name: z.string(),
 });
 
@@ -18,7 +18,7 @@ type uploadNetworksOutputZ = z.infer<typeof uploadNetworksOutputZ>;
 const nodeSchema = z.object({
   id: z.string(),
   type: z.string(),
-  data: z.record(z.any()),
+  data: z.record(z.string(), z.any()),
   position: z.object({
     x: z.number(),
     y: z.number(),
