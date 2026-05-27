@@ -63,6 +63,9 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
   const [isBidirectional, setIsBidirectional] = useState<boolean>(false);
   const [name, setName] = useState<string>(selectedEdgeId);
 
+  const [selectedSource, setSelectedSource] = useState<string>("");
+  const [selectedDestination, setSelectedDestination] = useState<string>("");
+
   const [exit, setExit] = useState<boolean>(false);
   const [entry, setEntry] = useState<boolean>(false);
   const [sourceChildrenList, setSourceChildrenList] = useState<string[]>([]);
@@ -81,12 +84,14 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
           source: storeEdge.edge.source,
           destination: storeEdge.edge.target,
           id: storeEdge.id,
+          parent: storeEdge.data.parent || "world",
         });
       } else if (storeEdge) {
         setCurrentConnection({
           source: storeEdge.edge.source,
           destination: storeEdge.edge.target,
           id: storeEdge.id,
+          parent: storeEdge.data.parent || "world",
         });
       }
     };
@@ -101,6 +106,8 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
       setSelectedContentType(currentConnection.contents ?? currentConnection.content ?? "");
       setIsBidirectional(currentConnection.bidirectional ?? false);
       setName(selectedEdgeId);
+      setSelectedSource(currentConnection.source ?? "");
+      setSelectedDestination(currentConnection.destination ?? "");
       if (currentConnection.exit_point != undefined)
         {setSelectedExit(currentConnection.exit_point);}
       if (currentConnection.entry_point != undefined)
@@ -112,31 +119,52 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
     if (open) {
       setDefaultValueFromDB(currentConnection);
     }
-  }, [currentConnection]);
+  }, [currentConnection, open, setDefaultValueFromDB]);
 
   useEffect(() => {
-    if (currentConnection.source != undefined && currentConnection.source != "") {
+    if (selectedSource != undefined && selectedSource != "") {
       const allNodes = Object.values(nodes).flat();
-      const sourceNode = allNodes.find(n => n.id === currentConnection.source);
+      const sourceNode = allNodes.find(n => n.id === selectedSource);
       
       if (sourceNode) {
         if (sourceNode.node.type === "Facility" || sourceNode.node.type === "Network") {
           setExit(true);
           const children = nodes[sourceNode.id] ?? [];
           setSourceChildrenList(children.map(n => n.id));
+        } else {
+          setExit(false);
+          setSourceChildrenList([]);
+          setSelectedExit("");
         }
       }
+    } else {
+      setExit(false);
+      setSourceChildrenList([]);
+      setSelectedExit("");
+    }
 
-      const destNode = allNodes.find(n => n.id === currentConnection.destination);
+    if (selectedDestination != undefined && selectedDestination != "") {
+      const allNodes = Object.values(nodes).flat();
+      const destNode = allNodes.find(n => n.id === selectedDestination);
       if (destNode) {
         if (destNode.node.type === "Facility" || destNode.node.type === "Network") {
           setEntry(true);
           const children = nodes[destNode.id] ?? [];
           setDestChildrenList(children.map(n => n.id));
+        } else {
+          setEntry(false);
+          setDestChildrenList([]);
+          setSelectedEntry("");
         }
       }
+    } else {
+      setEntry(false);
+      setDestChildrenList([]);
+      setSelectedEntry("");
     }
-  }, [currentConnection, nodes]);
+  }, [selectedSource, selectedDestination, nodes]);
+
+  const availableNodes = nodes[currentConnection.parent] || [];
 
   return (
     <Modal
@@ -172,6 +200,40 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
             </div>
             <div className={modal_bottom_subsection_wrapper_css}>
               <div className={modal_section_horizontal_css + " items-center"}>
+                <div className="w-1/4">Select source:</div>
+                <FlowsSelect
+                  label="Source"
+                  placeholder="Please select"
+                  value={selectedSource}
+                  onChange={(e: any) => {
+                    setSelectedSource(e.target.value as string);
+                  }}
+                >
+                  {availableNodes.map((node, index) => (
+                    <MenuItem key={index} value={node.id}>
+                      {node.id}
+                    </MenuItem>
+                  ))}
+                </FlowsSelect>
+              </div>
+              <div className={modal_section_horizontal_css + " items-center"}>
+                <div className="w-1/4">Select destination:</div>
+                <FlowsSelect
+                  label="Destination"
+                  placeholder="Please select"
+                  value={selectedDestination}
+                  onChange={(e: any) => {
+                    setSelectedDestination(e.target.value as string);
+                  }}
+                >
+                  {availableNodes.map((node, index) => (
+                    <MenuItem key={index} value={node.id}>
+                      {node.id}
+                    </MenuItem>
+                  ))}
+                </FlowsSelect>
+              </div>
+              <div className={modal_section_horizontal_css + " items-center"}>
                 <div className="w-1/4">Select content:</div>
                 <FlowsSelect
                   label="Content"
@@ -204,7 +266,7 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
                   <MenuItem value="false">No</MenuItem>
                 </FlowsSelect>
               </div>
-              {exit && sourceChildrenList && (
+              {exit && sourceChildrenList.length > 0 && (
                 <div className={modal_section_horizontal_css + " items-center"}>
                   <div className="w-1/4">Select the exit point:</div>
                   <FlowsSelect
@@ -223,7 +285,7 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
                   </FlowsSelect>
                 </div>
               )}
-              {entry && destChildrenList && (
+              {entry && destChildrenList.length > 0 && (
                 <div className={modal_section_horizontal_css + " items-center"}>
                   <div className="w-1/4">Select the entry point:</div>
 
@@ -261,12 +323,14 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
           </FlowsButtonLight>
           <FlowsButtonDark
             className="w-1/5 capitalize font-normal ml-5 p-2"
-            disabled={selectedContentType === "" || name === ""}
+            disabled={selectedContentType === "" || name === "" || selectedSource === "" || selectedDestination === ""}
             onClick={() => {
               onUpdateConnection({
                 content: selectedContentType,
                 bidirectional: isBidirectional,
                 name: name,
+                source: selectedSource,
+                destination: selectedDestination,
                 entry_point: selectedEntry,
                 exit_point: selectedExit,
               });

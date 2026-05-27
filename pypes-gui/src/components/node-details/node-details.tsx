@@ -311,37 +311,43 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
                   <TableHead className="bg-flows-light-gray">
                     <TableRow>
                       <TableCell className={page_tablecell_css}>Tag Name</TableCell>
-                      <TableCell className={page_tablecell_css}>Value</TableCell>
+                      <TableCell className={page_tablecell_css}>Type</TableCell>
+                      <TableCell className={page_tablecell_css}>Units</TableCell>
+                      <TableCell className={page_tablecell_css}>Contents</TableCell>
+                      <TableCell className={page_tablecell_css}>Totalized</TableCell>
                       <TableCell className={page_tablecell_css}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {Object.entries(tags).map(([tagKey, tagValue], index) => (
+                    {Object.entries(tags).map(([tagKey, tagValue]: [string, any], index) => (
                       <TableRow key={index}>
                         <TableCell className={page_tablecell_css}>{tagKey}</TableCell>
+                        <TableCell className={page_tablecell_css}>{tagValue.type ?? tagValue.tagType ?? "-"}</TableCell>
+                        <TableCell className={page_tablecell_css}>{tagValue.units ?? tagValue.unit ?? "-"}</TableCell>
+                        <TableCell className={page_tablecell_css}>{tagValue.contents ?? tagValue.content ?? "-"}</TableCell>
+                        <TableCell className={page_tablecell_css}>{tagValue.totalized ? "Yes" : "No"}</TableCell>
                         <TableCell className={page_tablecell_css}>
-                          {typeof tagValue === "object" ? JSON.stringify(tagValue) : tagValue.toString()}
-                        </TableCell>
-                        <TableCell className={page_tablecell_css}>
-                          <Button className="p-0 justify-end cursor-default">
-                            <div
-                              className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
-                              onClick={() => onEditTag(tagKey)}
-                            >
-                              <img src="/edit.svg" className="w-4" />
-                            </div>
-                          </Button>
-                          <Button className="p-0 justify-end cursor-default">
-                            <div
-                              className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
-                              onClick={() => {
-                                setSelectedTag(tagKey);
-                                setDeleteTagModal(true);
-                              }}
-                            >
-                              <img src="/trash-delete.svg" className="w-4" />
-                            </div>
-                          </Button>
+                          <div className="flex flex-row items-center">
+                            <Button className="p-0 justify-end cursor-default">
+                              <div
+                                className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
+                                onClick={() => onEditTag(tagKey)}
+                              >
+                                <img src="/edit.svg" className="w-4" />
+                              </div>
+                            </Button>
+                            <Button className="p-0 justify-end cursor-default ml-2">
+                              <div
+                                className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
+                                onClick={() => {
+                                  setSelectedTag(tagKey);
+                                  setDeleteTagModal(true);
+                                }}
+                              >
+                                <img src="/trash-delete.svg" className="w-4" />
+                              </div>
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -349,7 +355,7 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
                 </Table>
               </TableContainer>
             ) : (
-              <div>No tags available</div>
+              <div className="mt-10">No tags available</div>
             )}
           </div>
         </div>
