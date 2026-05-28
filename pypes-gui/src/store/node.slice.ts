@@ -46,6 +46,7 @@ const createNodeSlice: StateCreator<any, [], [], NodeSlice> = (set) => {
     },
     addNode: (payload) => {
       set((state: any) => {
+        state.pushToHistory();
         const { parent } = payload.data;
         const nodes = state.nodes[parent] ?? [];
         const newNodes = [...nodes, payload];
@@ -59,6 +60,7 @@ const createNodeSlice: StateCreator<any, [], [], NodeSlice> = (set) => {
     },
     modifyNode: (payload) => {
       set((state: any) => {
+        state.pushToHistory();
         const { id, parent } = payload;
         const nodes = state.nodes[parent] ?? [];
         
@@ -93,6 +95,7 @@ const createNodeSlice: StateCreator<any, [], [], NodeSlice> = (set) => {
     },
     deleteNode: (payload) => {
       set((state: any) => {
+        state.pushToHistory();
         const { id } = payload;
         const { parent } = payload.data;
         const nodes = state.nodes[parent] ?? [];
@@ -116,7 +119,8 @@ const createNodeSlice: StateCreator<any, [], [], NodeSlice> = (set) => {
     },
     selectedNode: null,
     resetNetwork: () => {
-      set(() => {
+      set((state: any) => {
+        state.pushToHistory();
         return {
           selectedNode: null,
           nodes: {

@@ -311,7 +311,23 @@ const Network = ({
     setSelectedNodeId,
     parentId,
     setParentId,
+    undo,
+    pushToHistory,
   } = useMainStore();
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+        event.preventDefault();
+        undo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [undo]);
   const {
     addNode,
     addWorld,
@@ -539,6 +555,7 @@ const Network = ({
 
   const onDragStop = useCallback(
     (event: any, node: any) => {
+      pushToHistory();
       setSelectedNodeId(node.id);
       setSelectedNode(node.id);
       const updatedNodes = (storedNodes[parentId] ?? []).map((storedNode) =>
@@ -686,6 +703,19 @@ const Network = ({
           </div>
           <FlowsButtonDark
             className="px-3 py-2 capitalize font-normal"
+            onClick={() => undo()}
+            disabled={useStore.getState().history.length === 0}
+          >
+            <div className="flex flex-row items-center justify-center whitespace-nowrap">
+              <img
+                src="undo.svg"
+                className="network-action-icon mr-2"
+              />
+              <span>Undo</span>
+            </div>
+          </FlowsButtonDark>
+          <FlowsButtonDark
+            className="px-3 py-2 capitalize font-normal"
             disabled={!selectedNodeId && !selectedEdgeId}
             onClick={() => {
               if (selectedNodeId) {
@@ -728,7 +758,7 @@ const Network = ({
           >
             <div className="flex flex-row items-center justify-center whitespace-nowrap">
               <img
-                src="export.svg"
+                src="export-dark-blue.svg"
                 className="network-action-icon mr-2"
               />
               <span>Export JSON</span>
