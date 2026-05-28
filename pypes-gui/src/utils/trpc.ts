@@ -6,7 +6,7 @@ import { AppRouter } from '@/server/api/root';
 
 function getBaseUrl() {
   const cloudFrontend = process.env.NEXT_PUBLIC_HOST
-  const localFrontend = `http://localhost:${process.env.PORT ?? 3000}`;
+  const localFrontend = `http://0.0.0.0:${process.env.PORT ?? 3000}`;
   if (typeof window !== 'undefined')
     // browser should use relative path
     return '';

@@ -5,36 +5,54 @@ Graphical user interface (GUI) to help you build models in [pype-schema](https:/
 > Still under development
 
 # Installation
+
 ```bash
 git clone
 cd pypes-gui
 npm install
 ```
 
+If it's not already, make sure that `pype-schema` is installed:
+
+```bash
+pip install pype-schema
+```
+
 # Usage
+
+To launch the development environment (from within the `pypes-gui` subfolder): 
+
 ```bash
 npm run dev
 ```
 
 Then the local server will be running at [http://localhost:3000](http://localhost:3000).
 
+Alternatively, the GUI can be installed and run from a Docker container:
+
+```bash
+docker build -t pypes-gui .
+```
+
 # Project Structure
 ```
-pypes-gui/
-├── components/          # Reusable React components
+pypes-gui/           # Root directory
+README.md            # Project documentation
+├── src/                 # React source code
+    ├── components/          # Reusable React components
+    ├── pages/               # Core pages and styles
+    ├── server/              # Backend logic for the app
+    ├── store/               # Interactions with stored data
+    ├── utils/               # Utility functions and constants
 ├── public/              # Static files (images, icons, etc.)
-├── styles/              # Global styles
-├── utils/               # Utility functions and constants
+├── Dockerfile           # Configuration of Docker container
 ├── next.config.js       # Next.js configuration
 ├── package.json         # Project metadata and dependencies
-├── README.md            # Project documentation
 ```
 
 ## Current Status
 - Remove backend: Most of the backend and trpc features in flows-app are removed. Instead, everything is now implemented and stored in the frontend.
-    - TODO: Clean up the codebase to remove unused files and folders.
 - Simplified the pages: The pages are now simplified to focus on a single page of network editor, originally from flows-app's `data-ingestion` page. All login features are removed because now the app is only used locally.
 - Network editor: Now it can create new nodes and connections with corresponding attributes. A simple export function is implemented to export the network as a JSON file, and a simple import function is implemented to import the network from a JSON file.
     - TODO: Implement the import and export functions to support the full pype-schema format. 
-    - TODO: Add the icons for the new nodes.
     - TODO: Implement the virtual_tags editor to edit the virtual tags of the nodes, also in import and export functions.
