@@ -129,6 +129,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
   const [batteryParams, setBatteryParams] = useState<BatteryParams>({
     name: "",
     capacity: null,
+    charge_rate: null,
     discharge_rate: null,
   });
 
@@ -309,8 +310,20 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
       case "Battery":
         setBatteryParams({
           name: id,
-          capacity: currentNode["capacity"] ?? null,
-          discharge_rate: currentNode["discharge_rate"] ?? null,
+          capacity:
+            currentNode["capacity"] ??
+            currentNode["capacity (kWh)"] ??
+            currentNode["energy_capacity"] ??
+            currentNode["energy_capacity (kWh)"] ??
+            null,
+          charge_rate:
+            currentNode["charge_rate"] ??
+            currentNode["charge_rate (kW)"] ??
+            null,
+          discharge_rate:
+            currentNode["discharge_rate"] ??
+            currentNode["discharge_rate (kW)"] ??
+            null,
         });
         break;
       case "Facility":
@@ -482,6 +495,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                   onChange={(e: any) =>
                     setBatteryParams({
                       capacity: batteryParams.capacity,
+                      charge_rate: batteryParams.charge_rate,
                       discharge_rate: batteryParams.discharge_rate,
                       name: e.target.value,
                     })
@@ -492,12 +506,13 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                 <div className={modal_left_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Capacity"
+                    label="Capacity (kWh)"
                     type="number"
                     value={batteryParams.capacity}
                     onChange={(e: any) =>
                       setBatteryParams({
                         capacity: handleNumericInput(e.target.value),
+                        charge_rate: batteryParams.charge_rate,
                         discharge_rate: batteryParams.discharge_rate,
                         name: batteryParams.name,
                       })
@@ -507,12 +522,27 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Discharge rate"
+                    label="Charge rate (kW)"
+                    type="number"
+                    value={batteryParams.charge_rate}
+                    onChange={(e: any) =>
+                      setBatteryParams({
+                        capacity: batteryParams.capacity,
+                        charge_rate: handleNumericInput(e.target.value),
+                        discharge_rate: batteryParams.discharge_rate,
+                        name: batteryParams.name,
+                      })
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Discharge rate (kW)"
                     type="number"
                     value={batteryParams.discharge_rate}
                     onChange={(e: any) =>
                       setBatteryParams({
                         capacity: batteryParams.capacity,
+                        charge_rate: batteryParams.charge_rate,
                         discharge_rate: handleNumericInput(e.target.value),
                         name: batteryParams.name,
                       })
@@ -548,7 +578,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                 <div className={modal_left_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Elevation"
+                    label="Elevation (meters)"
                     type="number"
                     value={tankParams.elevation}
                     onChange={(e: any) =>
@@ -563,7 +593,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume"
+                    label="Volume (cubic meters)"
                     type="number"
                     value={tankParams.volume}
                     onChange={(e: any) =>
@@ -628,7 +658,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                 <div className={modal_left_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Elevation"
+                    label="Elevation (meters)"
                     type="number"
                     value={reservoirParamas.elevation}
                     onChange={(e: any) =>
@@ -643,7 +673,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume"
+                    label="Volume (cubic meters)"
                     type="number"
                     value={reservoirParamas.volume}
                     onChange={(e: any) =>
@@ -764,7 +794,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume"
+                    label="Volume (cubic meters)"
                     type="number"
                     value={aerationParams.volume}
                     onChange={(e: any) => {
@@ -884,7 +914,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume"
+                    label="Volume (cubic meters)"
                     type="number"
                     value={filtrationParams.volume}
                     onChange={(e: any) => {
@@ -1004,7 +1034,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume"
+                    label="Volume (cubic meters)"
                     type="number"
                     value={clarificationParams.volume}
                     onChange={(e: any) => {
@@ -1124,7 +1154,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume"
+                    label="Volume (cubic meters)"
                     type="number"
                     value={thickeningParams.volume}
                     onChange={(e: any) => {
@@ -1231,7 +1261,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Elevation"
+                    label="Elevation (meters)"
                     type="number"
                     value={facilityParams.elevation}
                     onChange={(e: any) => {
@@ -1351,7 +1381,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume"
+                    label="Volume (cubic meters)"
                     type="number"
                     value={chlorinationParams.volume}
                     onChange={(e: any) => {
@@ -1792,7 +1822,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Elevation"
+                    label="Elevation (meters)"
                     type="number"
                     value={pumpParams.elevation}
                     onChange={(e: any) => {
@@ -1805,7 +1835,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Horsepower"
+                    label="Horsepower (hp)"
                     type="number"
                     value={pumpParams.horsepower}
                     onChange={(e: any) => {
@@ -1940,7 +1970,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume"
+                    label="Volume (cubic meters)"
                     type="number"
                     value={digestionParams.volume}
                     onChange={(e: any) => {

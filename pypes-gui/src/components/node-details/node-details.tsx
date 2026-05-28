@@ -56,6 +56,9 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
     closeNodeUpdateModal,
     closeNodeDetailsModal,
     setSelectedNodeId,
+    setSelectedNode,
+    setParentId,
+    addWorld,
     nodes,
     parentId,
     tagCreationModalOpen,
@@ -91,6 +94,11 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
   const [virtualTags, setVirtualTags] = useState<Record<string, VirtualTagPayload>>(
     nodeData?.data?.virtual_tags || {}
   );
+  const nodeSchemaType = nodeData?.data.additionalData?.type ?? nodeData?.node.type;
+  const canEnterNode =
+    nodeSchemaType === "Network" ||
+    nodeSchemaType === "Facility" ||
+    nodeSchemaType === "ModularUnit";
 
   useEffect(() => {
     if (open && selectedNodeId) {
@@ -141,11 +149,36 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
         },
       } as NodeWithData;
 
-      // Handle volume field renaming if present
+      // Keep unit-bearing attribute names in the schema payload.
+      if ("elevation" in payload_wo_name) {
+        updatedNode.data.additionalData = updatedNode.data.additionalData || {};
+        updatedNode.data.additionalData["elevation (meters)"] = payload_wo_name.elevation;
+        delete updatedNode.data.additionalData.elevation;
+      }
+      if ("volume" in payload_wo_name) {
+        updatedNode.data.additionalData = updatedNode.data.additionalData || {};
+        updatedNode.data.additionalData["volume (cubic meters)"] = payload_wo_name.volume;
+        delete updatedNode.data.additionalData.volume;
+      }
       if ("volume (cubic meters)" in payload_wo_name) {
         updatedNode.data.additionalData = updatedNode.data.additionalData || {};
-        updatedNode.data.additionalData["volume"] = payload_wo_name["volume (cubic meters)"];
-        delete updatedNode.data.additionalData["volume (cubic meters)"];
+        updatedNode.data.additionalData["volume (cubic meters)"] = payload_wo_name["volume (cubic meters)"];
+      }
+
+      if ("capacity" in payload_wo_name) {
+        updatedNode.data.additionalData = updatedNode.data.additionalData || {};
+        updatedNode.data.additionalData["capacity (kWh)"] = payload_wo_name.capacity;
+        delete updatedNode.data.additionalData.capacity;
+      }
+      if ("charge_rate" in payload_wo_name) {
+        updatedNode.data.additionalData = updatedNode.data.additionalData || {};
+        updatedNode.data.additionalData["charge_rate (kW)"] = payload_wo_name.charge_rate;
+        delete updatedNode.data.additionalData.charge_rate;
+      }
+      if ("discharge_rate" in payload_wo_name) {
+        updatedNode.data.additionalData = updatedNode.data.additionalData || {};
+        updatedNode.data.additionalData["discharge_rate (kW)"] = payload_wo_name.discharge_rate;
+        delete updatedNode.data.additionalData.discharge_rate;
       }
 
       // Update store
@@ -183,6 +216,19 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
       console.error("Cannot delete node: nodeData not found");
     }
   }, [nodeData, deleteNode, callReDraw, closeNodeDetailsModal, setSelectedNodeId]);
+
+  const onEnterNode = () => {
+    if (!nodeData || !canEnterNode) {
+      return;
+    }
+    if (!nodes[nodeData.id]) {
+      addWorld(nodeData.id);
+    }
+    setParentId(nodeData.id);
+    setSelectedNodeId("");
+    setSelectedNode(null);
+    closeNodeDetailsModal();
+  };
 
   const prepareAndSendTag = (payload: any) => {
     const newTagKey = payload.id; // Tag key (e.g., "tag1")
@@ -387,6 +433,14 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
               >
                 Add tag
               </FlowsButtonDark>
+              {canEnterNode && (
+                <FlowsButtonDark
+                  className="w-1/5 font-normal capitalize p-2 ml-5"
+                  onClick={onEnterNode}
+                >
+                  Enter Node
+                </FlowsButtonDark>
+              )}
               <FlowsButtonDark
                 className="w-1/5 font-normal capitalize p-2 ml-5"
                 onClick={() => setVirtualTagModalOpen(true)}

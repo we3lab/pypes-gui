@@ -124,6 +124,27 @@ const readStringList = (value: unknown): string[] =>
     ? value.filter((item): item is string => typeof item === "string")
     : [];
 
+const withUnitBearingAttributeKeys = (data: Record<string, any>) => {
+  const normalized = { ...data };
+  const unitBearingKeyMap: Record<string, string> = {
+    elevation: "elevation (meters)",
+    volume: "volume (cubic meters)",
+    capacity: "capacity (kWh)",
+    energy_capacity: "capacity (kWh)",
+    charge_rate: "charge_rate (kW)",
+    discharge_rate: "discharge_rate (kW)",
+  };
+
+  Object.entries(unitBearingKeyMap).forEach(([sourceKey, targetKey]) => {
+    if (sourceKey in normalized && !(targetKey in normalized)) {
+      normalized[targetKey] = normalized[sourceKey];
+      delete normalized[sourceKey];
+    }
+  });
+
+  return normalized;
+};
+
 const buildStoreFromPypesJson = (jsonContents: any) => {
   const nodesByParent: Record<string, NodeWithData[]> = { world: [] };
   const edgesWithData: EdgeWithData[] = [];
@@ -234,6 +255,7 @@ const buildPypesJsonFromStore = (
     levelNodes.forEach((node) => {
       const schemaType = node.data.additionalData?.type ?? node.node.type ?? "Network";
       const { type: _type, ...additionalData } = node.data.additionalData ?? {};
+      const exportAdditionalData = withUnitBearingAttributeKeys(additionalData);
       const childEdges = edgesWithData.filter(
         (edge) => (edge.data.parent ?? "world") === node.id
       );
@@ -241,7 +263,7 @@ const buildPypesJsonFromStore = (
 
       jsonContents[node.id] = {
         type: schemaType,
-        ...additionalData,
+        ...exportAdditionalData,
         tags: node.data.tags ?? {},
         virtual_tags: node.data.virtual_tags ?? {},
       };
