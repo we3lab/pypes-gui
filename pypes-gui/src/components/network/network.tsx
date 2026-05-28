@@ -126,19 +126,47 @@ const readStringList = (value: unknown): string[] =>
 
 const withUnitBearingAttributeKeys = (data: Record<string, any>) => {
   const normalized = { ...data };
-  const unitBearingKeyMap: Record<string, string> = {
-    elevation: "elevation (meters)",
-    volume: "volume (cubic meters)",
-    capacity: "capacity (kWh)",
-    energy_capacity: "capacity (kWh)",
-    charge_rate: "charge_rate (kW)",
-    discharge_rate: "discharge_rate (kW)",
+  const unitBearingDefaults: Record<string, string> = {
+    elevation: "meters",
+    volume: "cubic meters",
+    capacity: "kWh",
+    energy_capacity: "kWh",
+    charge_rate: "kW",
+    discharge_rate: "kW",
+    horsepower: "hp",
+  };
+  const legacyUnitBearingKeys: Record<string, { key: string; units: string }> = {
+    "elevation (meters)": { key: "elevation", units: "meters" },
+    "volume (cubic meters)": { key: "volume", units: "cubic meters" },
+    "capacity (kWh)": { key: "capacity", units: "kWh" },
+    "energy_capacity (kWh)": { key: "energy_capacity", units: "kWh" },
+    "charge_rate (kW)": { key: "charge_rate", units: "kW" },
+    "discharge_rate (kW)": { key: "discharge_rate", units: "kW" },
   };
 
-  Object.entries(unitBearingKeyMap).forEach(([sourceKey, targetKey]) => {
-    if (sourceKey in normalized && !(targetKey in normalized)) {
-      normalized[targetKey] = normalized[sourceKey];
+  Object.entries(legacyUnitBearingKeys).forEach(([sourceKey, config]) => {
+    if (sourceKey in normalized && !(config.key in normalized)) {
+      normalized[config.key] = {
+        value: normalized[sourceKey],
+        units: config.units,
+      };
       delete normalized[sourceKey];
+    }
+  });
+
+  Object.entries(unitBearingDefaults).forEach(([key, units]) => {
+    if (!(key in normalized) || normalized[key] == null) {
+      return;
+    }
+    if (
+      typeof normalized[key] !== "object" ||
+      !("value" in normalized[key]) ||
+      !("units" in normalized[key])
+    ) {
+      normalized[key] = {
+        value: normalized[key],
+        units,
+      };
     }
   });
 

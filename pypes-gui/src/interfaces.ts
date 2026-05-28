@@ -41,8 +41,11 @@ export interface AerationParams {
 export interface BatteryParams {
   name: string;
   capacity: number | null;
+  capacity_units: string;
   charge_rate: number | null;
+  charge_rate_units: string;
   discharge_rate: number | null;
+  discharge_rate_units: string;
 }
 
 export interface FacilityParams {

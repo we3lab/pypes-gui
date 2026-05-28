@@ -190,9 +190,18 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         type: nodeType,
         position,
         additionalData: {
-          "capacity (kWh)": payload.capacity ?? payload["capacity (kWh)"] ?? 0,
-          "charge_rate (kW)": payload.charge_rate ?? payload["charge_rate (kW)"] ?? 0,
-          "discharge_rate (kW)": payload.discharge_rate ?? payload["discharge_rate (kW)"] ?? 0,
+          capacity: {
+            value: payload.capacity ?? payload.capacity?.value ?? payload["capacity (kWh)"] ?? 0,
+            units: payload.capacity_units ?? payload.capacity?.units ?? "kWh",
+          },
+          charge_rate: {
+            value: payload.charge_rate ?? payload.charge_rate?.value ?? payload["charge_rate (kW)"] ?? 0,
+            units: payload.charge_rate_units ?? payload.charge_rate?.units ?? "kW",
+          },
+          discharge_rate: {
+            value: payload.discharge_rate ?? payload.discharge_rate?.value ?? payload["discharge_rate (kW)"] ?? 0,
+            units: payload.discharge_rate_units ?? payload.discharge_rate?.units ?? "kW",
+          },
           rte: payload.rte ?? 0,
           leakage: payload.leakage ?? 0,
           tags: {},

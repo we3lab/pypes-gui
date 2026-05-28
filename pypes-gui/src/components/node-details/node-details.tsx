@@ -152,34 +152,51 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
       // Keep unit-bearing attribute names in the schema payload.
       if ("elevation" in payload_wo_name) {
         updatedNode.data.additionalData = updatedNode.data.additionalData || {};
-        updatedNode.data.additionalData["elevation (meters)"] = payload_wo_name.elevation;
-        delete updatedNode.data.additionalData.elevation;
+        updatedNode.data.additionalData.elevation = {
+          value: payload_wo_name.elevation,
+          units: payload_wo_name.elevation_units ?? "meters",
+        };
       }
       if ("volume" in payload_wo_name) {
         updatedNode.data.additionalData = updatedNode.data.additionalData || {};
-        updatedNode.data.additionalData["volume (cubic meters)"] = payload_wo_name.volume;
-        delete updatedNode.data.additionalData.volume;
+        updatedNode.data.additionalData.volume = {
+          value: payload_wo_name.volume,
+          units: payload_wo_name.volume_units ?? "cubic meters",
+        };
       }
       if ("volume (cubic meters)" in payload_wo_name) {
         updatedNode.data.additionalData = updatedNode.data.additionalData || {};
-        updatedNode.data.additionalData["volume (cubic meters)"] = payload_wo_name["volume (cubic meters)"];
+        updatedNode.data.additionalData.volume = {
+          value: payload_wo_name["volume (cubic meters)"],
+          units: "cubic meters",
+        };
       }
 
       if ("capacity" in payload_wo_name) {
         updatedNode.data.additionalData = updatedNode.data.additionalData || {};
-        updatedNode.data.additionalData["capacity (kWh)"] = payload_wo_name.capacity;
-        delete updatedNode.data.additionalData.capacity;
+        updatedNode.data.additionalData.capacity = {
+          value: payload_wo_name.capacity,
+          units: payload_wo_name.capacity_units ?? "kWh",
+        };
       }
       if ("charge_rate" in payload_wo_name) {
         updatedNode.data.additionalData = updatedNode.data.additionalData || {};
-        updatedNode.data.additionalData["charge_rate (kW)"] = payload_wo_name.charge_rate;
-        delete updatedNode.data.additionalData.charge_rate;
+        updatedNode.data.additionalData.charge_rate = {
+          value: payload_wo_name.charge_rate,
+          units: payload_wo_name.charge_rate_units ?? "kW",
+        };
       }
       if ("discharge_rate" in payload_wo_name) {
         updatedNode.data.additionalData = updatedNode.data.additionalData || {};
-        updatedNode.data.additionalData["discharge_rate (kW)"] = payload_wo_name.discharge_rate;
-        delete updatedNode.data.additionalData.discharge_rate;
+        updatedNode.data.additionalData.discharge_rate = {
+          value: payload_wo_name.discharge_rate,
+          units: payload_wo_name.discharge_rate_units ?? "kW",
+        };
       }
+      updatedNode.data.additionalData = updatedNode.data.additionalData || {};
+      delete updatedNode.data.additionalData.capacity_units;
+      delete updatedNode.data.additionalData.charge_rate_units;
+      delete updatedNode.data.additionalData.discharge_rate_units;
 
       // Update store
       const parent = nodeData.data.parent || parentId || "world";

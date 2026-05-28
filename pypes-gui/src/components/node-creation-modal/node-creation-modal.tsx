@@ -98,8 +98,11 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
   const [batteryParams, setBatteryParams] = useState<BatteryParams>({
     name: "",
     capacity: null,
+    capacity_units: "kWh",
     charge_rate: null,
+    charge_rate_units: "kW",
     discharge_rate: null,
+    discharge_rate_units: "kW",
   });
 
   const [facilityParams, setFacilityParams] = useState<FacilityParams>({
@@ -337,8 +340,11 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   onChange={(e: any) =>
                     setBatteryParams({
                       capacity: batteryParams.capacity,
+                      capacity_units: batteryParams.capacity_units,
                       charge_rate: batteryParams.charge_rate,
+                      charge_rate_units: batteryParams.charge_rate_units,
                       discharge_rate: batteryParams.discharge_rate,
+                      discharge_rate_units: batteryParams.discharge_rate_units,
                       name: e.target.value,
                     })
                   }
@@ -348,14 +354,34 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                 <div className={modal_left_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Capacity (kWh)"
+                    label="Capacity"
                     type="number"
                     value={batteryParams.capacity}
                     onChange={(e: any) =>
                       setBatteryParams({
                         capacity: handleNumericInput(e.target.value),
+                        capacity_units: batteryParams.capacity_units,
                         charge_rate: batteryParams.charge_rate,
+                        charge_rate_units: batteryParams.charge_rate_units,
                         discharge_rate: batteryParams.discharge_rate,
+                        discharge_rate_units: batteryParams.discharge_rate_units,
+                        name: batteryParams.name,
+                      })
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Capacity units"
+                    type="text"
+                    value={batteryParams.capacity_units}
+                    onChange={(e: any) =>
+                      setBatteryParams({
+                        capacity: batteryParams.capacity,
+                        capacity_units: e.target.value,
+                        charge_rate: batteryParams.charge_rate,
+                        charge_rate_units: batteryParams.charge_rate_units,
+                        discharge_rate: batteryParams.discharge_rate,
+                        discharge_rate_units: batteryParams.discharge_rate_units,
                         name: batteryParams.name,
                       })
                     }
@@ -364,28 +390,68 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Charge rate (kW)"
+                    label="Charge rate"
                     type="number"
                     value={batteryParams.charge_rate}
                     onChange={(e: any) =>
                       setBatteryParams({
                         capacity: batteryParams.capacity,
+                        capacity_units: batteryParams.capacity_units,
                         charge_rate: handleNumericInput(e.target.value),
+                        charge_rate_units: batteryParams.charge_rate_units,
                         discharge_rate: batteryParams.discharge_rate,
+                        discharge_rate_units: batteryParams.discharge_rate_units,
                         name: batteryParams.name,
                       })
                     }
                   />
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Discharge rate (kW)"
+                    label="Charge rate units"
+                    type="text"
+                    value={batteryParams.charge_rate_units}
+                    onChange={(e: any) =>
+                      setBatteryParams({
+                        capacity: batteryParams.capacity,
+                        capacity_units: batteryParams.capacity_units,
+                        charge_rate: batteryParams.charge_rate,
+                        charge_rate_units: e.target.value,
+                        discharge_rate: batteryParams.discharge_rate,
+                        discharge_rate_units: batteryParams.discharge_rate_units,
+                        name: batteryParams.name,
+                      })
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Discharge rate"
                     type="number"
                     value={batteryParams.discharge_rate}
                     onChange={(e: any) =>
                       setBatteryParams({
                         capacity: batteryParams.capacity,
+                        capacity_units: batteryParams.capacity_units,
                         charge_rate: batteryParams.charge_rate,
+                        charge_rate_units: batteryParams.charge_rate_units,
                         discharge_rate: handleNumericInput(e.target.value),
+                        discharge_rate_units: batteryParams.discharge_rate_units,
+                        name: batteryParams.name,
+                      })
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Discharge rate units"
+                    type="text"
+                    value={batteryParams.discharge_rate_units}
+                    onChange={(e: any) =>
+                      setBatteryParams({
+                        capacity: batteryParams.capacity,
+                        capacity_units: batteryParams.capacity_units,
+                        charge_rate: batteryParams.charge_rate,
+                        charge_rate_units: batteryParams.charge_rate_units,
+                        discharge_rate: batteryParams.discharge_rate,
+                        discharge_rate_units: e.target.value,
                         name: batteryParams.name,
                       })
                     }
@@ -420,7 +486,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                 <div className={modal_left_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Elevation (meters)"
+                    label="Elevation"
                     type="number"
                     value={tankParams.elevation}
                     onChange={(e: any) =>
@@ -435,7 +501,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume (cubic meters)"
+                    label="Volume"
                     type="number"
                     value={tankParams.volume}
                     onChange={(e: any) =>
@@ -506,7 +572,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                 <div className={modal_left_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Elevation (meters)"
+                    label="Elevation"
                     type="number"
                     value={reservoirParamas.elevation}
                     onChange={(e: any) =>
@@ -521,7 +587,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume (cubic meters)"
+                    label="Volume"
                     type="number"
                     value={reservoirParamas.volume}
                     onChange={(e: any) =>
@@ -642,7 +708,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume (cubic meters)"
+                    label="Volume"
                     type="number"
                     value={aerationParams.volume}
                     onChange={(e: any) => {
@@ -764,7 +830,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume (cubic meters)"
+                    label="Volume"
                     type="number"
                     value={filtrationParams.volume}
                     onChange={(e: any) => {
@@ -884,7 +950,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume (cubic meters)"
+                    label="Volume"
                     type="number"
                     value={clarificationParams.volume}
                     onChange={(e: any) => {
@@ -1004,7 +1070,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume (cubic meters)"
+                    label="Volume"
                     type="number"
                     value={thickeningParams.volume}
                     onChange={(e: any) => {
@@ -1111,7 +1177,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Elevation (meters)"
+                    label="Elevation"
                     type="number"
                     value={facilityParams.elevation}
                     onChange={(e: any) => {
@@ -1231,7 +1297,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume (cubic meters)"
+                    label="Volume"
                     type="number"
                     value={chlorinationParams.volume}
                     onChange={(e: any) => {
@@ -1672,7 +1738,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Elevation (meters)"
+                    label="Elevation"
                     type="number"
                     value={pumpParams.elevation}
                     onChange={(e: any) => {
@@ -1685,7 +1751,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Horsepower (hp)"
+                    label="Horsepower"
                     type="number"
                     value={pumpParams.horsepower}
                     onChange={(e: any) => {
@@ -1820,7 +1886,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Volume (cubic meters)"
+                    label="Volume"
                     type="number"
                     value={digestionParams.volume}
                     onChange={(e: any) => {
@@ -2022,8 +2088,11 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   setBatteryParams({
                     name: "",
                     capacity: 0,
+                    capacity_units: "kWh",
                     charge_rate: 0,
+                    charge_rate_units: "kW",
                     discharge_rate: 0,
+                    discharge_rate_units: "kW",
                   });
                   break;
                 case "Facility":
