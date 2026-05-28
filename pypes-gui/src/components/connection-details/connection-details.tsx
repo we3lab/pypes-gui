@@ -30,6 +30,9 @@ import FlowsButtonDark from "../global/flows-button-dark";
 import FlowsButtonLight from "../global/flows-button-light";
 import FlowsPopUpWindow from "../global/flows-pop-up-window";
 import dynamic from "next/dynamic";
+import VirtualTagEditModal, {
+  VirtualTagPayload,
+} from "../virtual-tag-edit-modal/virtual-tag-edit-modal";
 
 interface ConnectionDeatailsProps {
   open: boolean;
@@ -63,7 +66,10 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
 
   const [deleteConnectionModal, setDeleteConnectionModal] = useState<boolean>(false);
   const [deleteTagModal, setDeleteTagModal] = useState<boolean>(false);
+  const [deleteVirtualTagModal, setDeleteVirtualTagModal] = useState<boolean>(false);
+  const [virtualTagModalOpen, setVirtualTagModalOpen] = useState<boolean>(false);
   const [selectedTag, setSelectedTag] = useState<string>("");
+  const [selectedVirtualTag, setSelectedVirtualTag] = useState<string>("");
   const [tagMode, setTagMode] = useState<string>("add");
   const [selectedTab, setSelectedTab] = useState(0);
 
@@ -119,6 +125,7 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
         },
         data: {
           ...(connectionData?.data ?? {}),
+          virtual_tags: connectionData?.data?.virtual_tags ?? {},
           additionalData: {
             ...(connectionData?.data?.additionalData ?? {}),
             contents: payload.content,
@@ -214,8 +221,66 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
     setDeleteTagModal(false);
   };
 
+  const onSaveVirtualTag = (
+    virtualTagName: string,
+    payload: VirtualTagPayload,
+    originalName?: string
+  ) => {
+    if (!connectionData) {
+      return;
+    }
+    const updatedEdges = edges.map((edge) => {
+      if (edge.id !== connectionData.id) {
+        return edge;
+      }
+      const virtualTags: Record<string, VirtualTagPayload> = {
+        ...(edge.data.virtual_tags ?? {}),
+      };
+      if (originalName && originalName !== virtualTagName) {
+        delete virtualTags[originalName];
+      }
+      virtualTags[virtualTagName] = payload;
+      return {
+        ...edge,
+        data: {
+          ...edge.data,
+          virtual_tags: virtualTags,
+        },
+      };
+    });
+    useStore.setState({ edges: updatedEdges });
+    setVirtualTagModalOpen(false);
+    setSelectedVirtualTag("");
+  };
+
+  const onDeleteVirtualTag = (virtualTagName: string) => {
+    if (!connectionData) {
+      return;
+    }
+    const updatedEdges = edges.map((edge) => {
+      if (edge.id !== connectionData.id) {
+        return edge;
+      }
+      const virtualTags: Record<string, VirtualTagPayload> = {
+        ...(edge.data.virtual_tags ?? {}),
+      };
+      delete virtualTags[virtualTagName];
+      return {
+        ...edge,
+        data: {
+          ...edge.data,
+          virtual_tags: virtualTags,
+        },
+      };
+    });
+    useStore.setState({ edges: updatedEdges });
+    setDeleteVirtualTagModal(false);
+    setSelectedVirtualTag("");
+  };
+
   // Extract tags from connectionData or default to empty array
   const tags = connectionData?.data?.tags ?? {};
+  const virtualTags = connectionData?.data?.virtual_tags ?? {};
 
   if (!selectedEdgeId) {
     return null;
@@ -248,6 +313,27 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
           onClose={() => setDeleteTagModal(false)}
           onClick={() => onDeleteTag(selectedTag)}
           open={deleteTagModal}
+        />
+        <FlowsPopUpWindow
+          title="Delete"
+          question="Are you sure you want to delete this VirtualTag?"
+          onClose={() => setDeleteVirtualTagModal(false)}
+          onClick={() => onDeleteVirtualTag(selectedVirtualTag)}
+          open={deleteVirtualTagModal}
+        />
+        <VirtualTagEditModal
+          open={virtualTagModalOpen}
+          onClose={() => {
+            setVirtualTagModalOpen(false);
+            setSelectedVirtualTag("");
+          }}
+          onSave={onSaveVirtualTag}
+          parentId={connectionData?.id ?? ""}
+          existingName={selectedVirtualTag || undefined}
+          existingVirtualTag={
+            selectedVirtualTag ? virtualTags[selectedVirtualTag] : undefined
+          }
+          availableTags={Object.keys(tags)}
         />
         <div className={modal_main_section_wrapper_css}>
           <button
@@ -299,6 +385,12 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
                 }}
               >
                 Add tag
+              </FlowsButtonDark>
+              <FlowsButtonDark
+                className="w-1/5 font-normal capitalize p-2 ml-5"
+                onClick={() => setVirtualTagModalOpen(true)}
+              >
+                Add VirtualTag
               </FlowsButtonDark>
             </div>
             {Object.keys(tags).length > 0 ? (
@@ -356,6 +448,76 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
               </TableContainer>
             ) : (
               <div className="mt-10">No tags available</div>
+            )}
+            {Object.keys(virtualTags).length > 0 ? (
+              <TableContainer className="shadow-none mt-10" component={Paper}>
+                <Table className="text-sm">
+                  <TableHead className="bg-flows-light-gray">
+                    <TableRow>
+                      <TableCell className={page_tablecell_css}>VirtualTag Name</TableCell>
+                      <TableCell className={page_tablecell_css}>Mode</TableCell>
+                      <TableCell className={page_tablecell_css}>Tags</TableCell>
+                      <TableCell className={page_tablecell_css}>Operations</TableCell>
+                      <TableCell className={page_tablecell_css}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {Object.entries(virtualTags).map(([virtualTagKey, virtualTagValue]) => (
+                      <TableRow key={virtualTagKey}>
+                        <TableCell className={page_tablecell_css}>{virtualTagKey}</TableCell>
+                        <TableCell className={page_tablecell_css}>
+                          {virtualTagValue.operations ? "Custom" : "Algebraic"}
+                        </TableCell>
+                        <TableCell className={page_tablecell_css}>
+                          {(virtualTagValue.tags ?? []).join(", ") || "-"}
+                        </TableCell>
+                        <TableCell className={page_tablecell_css}>
+                          {(virtualTagValue.operations ??
+                            [
+                              virtualTagValue.unary_operations
+                                ? `unary: ${JSON.stringify(virtualTagValue.unary_operations)}`
+                                : "",
+                              virtualTagValue.binary_operations
+                                ? `binary: ${JSON.stringify(virtualTagValue.binary_operations)}`
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join("; ")) ||
+                            "-"}
+                        </TableCell>
+                        <TableCell className={page_tablecell_css}>
+                          <div className="flex flex-row items-center">
+                            <Button className="p-0 justify-end cursor-default">
+                              <div
+                                className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
+                                onClick={() => {
+                                  setSelectedVirtualTag(virtualTagKey);
+                                  setVirtualTagModalOpen(true);
+                                }}
+                              >
+                                <img src="/edit.svg" className="w-4" />
+                              </div>
+                            </Button>
+                            <Button className="p-0 justify-end cursor-default ml-2">
+                              <div
+                                className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
+                                onClick={() => {
+                                  setSelectedVirtualTag(virtualTagKey);
+                                  setDeleteVirtualTagModal(true);
+                                }}
+                              >
+                                <img src="/trash-delete.svg" className="w-4" />
+                              </div>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <div className="mt-5">No VirtualTags available</div>
             )}
           </div>
         </div>

@@ -26,8 +26,8 @@ const createConnectionSlice: StateCreator<ConnectionSlice> = (set) => {
       set((state: any) => {
         state.pushToHistory();
         const { id } = payload;
-        const edges = state.edges;
-        const edge = edges.find((edge) => edge.id === id || edge.edge.id === id);
+        const edges: EdgeWithData[] = state.edges;
+        const edge = edges.find((edge: EdgeWithData) => edge.id === id || edge.edge.id === id);
         if (!edge) {
           return state;
         }
@@ -38,7 +38,7 @@ const createConnectionSlice: StateCreator<ConnectionSlice> = (set) => {
             ...payload.data,
           },
         };
-        const newEdges = edges.map((edge) => {
+        const newEdges = edges.map((edge: EdgeWithData) => {
           if (edge.id === id || edge.edge.id === id) {
             return newEdge;
           }
@@ -59,9 +59,9 @@ const createConnectionSlice: StateCreator<ConnectionSlice> = (set) => {
     deleteEdge: (payload) => {
       set((state: any) => {
         state.pushToHistory();
-        const edges = state.edges;
+        const edges: EdgeWithData[] = state.edges;
         const newEdges = edges.filter(
-          (edge) => edge.id !== payload && edge.edge.id !== payload
+          (edge: EdgeWithData) => edge.id !== payload && edge.edge.id !== payload
         );
         return {
           edges: newEdges,

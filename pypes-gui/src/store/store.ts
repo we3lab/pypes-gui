@@ -7,6 +7,7 @@ import createMainSlice from "./main.slice";
 
 export interface NodeData {
   tags: Record<string, any>;
+  virtual_tags?: Record<string, any>;
   parent: string;
   additionalData?: Record<string, any>;
 }
@@ -30,6 +31,7 @@ export interface EdgeWithData {
   type: string;
   data: {
     tags: Record<string, any>;
+    virtual_tags?: Record<string, any>;
     parent?: string;
     additionalData?: Record<string, any>;
   }

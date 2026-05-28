@@ -138,7 +138,7 @@ const buildStoreFromPypesJson = (jsonContents: any) => {
     nodesByParent[parent] = nodeIds.map((nodeId, index) => {
       const nodeData = jsonContents[nodeId] ?? {};
       const schemaType = nodeData.type ?? "Network";
-      const { tags = {}, ...additionalData } = nodeData;
+      const { tags = {}, virtual_tags = {}, ...additionalData } = nodeData;
       const node: Node = {
         id: nodeId,
         type: getRenderableNodeType(schemaType),
@@ -152,6 +152,7 @@ const buildStoreFromPypesJson = (jsonContents: any) => {
         data: {
           parent,
           tags,
+          virtual_tags,
           additionalData: {
             ...additionalData,
             type: schemaType,
@@ -174,6 +175,7 @@ const buildStoreFromPypesJson = (jsonContents: any) => {
       };
       const {
         tags = {},
+        virtual_tags = {},
         source: _source,
         destination: _destination,
         type: _type,
@@ -187,6 +189,7 @@ const buildStoreFromPypesJson = (jsonContents: any) => {
         data: {
           parent,
           tags,
+          virtual_tags,
           additionalData,
         },
       });
@@ -240,6 +243,7 @@ const buildPypesJsonFromStore = (
         type: schemaType,
         ...additionalData,
         tags: node.data.tags ?? {},
+        virtual_tags: node.data.virtual_tags ?? {},
       };
 
       if (
@@ -263,6 +267,7 @@ const buildPypesJsonFromStore = (
           destination: edge.edge.target,
           ...(edge.data.additionalData ?? {}),
           tags: edge.data.tags ?? {},
+          virtual_tags: edge.data.virtual_tags ?? {},
         };
       });
   };
@@ -428,6 +433,7 @@ const Network = ({
         data: {
           parent: parentId,
           tags: {},
+          virtual_tags: {},
           additionalData: {
             contents: payload.content,
             bidirectional: payload.bidirectional,
@@ -510,6 +516,7 @@ const Network = ({
         data: {
           parent: parentId,
           tags: newNode.additionalData?.tags ?? {},
+          virtual_tags: newNode.additionalData?.virtual_tags ?? {},
           additionalData: {
             ...(newNode.additionalData ?? {}),
             type: newNode.type,
