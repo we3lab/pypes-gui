@@ -26,13 +26,14 @@ To launch the development environment (from within the `pypes-gui` subfolder):
 npm run dev
 ```
 
-Then the local server will be running at [http://localhost:3000](http://localhost:3000).
-
 Alternatively, the GUI can be installed and run from a Docker container:
 
 ```bash
 docker build -t pypes-gui .
+docker run -p 3000:3333 pypes-gui
 ```
+
+In either case, the local server will be available at [http://localhost:3000](http://localhost:3000).
 
 # Project Structure
 ```
@@ -50,9 +51,13 @@ README.md            # Project documentation
 ├── package.json         # Project metadata and dependencies
 ```
 
-## Current Status
+# Current Status
 - Remove backend: Most of the backend and trpc features in flows-app are removed. Instead, everything is now implemented and stored in the frontend.
 - Simplified the pages: The pages are now simplified to focus on a single page of network editor, originally from flows-app's `data-ingestion` page. All login features are removed because now the app is only used locally.
 - Network editor: Now it can create new nodes and connections with corresponding attributes. A simple export function is implemented to export the network as a JSON file, and a simple import function is implemented to import the network from a JSON file.
     - TODO: Implement the import and export functions to support the full pype-schema format. 
     - TODO: Implement the virtual_tags editor to edit the virtual tags of the nodes, also in import and export functions.
+
+# Disclaimer 
+
+Portions of this codebase were generated or assisted by artificial intelligence tools. While the logic and architecture have been reviewed for functionality, the user assumes all responsibility for debugging outputs prior to production deployment.
