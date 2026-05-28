@@ -58,6 +58,5 @@ README.md            # Project documentation
     - TODO: Implement the import and export functions to support the full pype-schema format. 
     - TODO: Implement the virtual_tags editor to edit the virtual tags of the nodes, also in import and export functions.
 
-# Disclaimer 
-
-Portions of this codebase were generated or assisted by artificial intelligence tools. While the logic and architecture have been reviewed for functionality, the user assumes all responsibility for debugging outputs prior to production deployment.
+> [!WARNING] 
+> Portions of this codebase were generated or assisted by artificial intelligence tools. While the logic and architecture have been reviewed for functionality, the user assumes all responsibility for debugging outputs prior to production deployment.
