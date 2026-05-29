@@ -261,7 +261,7 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
                     <div className="w-1/4">Friction Coeff:</div>
                     <FlowsTextField
                       className={modal_textfield_css}
-                      label="Friction Coeff"
+                      label="Friction Coefficient"
                       type="number"
                       placeholder="0"
                       value={frictionCoeff}

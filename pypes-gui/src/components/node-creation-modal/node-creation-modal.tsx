@@ -398,6 +398,30 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       })
                     }
                   />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Leakage"
+                    type="number"
+                    value={batteryParams.leakage}
+                    onChange={(e: any) =>
+                      setBatteryParams({
+                        ...batteryParams,
+                        leakage: handleNumericInput(e.target.value),
+                      })
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="RTE"
+                    type="number"
+                    value={batteryParams.rte}
+                    onChange={(e: any) =>
+                      setBatteryParams({
+                        ...batteryParams,
+                        rte: handleNumericInput(e.target.value),
+                      })
+                    }
+                  />
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
@@ -463,30 +487,6 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       })
                     }
                   />
-                  <FlowsTextField
-                    className={modal_textfield_css}
-                    label="Leakage"
-                    type="number"
-                    value={batteryParams.leakage}
-                    onChange={(e: any) =>
-                      setBatteryParams({
-                        ...batteryParams,
-                        leakage: handleNumericInput(e.target.value),
-                      })
-                    }
-                  />
-                  <FlowsTextField
-                    className={modal_textfield_css}
-                    label="RTE"
-                    type="number"
-                    value={batteryParams.rte}
-                    onChange={(e: any) =>
-                      setBatteryParams({
-                        ...batteryParams,
-                        rte: handleNumericInput(e.target.value),
-                      })
-                    }
-                  />
                 </div>
               </div>
             </div>
@@ -546,6 +546,18 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     <MenuItem value="meters">meters</MenuItem>
                     <MenuItem value="inches">inches</MenuItem>
                   </FlowsSelect>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={tankParams.num_units}
+                    onChange={(e: any) =>
+                      setTankParams({
+                        ...tankParams,
+                        num_units: handleNumericInput(e.target.value),
+                      })
+                    }
+                  />
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
@@ -580,18 +592,6 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     <MenuItem value="cubic meters">cubic meters</MenuItem>
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
-                  <FlowsTextField
-                    className={modal_textfield_css}
-                    label="Number of units"
-                    type="number"
-                    value={tankParams.num_units}
-                    onChange={(e: any) =>
-                      setTankParams({
-                        ...tankParams,
-                        num_units: handleNumericInput(e.target.value),
-                      })
-                    }
-                  />
                 </div>
               </div>
             </div>
@@ -631,8 +631,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   }
                 />
                 <p className="m-5">
-                  Network parameters are optional.<br></br>Add nodes and
-                  conenctions later!
+                  Add nodes and connections later!
                 </p>
               </div>
             </div>
@@ -691,6 +690,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   >
                     <MenuItem value="meters">meters</MenuItem>
                     <MenuItem value="inches">inches</MenuItem>
+                    <MenuItem value="feet">feet</MenuItem>
                   </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>

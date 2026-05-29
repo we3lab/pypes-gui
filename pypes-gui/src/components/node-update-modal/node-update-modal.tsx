@@ -706,10 +706,25 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       name: e.target.value,
                       nodes: networkParams.nodes,
                       connections: networkParams.connections,
+                      num_units: networkParams.num_units
                     })
                   }
                 />
               </div>
+              <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={networkParams.num_units}
+                    onChange={(e: any) => {
+                      setNetworkParams((prevState) => ({
+                        ...prevState,
+                        num_units: handleNumericInput(e.target.value),
+                      }));
+                    }}
+                  />
+                </div>
             </div>
           </div>
         )}
