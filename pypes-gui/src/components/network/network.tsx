@@ -133,7 +133,7 @@ const withUnitBearingAttributeKeys = (data: Record<string, any>) => {
     energy_capacity: "kWh",
     charge_rate: "kW",
     discharge_rate: "kW",
-    horsepower: "hp",
+    power_rating: "hp",
   };
   const legacyUnitBearingKeys: Record<string, { key: string; units: string }> = {
     "elevation (meters)": { key: "elevation", units: "meters" },

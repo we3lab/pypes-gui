@@ -171,7 +171,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
   const [pumpParams, setPumpParams] = useState<PumpParams>({
     name: "",
     elevation: null,
-    horsepower: null,
+    power_rating: null,
     num_units: null,
     flowrate: {
       design: null,
@@ -381,7 +381,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setPumpParams({
           name: id,
           elevation: currentNode["elevation"] ?? null,
-          horsepower: currentNode["horsepower"] ?? null,
+          power_rating: currentNode["power_rating"] ?? null,
           num_units: currentNode["num_units"] ?? null,
           flowrate: {
             design: currentNode.flowrate?.design ?? null,
@@ -1915,13 +1915,13 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Horsepower"
+                    label="Power rating"
                     type="number"
-                    value={pumpParams.horsepower}
+                    value={pumpParams.power_rating}
                     onChange={(e: any) => {
                       setPumpParams((prevState) => ({
                         ...prevState,
-                        horsepower: handleNumericInput(e.target.value),
+                        power_rating: handleNumericInput(e.target.value),
                       }));
                     }}
                   />

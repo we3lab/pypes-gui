@@ -1751,13 +1751,13 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Horsepower"
+                    label="Power rating"
                     type="number"
-                    value={pumpParams.horsepower}
+                    value={pumpParams.power_rating}
                     onChange={(e: any) => {
                       setPumpParams((prevState) => ({
                         ...prevState,
-                        horsepower: handleNumericInput(e.target.value),
+                        power_rating: handleNumericInput(e.target.value),
                       }));
                     }}
                   />

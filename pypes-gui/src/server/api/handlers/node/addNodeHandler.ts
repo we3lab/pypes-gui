@@ -158,7 +158,7 @@ const addNodeHandler = async (
           units: input.newNode.additionalData.flowrate.units,
         },
         num_units: input.newNode.additionalData.num_units,
-        horsepower: input.newNode.additionalData.horsepower,
+        power_rating: input.newNode.additionalData.power_rating,
         pump_type: input.newNode.additionalData.pump_type,
         tags: input.newNode.additionalData.tags,
         input_contents: [],
