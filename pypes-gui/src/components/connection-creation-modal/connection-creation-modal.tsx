@@ -258,7 +258,7 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
                     />
                   </div>
                   <div className={modal_section_horizontal_css + " items-center"}>
-                    <div className="w-1/4">Friction Coeff:</div>
+                    <div className="w-1/4">Friction Coefficient:</div>
                     <FlowsTextField
                       className={modal_textfield_css}
                       label="Friction Coefficient"
@@ -268,7 +268,7 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
                       onChange={(e: any) => setFrictionCoeff(Number(e.target.value))}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div className={modal_section_horizontal_css + " items-center"}>
                       <div className="w-1/2">Min Flow:</div>
                       <FlowsTextField
@@ -291,10 +291,21 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
                         onChange={(e: any) => setMaxFlow(Number(e.target.value))}
                       />
                     </div>
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Design Flow:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Design Flow"
+                        type="number"
+                        placeholder="0"
+                        value={designFlow}
+                        onChange={(e: any) => setDesignFlow(Number(e.target.value))}
+                      />
+                    </div>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div className={modal_section_horizontal_css + " items-center"}>
-                      <div className="w-1/2">Min Press:</div>
+                      <div className="w-1/2">Min Pressure:</div>
                       <FlowsTextField
                         className={modal_textfield_css}
                         label="Min Pressure"
@@ -305,7 +316,7 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
                       />
                     </div>
                     <div className={modal_section_horizontal_css + " items-center"}>
-                      <div className="w-1/2">Max Press:</div>
+                      <div className="w-1/2">Max Pressure:</div>
                       <FlowsTextField
                         className={modal_textfield_css}
                         label="Max Pressure"
@@ -316,7 +327,7 @@ const ConnectionCreationModal: React.FC<ConnectionCreationModalProps> = ({
                       />
                     </div>
                     <div className={modal_section_horizontal_css + " items-center"}>
-                      <div className="w-1/2">Design Press:</div>
+                      <div className="w-1/2">Design Pressure:</div>
                       <FlowsTextField
                         className={modal_textfield_css}
                         label="Design Pressure"

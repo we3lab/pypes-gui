@@ -1,8 +1,10 @@
-import { Box, Button, MenuItem, Modal } from "@mui/material";
+import { Box, MenuItem, Modal } from "@mui/material";
 import {
   TankParams,
   StaticMixingParams,
   FiltrationParams,
+  ROMembraneParams,
+  UVSystemParams,
   AerationParams,
   ReservoirParams,
   BatteryParams,
@@ -25,11 +27,9 @@ import useMainStore from "@/store/store";
 import SectionTitle from "../global/section-title";
 import {
   modal_box_css,
-  modal_first_button_css,
   modal_left_subsection_wrapper_css,
   modal_section_horizontal_css,
   modal_main_section_wrapper_css,
-  modal_other_button_css,
   modal_right_subsection_wrapper_css,
   modal_textfield_css,
   modal_section_vertical_css,
@@ -40,6 +40,7 @@ import FlowsButtonLight from "../global/flows-button-light";
 import FlowsButtonDark from "../global/flows-button-dark";
 import { FaTimes } from "react-icons/fa";
 import FlowsSelect from "../global/flows-select";
+import ROMembraneNode from "../network/nodes/ro-membrane-node";
 
 interface NodeCreationModalProps {
   open: boolean;
@@ -114,6 +115,38 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
     settling_time: { value: null, units: "hours" },
   });
 
+  const [roMembraneParams, setROMembraneParams] = useState<ROMembraneParams>({
+    name: "",
+    flowrate: {
+      design: null,
+      max: null,
+      min: null,
+      units: "MGD",
+    },
+    num_units: null,
+    volume: { value: null, units: "cubic meters" },
+    dosing_rate: {},
+    settling_time: { value: null, units: "hours" },
+    area: { value: null, units: "square meters" },
+    permeability: { value: null, units: "LMH / bar" },
+    selectivity: { value: null, units: "m / s" },
+  });
+
+  const [uvSystemParams, setUVSystemParams] = useState<UVSystemParams>({
+    name: "",
+    flowrate: {
+      design: null,
+      max: null,
+      min: null,
+      units: "MGD",
+    },
+    num_units: null,
+    volume: { value: null, units: "cubic meters" },
+    dosing_rate: { UVLight: {chemical: "UVLight", value: null, units: "W / square meter", mode: "rate"} },
+    dosing_area: { UVLight: {chemical: "UVLight", value: null, units: "square meters", mode: "area"} },
+    residence_time: { value: null, units: "hours" },
+  });
+
   const [batteryParams, setBatteryParams] = useState<BatteryParams>({
     name: "",
     capacity: null,
@@ -171,7 +204,6 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
   const [junctionParams, setJunctionParams] = useState<JunctionParams>({
     name: "",
     diameter: null,
-    num_units: null,
   });
 
   const [pumpParams, setPumpParams] = useState<PumpParams>({
@@ -290,9 +322,11 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
         setName(aerationParams.name);
         break;
       case "Filtration":
-      case "ROMembrane":
-      case "UVSystem":
         setName(filtrationParams.name);
+      case "ROMembrane":
+        setName(roMembraneParams.name)
+      case "UVSystem":
+        setName(uvSystemParams.name);
         break;
       case "Battery":
         setName(batteryParams.name);
@@ -344,6 +378,8 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
     reservoirParamas.name,
     aerationParams.name,
     filtrationParams.name,
+    roMembraneParams.name,
+    uvSystemParams.name,
     batteryParams.name,
     facilityParams.name,
     chlorinationParams.name,
@@ -579,8 +615,8 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     }
                   >
                     <MenuItem value="meters">meters</MenuItem>
-                    <MenuItem value="inches">inches</MenuItem>
                     <MenuItem value="feet">feet</MenuItem>
+                    <MenuItem value="inches">inches</MenuItem>
                   </FlowsSelect>
                   <FlowsTextField
                     className={modal_textfield_css}
@@ -611,6 +647,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       })
                     }
                   />
+
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Volume units"
@@ -626,6 +663,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     }
                   >
                     <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
                 </div>
@@ -724,18 +762,58 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       }));
                     }}
                   />
+
                   <FlowsTextField
                     className={modal_textfield_css}
                     label="Number of units"
                     type="number"
                     value={staticMixingParams.num_units}
-                    onChange={(e: any) =>
-                      setStaticMixingParams({
-                        ...staticMixingParams,
+                    onChange={(e: any) => {
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
                         num_units: handleNumericInput(e.target.value),
-                      })
-                    }
+                      }));
+                    }}
                   />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Residence time"
+                    type="number"
+                    value={staticMixingParams.residence_time?.value}
+                    onChange={(e: any) => {
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        residence_time: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.residence_time?.units || "hours",
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Residence time units"
+                    value={staticMixingParams.residence_time?.units || "hours"}
+                    onChange={(e: any) => {
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        residence_time: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="seconds">seconds</MenuItem>
+                    <MenuItem value="minutes">minutes</MenuItem>
+                    <MenuItem value="hours">hours</MenuItem>
+                    <MenuItem value="days">days</MenuItem>
+                    <MenuItem value="weeks">weeks</MenuItem>
+                    <MenuItem value="months">months</MenuItem>
+                    <MenuItem value="years">years</MenuItem>
+                  </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
@@ -753,6 +831,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       })
                     }
                   />
+
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Volume units"
@@ -768,8 +847,10 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     }
                   >
                     <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
+
                   <FlowsTextField
                     className={modal_textfield_css}
                     label="pH"
@@ -782,42 +863,95 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       })
                     }
                   />
+
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Residence time"
-                    type="number"
-                    value={staticMixingParams.residence_time?.value}
-                    onChange={(e: any) =>
-                      setStaticMixingParams({
-                        ...staticMixingParams,
-                        volume: {
-                          value: handleNumericInput(e.target.value),
-                          units: staticMixingParams.residence_time?.units || "hours",
+                    label="Chemical dosed"
+                    type="string"
+                    value={Object.keys(staticMixingParams.dosing_rate || {})[0] || ""}
+                    onChange={(e: any) => {
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        dosing_rate: {
+                          ...prevState.dosing_rate,
+                          [e.target.value]: {
+                            chemical: e.target.value,
+                            value: prevState.dosing_rate[e.target.value]?.value ?? null,
+                            units: prevState.dosing_rate[e.target.value]?.units ?? "mg / L",
+                            mode: "rate",
+                          },
                         },
-                      })
-                    }
+                      }));
+                    }}
                   />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Dosing rate"
+                    type="number"
+                    value={Object.values(staticMixingParams.dosing_rate || {})[0]?.value || null}
+                    onChange={(e: any) => {                      
+                      setStaticMixingParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: handleNumericInput(e.target.value),
+                              units: dosingRate[chemicalKey]?.units ?? "mg / L",
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  />
+
                   <FlowsSelect
                     className={modal_textfield_css}
-                    label="Residence time units"
-                    value={staticMixingParams.residence_time?.units || "hours"}
-                    onChange={(e: any) =>
-                      setStaticMixingParams({
-                        ...staticMixingParams,
-                        volume: {
-                          value: staticMixingParams.volume?.value ?? null,
-                          units: e.target.value,
-                        },
-                      })
-                    }
+                    label="Dosing rate units"
+                    value={Object.values(staticMixingParams.dosing_rate || {})[0]?.units || "mg / L"}
+                    onChange={(e: any) => {                      
+                      setStaticMixingParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: dosingRate[chemicalKey]?.value ?? null,
+                              units: e.target.value,
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
+                    }}
                   >
-                    <MenuItem value="seconds">cubic meters</MenuItem>
-                    <MenuItem value="minutes">cubic meters</MenuItem>
-                    <MenuItem value="hours">cubic meters</MenuItem>
-                    <MenuItem value="days">cubic meters</MenuItem>
-                    <MenuItem value="weeks">cubic meters</MenuItem>
-                    <MenuItem value="months">cubic meters</MenuItem>
-                    <MenuItem value="years">cubic meters</MenuItem>
+                    <MenuItem value="mg / L">mg / L</MenuItem>
                   </FlowsSelect>
                 </div>
               </div>
@@ -843,18 +977,6 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     })
                   }
                 />
-                <FlowsTextField
-                  className={modal_textfield_css}
-                  label="Number of units"
-                  type="number"
-                  value={junctionParams.num_units}
-                  onChange={(e: any) =>
-                    setJunctionParams({
-                      ...junctionParams,
-                      num_units: handleNumericInput(e.target.value),
-                    })
-                  }
-                />
               </div>
               <div className={modal_right_subsection_wrapper_css}>
                 <FlowsTextField
@@ -872,6 +994,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       })
                     }
                   />
+
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Diameter units"
@@ -952,6 +1075,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     })
                   }
                 />
+
                 <FlowsTextField
                   className={modal_textfield_css}
                   label="Number of units"
@@ -1008,6 +1132,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       })
                     }
                   />
+
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Elevation units"
@@ -1023,8 +1148,8 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     }
                   >
                     <MenuItem value="meters">meters</MenuItem>
-                    <MenuItem value="inches">inches</MenuItem>
                     <MenuItem value="feet">feet</MenuItem>
+                    <MenuItem value="inches">inches</MenuItem>
                   </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
@@ -1043,6 +1168,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       })
                     }
                   />
+
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Volume units"
@@ -1058,6 +1184,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     }
                   >
                     <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
                 </div>
@@ -1198,6 +1325,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     }}
                   >
                     <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
                 </div>
@@ -1206,9 +1334,702 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
           </div>
         )}
 
-        {(nodeType === "Filtration" ||
-          nodeType === "ROMembrane" ||
-          nodeType === "UVSystem") && (
+        {(nodeType === "ROMembrane") && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="REVERSE OSMOSIS MEMBRANE PARAMETERS" />
+            <div className={modal_section_vertical_css}>
+              <div className={modal_top_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="text"
+                  value={roMembraneParams.name}
+                  onChange={(e: any) => {
+                    setROMembraneParams((prevState) => ({
+                      ...prevState,
+                      name: e.target.value,
+                      flowrate: {
+                        ...prevState.flowrate,
+                      },
+                      dosing_rate: {
+                        ...prevState.dosing_rate,
+                      },
+                    }));
+                  }}
+                />
+              </div>
+              <div className={modal_section_horizontal_css}>
+                <div className={modal_left_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - min"
+                    type="number"
+                    value={roMembraneParams.flowrate.min}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          min: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - max"
+                    type="number"
+                    value={roMembraneParams.flowrate.max}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          max: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - design"
+                    type="number"
+                    value={roMembraneParams.flowrate.design}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          design: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - units"
+                    type="text"
+                    value={roMembraneParams.flowrate.units}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Settling time"
+                    type="number"
+                    value={roMembraneParams.settling_time?.value}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        settling_time: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.settling_time?.units || "hours",
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Settling time units"
+                    value={roMembraneParams.settling_time?.units || "hours"}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        settling_time: {
+                          value: prevState.settling_time?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="seconds">seconds</MenuItem>
+                    <MenuItem value="minutes">minutes</MenuItem>
+                    <MenuItem value="hours">hours</MenuItem>
+                  </FlowsSelect>
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Permeability"
+                    type="number"
+                    value={roMembraneParams.permeability?.value}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        permeability: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.permeability?.units || "LMH / bar",
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Permeability units"
+                    value={roMembraneParams.permeability?.units || "LMH / bar"}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        permeability: {
+                          value: prevState.permeability?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="LMH / bar">LMH / bar</MenuItem>
+                  </FlowsSelect>
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Selectivity"
+                    type="number"
+                    value={roMembraneParams.selectivity?.value}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        selectivity: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.selectivity?.units || "m / s",
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Selectivity units"
+                    value={roMembraneParams.selectivity?.units || "m / s"}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        selectivity: {
+                          value: prevState.selectivity?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="m / s">m / s</MenuItem>
+                    <MenuItem value="">%</MenuItem>
+                  </FlowsSelect>
+                </div>
+                <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={roMembraneParams.num_units}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        num_units: handleNumericInput(e.target.value),
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Volume"
+                    type="number"
+                    value={roMembraneParams.volume?.value}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={roMembraneParams.volume?.units || "cubic meters"}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Chemical dosed"
+                    type="string"
+                    value={Object.keys(roMembraneParams.dosing_rate || {})[0] || ""}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        dosing_rate: {
+                          ...prevState.dosing_rate,
+                          [e.target.value]: {
+                            chemical: e.target.value,
+                            value: prevState.dosing_rate[e.target.value]?.value ?? null,
+                            units: prevState.dosing_rate[e.target.value]?.units ?? "mg / L",
+                            mode: "rate",
+                          },
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Dosing rate"
+                    type="number"
+                    value={Object.values(roMembraneParams.dosing_rate || {})[0]?.value || null}
+                    onChange={(e: any) => {                      
+                      setROMembraneParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: handleNumericInput(e.target.value),
+                              units: dosingRate[chemicalKey]?.units ?? "mg / L",
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Dosing rate units"
+                    value={Object.values(roMembraneParams.dosing_rate || {})[0]?.units || "mg / L"}
+                    onChange={(e: any) => {                      
+                      setROMembraneParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: dosingRate[chemicalKey]?.value ?? null,
+                              units: e.target.value,
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  >
+                    <MenuItem value="mg / L">mg / L</MenuItem>
+                  </FlowsSelect>
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Area"
+                    type="number"
+                    value={roMembraneParams.area?.value}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        area: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.area?.units || "square meters",
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Selectivity units"
+                    value={roMembraneParams.area?.units || "square meters"}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        area: {
+                          value: prevState.area?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="square meters">square meters</MenuItem>
+                    <MenuItem value="sq ft">square feet</MenuItem>
+                    <MenuItem value="sq in">square inches</MenuItem>
+                  </FlowsSelect>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {(nodeType === "UVSystem") && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="ULTRAVIOLET SYSTEM PARAMETERS" />
+            <div className={modal_section_vertical_css}>
+              <div className={modal_top_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="text"
+                  value={uvSystemParams.name}
+                  onChange={(e: any) => {
+                    setUVSystemParams((prevState) => ({
+                      ...prevState,
+                      name: e.target.value,
+                      flowrate: {
+                        ...prevState.flowrate,
+                      },
+                      dosing_rate: {
+                        ...prevState.dosing_rate,
+                      },
+                    }));
+                  }}
+                />
+              </div>
+              <div className={modal_section_horizontal_css}>
+                <div className={modal_left_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - min"
+                    type="number"
+                    value={uvSystemParams.flowrate.min}
+                    onChange={(e: any) => {
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          min: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - max"
+                    type="number"
+                    value={uvSystemParams.flowrate.max}
+                    onChange={(e: any) => {
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          max: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - design"
+                    type="number"
+                    value={uvSystemParams.flowrate.design}
+                    onChange={(e: any) => {
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          design: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - units"
+                    type="text"
+                    value={uvSystemParams.flowrate.units}
+                    onChange={(e: any) => {
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Residence time"
+                    type="number"
+                    value={uvSystemParams.residence_time?.value}
+                    onChange={(e: any) => {
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        residence_time: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.residence_time?.units || "hours",
+                        },
+                      }));
+                    }}
+                  />
+                  
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Residence time units"
+                    value={uvSystemParams.residence_time?.units || "hours"}
+                    onChange={(e: any) => {
+                      setUVSystemParams((prevState) => ({
+                          ...prevState,
+                          residence_time: {
+                            value: prevState.residence_time?.value ?? null,
+                            units: e.target.value,
+                          },
+                        }));
+                    }}
+                  >
+                    <MenuItem value="seconds">seconds</MenuItem>
+                    <MenuItem value="minutes">minutes</MenuItem>
+                    <MenuItem value="hours">hours</MenuItem>
+                    <MenuItem value="days">days</MenuItem>
+                    <MenuItem value="weeks">weeks</MenuItem>
+                    <MenuItem value="months">months</MenuItem>
+                    <MenuItem value="years">years</MenuItem>
+                  </FlowsSelect>
+
+                </div>
+                <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={uvSystemParams.num_units}
+                    onChange={(e: any) => {
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        num_units: handleNumericInput(e.target.value),
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Volume"
+                    type="number"
+                    value={uvSystemParams.volume?.value}
+                    onChange={(e: any) => {
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={uvSystemParams.volume?.units || "cubic meters"}
+                    onChange={(e: any) => {
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Dosing intensity"
+                    type="number"
+                    value={uvSystemParams.dosing_rate["UVLight"]?.value || null}
+                    onChange={(e: any) => {                      
+                      setUVSystemParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: handleNumericInput(e.target.value),
+                              units: dosingRate[chemicalKey]?.units ?? "W / square meter",
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Intensity units"
+                    value={uvSystemParams.dosing_rate["UVLight"]?.units || "W / square meter"}
+                    onChange={(e: any) => {                      
+                      setUVSystemParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: dosingRate[chemicalKey]?.value ?? null,
+                              units: e.target.value,
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  >
+                    <MenuItem value="W / square meter">W / square meter</MenuItem>
+                  </FlowsSelect>
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Dosing area"
+                    type="number"
+                    value={uvSystemParams.dosing_area["UVLight"]?.value || null}
+                    onChange={(e: any) => {                      
+                      setUVSystemParams((prevState) => {
+                        const dosingArea = prevState.dosing_area || {};
+                        const chemicalKeys = Object.keys(dosingArea);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_area: {
+                            ...dosingArea,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: handleNumericInput(e.target.value),
+                              units: dosingArea[chemicalKey]?.units ?? "square meters",
+                              mode: "area",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Area units"
+                    value={uvSystemParams.dosing_area["UVLight"]?.units || "square meters"}
+                    onChange={(e: any) => {                      
+                      setUVSystemParams((prevState) => {
+                        const dosingArea = prevState.dosing_area || {};
+                        const chemicalKeys = Object.keys(dosingArea);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_area: {
+                            ...dosingArea,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: dosingArea[chemicalKey]?.value ?? null,
+                              units: e.target.value,
+                              mode: "area",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  >
+                    <MenuItem value="square meters">square meters</MenuItem>
+                  </FlowsSelect>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {(nodeType === "Filtration") && (
           <div className={modal_main_section_wrapper_css}>
             <SectionTitle title="FILTRATION PARAMETERS" />
             <div className={modal_section_vertical_css}>
@@ -1225,6 +2046,9 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       name: e.target.value,
                       flowrate: {
                         ...prevState.flowrate,
+                      },
+                      dosing_rate: {
+                        ...prevState.dosing_rate,
                       },
                     }));
                   }}
@@ -1324,9 +2148,9 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       }));
                     }}
                   >
-                    <MenuItem value="seconds">hours</MenuItem>
+                    <MenuItem value="seconds">seconds</MenuItem>
                     <MenuItem value="minutes">minutes</MenuItem>
-                    <MenuItem value="hours">minutes</MenuItem>
+                    <MenuItem value="hours">hours</MenuItem>
                   </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
@@ -1358,6 +2182,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       }));
                     }}
                   />
+
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Volume units"
@@ -1373,11 +2198,13 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     }}
                   >
                     <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
+
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label=" Chemical dosed"
+                    label="Chemical dosed"
                     type="string"
                     value={Object.keys(filtrationParams.dosing_rate || {})[0] || ""}
                     onChange={(e: any) => {
@@ -1395,6 +2222,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       }));
                     }}
                   />
+
                   <FlowsTextField
                     className={modal_textfield_css}
                     label="Dosing rate"
@@ -1428,6 +2256,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       });
                     }}
                   />
+
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Dosing rate units"
@@ -1460,7 +2289,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       });
                     }}
                   >
-                    <MenuItem value="mg / L">hours</MenuItem>
+                    <MenuItem value="mg / L">mg / L</MenuItem>
                   </FlowsSelect>
                 </div>
               </div>
@@ -1585,6 +2414,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       }));
                     }}
                   />
+
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Volume units"
@@ -1600,6 +2430,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     }}
                   >
                     <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
                 </div>
@@ -1725,6 +2556,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       }));
                     }}
                   />
+                  
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Volume units"
@@ -1740,6 +2572,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     }}
                   >
                     <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
                 </div>
@@ -1852,6 +2685,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       }));
                     }}
                   />
+
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Elevation units"
@@ -1867,6 +2701,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     }}
                   >
                     <MenuItem value="meters">meters</MenuItem>
+                    <MenuItem value="feet">feet</MenuItem>
                     <MenuItem value="inches">inches</MenuItem>
                   </FlowsSelect>
                 </div>
@@ -1892,6 +2727,9 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       name: e.target.value,
                       flowrate: {
                         ...prevState.flowrate,
+                      },
+                      dosing_rate: {
+                        ...prevState.dosing_rate,
                       },
                     }));
                   }}
@@ -1962,6 +2800,45 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       }));
                     }}
                   />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Residence time"
+                    type="number"
+                    value={chlorinationParams.residence_time?.value}
+                    onChange={(e: any) => {
+                      setChlorinationParams((prevState) => ({
+                        ...prevState,
+                        residence_time: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.residence_time?.units || "hours",
+                        },
+                      }));
+                    }}
+                  />
+                  
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Residence time units"
+                    value={chlorinationParams.residence_time?.units || "hours"}
+                    onChange={(e: any) => {
+                        setChlorinationParams((prevState) => ({
+                          ...prevState,
+                          residence_time: {
+                            value: prevState.residence_time?.value ?? null,
+                            units: e.target.value,
+                          },
+                        }));
+                    }}
+                  >
+                    <MenuItem value="seconds">seconds</MenuItem>
+                    <MenuItem value="minutes">minutes</MenuItem>
+                    <MenuItem value="hours">hours</MenuItem>
+                    <MenuItem value="days">days</MenuItem>
+                    <MenuItem value="weeks">weeks</MenuItem>
+                    <MenuItem value="months">months</MenuItem>
+                    <MenuItem value="years">years</MenuItem>
+                  </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
@@ -1981,14 +2858,126 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     className={modal_textfield_css}
                     label="Volume"
                     type="number"
-                    value={chlorinationParams.volume}
+                    value={chlorinationParams.volume?.value}
                     onChange={(e: any) => {
                       setChlorinationParams((prevState) => ({
                         ...prevState,
-                        volume: handleNumericInput(e.target.value),
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
                       }));
                     }}
                   />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={chlorinationParams.volume?.units || "cubic meters"}
+                    onChange={(e: any) => {
+                      setChlorinationParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Chemical dosed"
+                    type="string"
+                    value={Object.keys(chlorinationParams.dosing_rate || {})[0] || ""}
+                    onChange={(e: any) => {
+                      setChlorinationParams((prevState) => ({
+                        ...prevState,
+                        dosing_rate: {
+                          ...prevState.dosing_rate,
+                          [e.target.value]: {
+                            chemical: e.target.value,
+                            value: prevState.dosing_rate[e.target.value]?.value ?? null,
+                            units: prevState.dosing_rate[e.target.value]?.units ?? "mg / L",
+                            mode: "rate",
+                          },
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Dosing rate"
+                    type="number"
+                    value={Object.values(chlorinationParams.dosing_rate || {})[0]?.value || null}
+                    onChange={(e: any) => {                      
+                      setChlorinationParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: handleNumericInput(e.target.value),
+                              units: dosingRate[chemicalKey]?.units ?? "mg / L",
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Dosing rate units"
+                    value={Object.values(chlorinationParams.dosing_rate || {})[0]?.units || "mg / L"}
+                    onChange={(e: any) => {                      
+                      setChlorinationParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: dosingRate[chemicalKey]?.value ?? null,
+                              units: e.target.value,
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  >
+                    <MenuItem value="mg / L">mg / L</MenuItem>
+                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -2422,14 +3411,36 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     className={modal_textfield_css}
                     label="Elevation"
                     type="number"
-                    value={pumpParams.elevation}
+                    value={pumpParams.elevation?.value}
                     onChange={(e: any) => {
                       setPumpParams((prevState) => ({
                         ...prevState,
-                        elevation: handleNumericInput(e.target.value),
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.elevation?.units || "cubic meters",
+                        },
                       }));
                     }}
                   />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Elevation units"
+                    value={pumpParams.elevation?.units || "cubic meters"}
+                    onChange={(e: any) => {
+                      setPumpParams((prevState) => ({
+                        ...prevState,
+                        elevation: {
+                          value: prevState.elevation?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="meters">meters</MenuItem>
+                    <MenuItem value="feet">feet</MenuItem>
+                    <MenuItem value="inches">feet</MenuItem>
+                  </FlowsSelect>
 
                   <FlowsTextField
                     className={modal_textfield_css}
@@ -2570,14 +3581,36 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     className={modal_textfield_css}
                     label="Volume"
                     type="number"
-                    value={digestionParams.volume}
-                    onChange={(e: any) => {
-                      setDigestionParams((prevState) => ({
-                        ...prevState,
-                        volume: handleNumericInput(e.target.value),
-                      }));
-                    }}
+                    value={digestionParams.volume?.value}
+                    onChange={(e: any) =>
+                      setDigestionParams({
+                        ...digestionParams,
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: digestionParams.volume?.units || "cubic meters",
+                        },
+                      })
+                    }
                   />
+
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={digestionParams.volume?.units || "cubic meters"}
+                    onChange={(e: any) =>
+                      setDigestionParams({
+                        ...digestionParams,
+                        volume: {
+                          value: digestionParams.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      })
+                    }
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
 
                   <FlowsSelect
                     className="m-5 w-2/3"
@@ -2757,8 +3790,6 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   });
                   break;
                 case "Filtration":
-                case "ROMembrane":
-                case "UVSystem":
                   onCreate(filtrationParams);
                   setFiltrationParams({
                     name: "",
@@ -2770,6 +3801,41 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     },
                     num_units: null,
                     volume: null,
+                    dosing_rate: {},
+                    settling_time: null,
+                  });
+                case "ROMembrane":
+                  onCreate(roMembraneParams);
+                  setROMembraneParams({
+                    name: "",
+                    flowrate: {
+                      design: null,
+                      max: null,
+                      min: null,
+                      units: "MGD",
+                    },
+                    num_units: null,
+                    volume: null,
+                    dosing_rate: {},
+                    area: null,
+                    selectivity: null,
+                    permeability: null,
+                  });
+                case "UVSystem":
+                  onCreate(uvSystemParams);
+                  setUVSystemParams({
+                    name: "",
+                    flowrate: {
+                      design: null,
+                      max: null,
+                      min: null,
+                      units: "MGD",
+                    },
+                    num_units: null,
+                    volume: null,
+                    residence_time: null,
+                    dosing_rate: { UVLight: {chemical: "UVLight", value: null, units: "W / square meter", mode: "rate"} },
+                    dosing_area: { UVLight: {chemical: "UVLight", value: null, units: "square meters", mode: "area"} }
                   });
                   break;
                 case "Reservoir":
@@ -2819,6 +3885,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     },
                     num_units: null,
                     volume: null,
+                    dosing_rate: {},
                   });
                   break;
                 case "Clarification":
@@ -2901,7 +3968,6 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   onCreate(junctionParams);
                   setJunctionParams({
                     name: "",
-                    num_units: null,
                     diameter: null,
                   });
                   break;

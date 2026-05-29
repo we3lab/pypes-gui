@@ -58,6 +58,28 @@ export interface FiltrationParams {
   settling_time?: ValuedUnit | null;
 }
 
+export interface ROMembraneParams {
+  name: string;
+  flowrate: Flowrate;
+  num_units: number | null;
+  volume: ValuedUnit | null;
+  dosing_rate: {[key: string]: Dosing};
+  settling_time?: ValuedUnit | null;
+  area?: ValuedUnit | null;
+  permeability?: ValuedUnit | null;
+  selectivity?: ValuedUnit | null;
+}
+
+export interface UVSystemParams {
+  name: string;
+  flowrate: Flowrate;
+  num_units: number | null;
+  volume: ValuedUnit | null;
+  residence_time?: ValuedUnit | null;
+  dosing_rate: {[key: string]: Dosing};
+  dosing_area: {[key: string]: Dosing};
+}
+
 export interface AerationParams {
   name: string;
   flowrate: Flowrate;
@@ -106,7 +128,6 @@ export interface ModularUnitParams extends NetworkParams {}
 
 export interface JunctionParams {
   name: string;
-  num_units?: number | null;
   diameter?: ValuedUnit | null;
 }
 
