@@ -27,7 +27,7 @@ import AerationNode from "./nodes/aeration-node";
 import ChlorinationNode from "./nodes/chloriation-node";
 import BatteryNode from "./nodes/battery-node";
 import { v4 as uuidv4 } from "uuid";
-import { connectionParams } from "@/interfaces";
+import { ConnectionParams } from "@/interfaces";
 import ClarificationNode from "./nodes/clarification-node";
 import CogenerationNode from "./nodes/cogeneration-node";
 import ConditioningNode from "./nodes/conditioning-node";
@@ -40,7 +40,7 @@ import ThickeningNode from "./nodes/thickening-node";
 import JunctionNode from "./nodes/junction-node";
 import ModularUnitNode from "./nodes/modular-unit-node";
 import ROMembraneNode from "./nodes/ro-membrane-node";
-import StaticMixerNode from "./nodes/static-mixer-node";
+import StaticMixingNode from "./nodes/static-mixer-node";
 import UVSystemNode from "./nodes/uv-system-node";
 import SectionTitle from "../global/section-title";
 import HelperText from "../global/helper-text";
@@ -79,7 +79,7 @@ const nodeTypes = {
   Junction: JunctionNode,
   ModularUnit: ModularUnitNode,
   ROMembrane: ROMembraneNode,
-  StaticMixer: StaticMixerNode,
+  StaticMixing: StaticMixingNode,
   UVSystem: UVSystemNode,
 };
 
@@ -97,8 +97,11 @@ const getRenderableNodeType = (type: string | undefined) => {
   if (!type) {
     return "Network";
   }
-  if (type === "StaticMixing") {
-    return "StaticMixer";
+  if (type === "StaticMixer") {
+    return "StaticMixing";
+  }
+  if (type === "Separator") {
+    return "Separation";
   }
   if (type === "ROModule") {
     return "ROMembrane";
@@ -459,7 +462,7 @@ const Network = ({
   const prepareAndSendConnection = useCallback(
     (params: any, payload: any, customEdgeId: string) => {
       const connectionType = payload.type || params.type;
-      const trpcConn: connectionParams = {
+      const trpcConn: ConnectionParams = {
         id: payload.name,
         type: connectionType,
         source: params.source,

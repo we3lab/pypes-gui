@@ -1,14 +1,16 @@
 import { Box, Button, MenuItem, Modal } from "@mui/material";
 import {
   TankParams,
+  StaticMixingParams,
   FiltrationParams,
-  Flowrate,
   AerationParams,
   ReservoirParams,
   BatteryParams,
   FacilityParams,
   ChlorinationParams,
   NetworkParams,
+  ModularUnitParams,
+  JunctionParams,
   PumpParams,
   DigestionParams,
   CogenerationParams,
@@ -65,6 +67,21 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
     num_units: null,
   });
 
+  const [staticMixingParams, setStaticMixingParams] = useState<StaticMixingParams>({
+    name: "",
+    volume: { value: null, units: "cubic meters" },
+    flowrate: {
+      design: null,
+      max: null,
+      min: null,
+      units: "MGD",
+    },
+    dosing_rate: {},
+    residence_time: {value: null, units: "hours"},
+    pH: null,
+    num_units: null,
+  });
+
   const [reservoirParamas, setReservoirParams] = useState<ReservoirParams>({
     name: "",
     elevation: { value: null, units: "meters" },
@@ -91,10 +108,9 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
       min: null,
       units: "MGD",
     },
-
     num_units: null,
     volume: { value: null, units: "cubic meters" },
-    dosing_rate: null,
+    dosing_rate: {},
     settling_time: { value: null, units: "hours" },
   });
 
@@ -134,7 +150,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
       },
       num_units: null,
       volume: { value: null, units: "cubic meters" },
-      dosing_rate: null,
+      dosing_rate: {},
       residence_time: { value: null, units: "hours" },
     });
 
@@ -145,10 +161,23 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
     num_units: null,
   });
 
+  const [modularUnitParams, setModularUnitParams] = useState<ModularUnitParams>({
+    name: "",
+    nodes: [],
+    connections: [],
+    num_units: null,
+  });
+
+  const [junctionParams, setJunctionParams] = useState<JunctionParams>({
+    name: "",
+    diameter: null,
+    num_units: null,
+  });
+
   const [pumpParams, setPumpParams] = useState<PumpParams>({
     name: "",
     elevation: { value: null, units: "meters" },
-    horsepower: null,
+    power_rating: null,
     num_units: null,
     flowrate: {
       design: null,
@@ -250,8 +279,9 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
   useEffect(() => {
     switch (nodeType) {
       case "Tank":
-      case "StaticMixer":
         setName(tankParams.name);
+      case "StaticMixing":
+        setName(staticMixingParams.name);
         break;
       case "Reservoir":
         setName(reservoirParamas.name);
@@ -274,9 +304,11 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
         setName(chlorinationParams.name);
         break;
       case "Network":
-      case "Junction":
-      case "ModularUnit":
         setName(networkParams.name);
+      case "Junction":
+        setName(junctionParams.name);
+      case "ModularUnit":
+        setName(modularUnitParams.name);
         break;
       case "Pump":
         setName(pumpParams.name);
@@ -308,6 +340,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
     }
   }, [
     tankParams.name,
+    staticMixingParams.name,
     reservoirParamas.name,
     aerationParams.name,
     filtrationParams.name,
@@ -315,6 +348,8 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
     facilityParams.name,
     chlorinationParams.name,
     networkParams.name,
+    junctionParams.name,
+    modularUnitParams.name,
     pumpParams.name,
     digestionParams.name,
     cogenerationParams.name,
@@ -493,7 +528,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
           </div>
         )}
 
-        {(nodeType === "Tank" || nodeType === "StaticMixer") && (
+        {(nodeType === "Tank") && (
           <div className={modal_main_section_wrapper_css}>
             <SectionTitle title="TANK PARAMETERS" />
             <div className={modal_section_vertical_css}>
@@ -545,6 +580,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   >
                     <MenuItem value="meters">meters</MenuItem>
                     <MenuItem value="inches">inches</MenuItem>
+                    <MenuItem value="feet">feet</MenuItem>
                   </FlowsSelect>
                   <FlowsTextField
                     className={modal_textfield_css}
@@ -598,9 +634,269 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
           </div>
         )}
 
-        {(nodeType === "Network" ||
-          nodeType === "Junction" ||
-          nodeType === "ModularUnit") && (
+        {(nodeType === "StaticMixing") && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="STATIC MIXING PARAMETERS" />
+            <div className={modal_section_vertical_css}>
+              <div className={modal_top_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="text"
+                  value={staticMixingParams.name}
+                  onChange={(e: any) => {
+                    setStaticMixingParams((prevState) => ({
+                      ...prevState,
+                      name: e.target.value,
+                      flowrate: {
+                        ...prevState.flowrate,
+                      },
+                      dosing_rate: {
+                        ...prevState.dosing_rate,
+                      },
+                    }));
+                  }}
+                />
+              </div>
+              <div className={modal_section_horizontal_css}>
+                <div className={modal_left_subsection_wrapper_css}>
+                <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - min"
+                    type="number"
+                    value={staticMixingParams.flowrate.min}
+                    onChange={(e: any) => {
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          min: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - max"
+                    type="number"
+                    value={staticMixingParams.flowrate.max}
+                    onChange={(e: any) => {
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          max: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - design"
+                    type="number"
+                    value={staticMixingParams.flowrate.design}
+                    onChange={(e: any) => {
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          design: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - units"
+                    type="text"
+                    value={staticMixingParams.flowrate.units}
+                    onChange={(e: any) => {
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={staticMixingParams.num_units}
+                    onChange={(e: any) =>
+                      setStaticMixingParams({
+                        ...staticMixingParams,
+                        num_units: handleNumericInput(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+                <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Volume"
+                    type="number"
+                    value={staticMixingParams.volume?.value}
+                    onChange={(e: any) =>
+                      setStaticMixingParams({
+                        ...staticMixingParams,
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: staticMixingParams.volume?.units || "cubic meters",
+                        },
+                      })
+                    }
+                  />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={staticMixingParams.volume?.units || "cubic meters"}
+                    onChange={(e: any) =>
+                      setStaticMixingParams({
+                        ...staticMixingParams,
+                        volume: {
+                          value: staticMixingParams.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      })
+                    }
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="pH"
+                    type="number"
+                    value={staticMixingParams.pH}
+                    onChange={(e: any) =>
+                      setStaticMixingParams({
+                        ...staticMixingParams,
+                        pH: handleNumericInput(e.target.value)
+                      })
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Residence time"
+                    type="number"
+                    value={staticMixingParams.residence_time?.value}
+                    onChange={(e: any) =>
+                      setStaticMixingParams({
+                        ...staticMixingParams,
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: staticMixingParams.residence_time?.units || "hours",
+                        },
+                      })
+                    }
+                  />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Residence time units"
+                    value={staticMixingParams.residence_time?.units || "hours"}
+                    onChange={(e: any) =>
+                      setStaticMixingParams({
+                        ...staticMixingParams,
+                        volume: {
+                          value: staticMixingParams.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      })
+                    }
+                  >
+                    <MenuItem value="seconds">cubic meters</MenuItem>
+                    <MenuItem value="minutes">cubic meters</MenuItem>
+                    <MenuItem value="hours">cubic meters</MenuItem>
+                    <MenuItem value="days">cubic meters</MenuItem>
+                    <MenuItem value="weeks">cubic meters</MenuItem>
+                    <MenuItem value="months">cubic meters</MenuItem>
+                    <MenuItem value="years">cubic meters</MenuItem>
+                  </FlowsSelect>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {(nodeType === "Junction") && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="JUNCTION PARAMETERS" />
+            <div className={modal_section_horizontal_css}>
+              <div className={modal_left_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="string"
+                  value={junctionParams.name}
+                  onChange={(e: any) =>
+                    setJunctionParams({
+                      ...junctionParams,
+                      name: e.target.value,
+                    })
+                  }
+                />
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Number of units"
+                  type="number"
+                  value={junctionParams.num_units}
+                  onChange={(e: any) =>
+                    setJunctionParams({
+                      ...junctionParams,
+                      num_units: handleNumericInput(e.target.value),
+                    })
+                  }
+                />
+              </div>
+              <div className={modal_right_subsection_wrapper_css}>
+                <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Diameter"
+                    type="number"
+                    value={junctionParams.diameter?.value}
+                    onChange={(e: any) =>
+                      setJunctionParams({
+                        ...junctionParams,
+                        diameter: {
+                          value: handleNumericInput(e.target.value),
+                          units: junctionParams.diameter?.units || "meters",
+                        },
+                      })
+                    }
+                  />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Diameter units"
+                    value={junctionParams.diameter?.units || "meters"}
+                    onChange={(e: any) =>
+                      setJunctionParams({
+                        ...junctionParams,
+                        diameter: {
+                          value: junctionParams.diameter?.value ?? null,
+                          units: e.target.value,
+                        },
+                      })
+                    }
+                  >
+                    <MenuItem value="meters">meters</MenuItem>
+                    <MenuItem value="feet">feet</MenuItem>
+                    <MenuItem value="centimeters">centimeters</MenuItem>
+                    <MenuItem value="inches">inches</MenuItem>
+                  </FlowsSelect>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {(nodeType === "Network") && (
           <div className={modal_main_section_wrapper_css}>
             <SectionTitle title="NETWORK PARAMETERS" />
             <div className={modal_section_horizontal_css}>
@@ -626,6 +922,44 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   onChange={(e: any) =>
                     setNetworkParams({
                       ...networkParams,
+                      num_units: handleNumericInput(e.target.value),
+                    })
+                  }
+                />
+                <p className="m-5">
+                  Add nodes and connections later!
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {(nodeType === "ModularUnit") && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="MODULAR UNIT PARAMETERS" />
+            <div className={modal_section_horizontal_css}>
+              <div className={modal_left_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="string"
+                  value={modularUnitParams.name}
+                  onChange={(e: any) =>
+                    setModularUnitParams({
+                      ...modularUnitParams,
+                      name: e.target.value,
+                    })
+                  }
+                />
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Number of units"
+                  type="number"
+                  value={modularUnitParams.num_units}
+                  onChange={(e: any) =>
+                    setModularUnitParams({
+                      ...modularUnitParams,
                       num_units: handleNumericInput(e.target.value),
                     })
                   }
@@ -961,6 +1295,39 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                       }));
                     }}
                   />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Settling time"
+                    type="number"
+                    value={filtrationParams.settling_time?.value}
+                    onChange={(e: any) => {
+                      setFiltrationParams((prevState) => ({
+                        ...prevState,
+                        settling_time: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.settling_time?.units || "hours",
+                        },
+                      }));
+                    }}
+                  />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Settling time units"
+                    value={filtrationParams.settling_time?.units || "hours"}
+                    onChange={(e: any) => {
+                      setFiltrationParams((prevState) => ({
+                        ...prevState,
+                        settling_time: {
+                          value: prevState.settling_time?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="seconds">hours</MenuItem>
+                    <MenuItem value="minutes">minutes</MenuItem>
+                    <MenuItem value="hours">minutes</MenuItem>
+                  </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
@@ -1010,47 +1377,90 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   </FlowsSelect>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Dosing rate"
-                    type="number"
-                    value={filtrationParams.dosing_rate}
+                    label=" Chemical dosed"
+                    type="string"
+                    value={Object.keys(filtrationParams.dosing_rate || {})[0] || ""}
                     onChange={(e: any) => {
                       setFiltrationParams((prevState) => ({
                         ...prevState,
-                        dosing_rate: handleNumericInput(e.target.value),
+                        dosing_rate: {
+                          ...prevState.dosing_rate,
+                          [e.target.value]: {
+                            chemical: e.target.value,
+                            value: prevState.dosing_rate[e.target.value]?.value ?? null,
+                            units: prevState.dosing_rate[e.target.value]?.units ?? "mg / L",
+                            mode: "rate",
+                          },
+                        },
                       }));
                     }}
                   />
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Settling time"
+                    label="Dosing rate"
                     type="number"
-                    value={filtrationParams.settling_time?.value}
-                    onChange={(e: any) => {
-                      setFiltrationParams((prevState) => ({
-                        ...prevState,
-                        settling_time: {
-                          value: handleNumericInput(e.target.value),
-                          units: prevState.settling_time?.units || "hours",
-                        },
-                      }));
+                    value={Object.values(filtrationParams.dosing_rate || {})[0]?.value || null}
+                    onChange={(e: any) => {                      
+                      setFiltrationParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: handleNumericInput(e.target.value),
+                              units: dosingRate[chemicalKey]?.units ?? "mg / L",
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
                     }}
                   />
                   <FlowsSelect
                     className={modal_textfield_css}
-                    label="Settling time units"
-                    value={filtrationParams.settling_time?.units || "hours"}
-                    onChange={(e: any) => {
-                      setFiltrationParams((prevState) => ({
-                        ...prevState,
-                        settling_time: {
-                          value: prevState.settling_time?.value ?? null,
-                          units: e.target.value,
-                        },
-                      }));
+                    label="Dosing rate units"
+                    value={Object.values(filtrationParams.dosing_rate || {})[0]?.units || "mg / L"}
+                    onChange={(e: any) => {                      
+                      setFiltrationParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: dosingRate[chemicalKey]?.value ?? null,
+                              units: e.target.value,
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
                     }}
                   >
-                    <MenuItem value="hours">hours</MenuItem>
-                    <MenuItem value="minutes">minutes</MenuItem>
+                    <MenuItem value="mg / L">hours</MenuItem>
                   </FlowsSelect>
                 </div>
               </div>
@@ -2312,22 +2722,38 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
             onClick={() => {
               switch (nodeType) {
                 case "Tank":
-                case "StaticMixer":
                   onCreate(tankParams);
-                  setTankParams({ name: "", elevation: 0, volume: 0 });
+                  setTankParams({ name: "", elevation: null, volume: null, num_units: null });
+                  break;
+                case "StaticMixing":
+                  onCreate(staticMixingParams);
+                  setStaticMixingParams({ 
+                    name: "", 
+                    flowrate: {
+                      design: null,
+                      max: null,
+                      min: null,
+                      units: "MGD",
+                    },
+                    num_units: null,
+                    volume: null, 
+                    dosing_rate: {},
+                    pH: null,
+                    residence_time: null, 
+                  });
                   break;
                 case "Aeration":
                   onCreate(aerationParams);
                   setAerationParams({
                     name: "",
                     flowrate: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
-                    num_units: 0,
-                    volume: 0,
+                    num_units: null,
+                    volume: null,
                   });
                   break;
                 case "Filtration":
@@ -2337,33 +2763,32 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   setFiltrationParams({
                     name: "",
                     flowrate: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
-
-                    num_units: 0,
-                    volume: 0,
+                    num_units: null,
+                    volume: null,
                   });
                   break;
                 case "Reservoir":
                   onCreate(reservoirParamas);
                   setReservoirParams({
                     name: "",
-                    elevation: 0,
-                    volume: 0,
+                    elevation: null,
+                    volume: null,
                   });
                   break;
                 case "Battery":
                   onCreate(batteryParams);
                   setBatteryParams({
                     name: "",
-                    capacity: 0,
+                    capacity: null,
                     capacity_units: "kWh",
-                    charge_rate: 0,
+                    charge_rate: null,
                     charge_rate_units: "kW",
-                    discharge_rate: 0,
+                    discharge_rate: null,
                     discharge_rate_units: "kW",
                   });
                   break;
@@ -2371,11 +2796,11 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   onCreate(facilityParams);
                   setFacilityParams({
                     name: "",
-                    elevation: 0,
+                    elevation: null,
                     flowrate: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
                     nodes: [],
@@ -2387,13 +2812,13 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   setChlorinationParams({
                     name: "",
                     flowrate: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
-                    num_units: 0,
-                    volume: 0,
+                    num_units: null,
+                    volume: null,
                   });
                   break;
                 case "Clarification":
@@ -2401,13 +2826,13 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   setClarificationParams({
                     name: "",
                     flowrate: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
-                    num_units: 0,
-                    volume: 0,
+                    num_units: null,
+                    volume: null,
                   });
                   break;
                 case "Thickening":
@@ -2415,13 +2840,13 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   setThickeningParams({
                     name: "",
                     flowrate: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
-                    num_units: 0,
-                    volume: 0,
+                    num_units: null,
+                    volume: null,
                   });
                   break;
                 case "Screening":
@@ -2429,12 +2854,12 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   setScreeningParams({
                     name: "",
                     flowrate: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
-                    num_units: 0,
+                    num_units: null,
                   });
                   break;
                 case "Conditioning":
@@ -2442,12 +2867,12 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   setConditioningParams({
                     name: "",
                     flowrate: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
-                    num_units: 0,
+                    num_units: null,
                   });
                   break;
                 case "Flaring":
@@ -2455,35 +2880,51 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   setFlaringParams({
                     name: "",
                     flowrate: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
-                    num_units: 0,
+                    num_units: null,
                   });
                   break;
                 case "Network":
-                case "Junction":
-                case "ModularUnit":
                   onCreate(networkParams);
                   setNetworkParams({
                     name: "",
                     nodes: [],
                     connections: [],
+                    num_units: null,
+                  });
+                  break;
+                case "Junction":
+                  onCreate(junctionParams);
+                  setJunctionParams({
+                    name: "",
+                    num_units: null,
+                    diameter: null,
+                  });
+                  break;
+                case "ModularUnit":
+                  onCreate(modularUnitParams);
+                  setModularUnitParams({
+                    name: "",
+                    nodes: [],
+                    connections: [],
+                    num_units: null,
                   });
                   break;
                 case "Pump":
                   onCreate(pumpParams);
                   setPumpParams({
                     name: "",
-                    elevation: 0,
-                    horsepower: 0,
-                    num_units: 0,
+                    elevation: null,
+                    power_rating: null,
+                    num_units: null,
                     flowrate: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
                     pump_type: "VFD",
@@ -2494,13 +2935,13 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   setDigestionParams({
                     name: "",
                     flowrate: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
-                    num_units: 0,
-                    volume: 0,
+                    num_units: null,
+                    volume: null,
                     digester_type: "Anaerobic",
                   });
                   break;
@@ -2509,12 +2950,12 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   setCogenerationParams({
                     name: "",
                     generation_capacity: {
-                      design: 0,
-                      max: 0,
-                      min: 0,
+                      design: null,
+                      max: null,
+                      min: null,
                       units: "MGD",
                     },
-                    num_units: 0,
+                    num_units: null,
                   });
                   break;
               }

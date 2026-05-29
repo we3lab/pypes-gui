@@ -1,8 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
-
 export const assembleNode = (nodeName: string, nodeType: string, payload: any, position: any) => {
-  const getId = () => `dndnode_${uuidv4()}`;
-
   switch (nodeType) {
     case "Tank":
     case "Reservoir": {
@@ -78,7 +74,7 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
     case "Chlorination":
     case "Clarification":
     case "Thickening":
-    case "StaticMixer": {
+    case "StaticMixing": {
       const newNode = {
         id: nodeName,
         type: nodeType,

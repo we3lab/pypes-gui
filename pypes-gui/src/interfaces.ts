@@ -1,19 +1,15 @@
-export interface TankParams {
-  name: string;
-  elevation?: ValuedUnit | null;
-  volume: ValuedUnit | null;
-  num_units?: number | null;
-}
-
-export interface ReservoirParams {
-  name: string;
-  elevation?: ValuedUnit | null;
-  volume: ValuedUnit | null;
-}
+type dosingType = "area" | "rate";
 
 export interface ValuedUnit {
   value: number | null;
   units: string;
+}
+
+export interface Dosing {
+  chemical: string;
+  value: number | null;
+  units: string;
+  mode: dosingType
 }
 
 export interface Flowrate {
@@ -30,12 +26,35 @@ export interface GenerationCapacity {
   units?: string;
 }
 
+export interface TankParams {
+  name: string;
+  elevation?: ValuedUnit | null;
+  volume: ValuedUnit | null;
+  num_units?: number | null;
+}
+
+export interface ReservoirParams {
+  name: string;
+  elevation?: ValuedUnit | null;
+  volume: ValuedUnit | null;
+}
+
+export interface StaticMixingParams {
+  name: string;
+  flowrate: Flowrate;
+  volume?: ValuedUnit | null;
+  num_units?: number | null;
+  pH?: number | null;
+  dosing_rate: {[key: string]: Dosing};
+  residence_time?: ValuedUnit | null;
+}
+
 export interface FiltrationParams {
   name: string;
   flowrate: Flowrate;
   num_units: number | null;
   volume: ValuedUnit | null;
-  dosing_rate?: number | null;
+  dosing_rate: {[key: string]: Dosing};
   settling_time?: ValuedUnit | null;
 }
 
@@ -46,6 +65,7 @@ export interface AerationParams {
   volume: ValuedUnit | null;
 }
 
+// TODO: charge/dischrage rate, capacity, and leakage should be of type ValuedUnit
 export interface BatteryParams {
   name: string;
   capacity: number | null;
@@ -71,7 +91,7 @@ export interface ChlorinationParams {
   flowrate: Flowrate;
   num_units: number | null;
   volume: ValuedUnit | null;
-  dosing_rate?: number | null;
+  dosing_rate: {[key: string]: Dosing};
   residence_time?: ValuedUnit | null;
 }
 
@@ -84,10 +104,16 @@ export interface NetworkParams {
 
 export interface ModularUnitParams extends NetworkParams {}
 
+export interface JunctionParams {
+  name: string;
+  num_units?: number | null;
+  diameter?: ValuedUnit | null;
+}
+
 export interface PumpParams {
   name: string;
   elevation?: ValuedUnit | null;
-  horsepower: number | null;
+  power_rating: number | null;
   num_units: number | null;
   flowrate: Flowrate;
   pump_type: string;
@@ -143,7 +169,7 @@ export interface FlaringParams {
   num_units: number | null;
 }
 
-export interface connectionParams {
+export interface ConnectionParams {
   id: string;
   type: string;
   source: string;
@@ -153,7 +179,7 @@ export interface connectionParams {
   bidirectional: boolean;
   exit_point: string;
   entry_point: string;
-  diameter?: number;
+  diameter?: ValuedUnit | null;
   friction_coeff?: number;
   min_flow?: number;
   max_flow?: number;

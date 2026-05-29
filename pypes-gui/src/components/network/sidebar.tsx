@@ -100,7 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
               <NodeComponent text="Battery" margins="ml-1 mb-1" src="/Battery.svg" />
               <NodeComponent text="Network" margins="ml-1 mb-1" src="/network.svg" />
               <NodeComponent text="ModularUnit" margins="ml-1 mb-1" src="/ModularUnit.svg" />
-              <NodeComponent text="StaticMixer" margins="ml-1 mb-1" src="/StaticMixer.svg" />
+              <NodeComponent text="StaticMixing" margins="ml-1 mb-1" src="/StaticMixing.svg" />
               <NodeComponent text="ROMembrane" margins="ml-1 mb-1" src="/ROMembrane.svg" />
               <NodeComponent text="Pump" margins="ml-1 mb-1" src="/Pump.svg" />
               <NodeComponent text="Filtration" margins="ml-1 mb-1" src="/Filtration.svg" />

@@ -166,6 +166,20 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     name: "",
     nodes: [],
     connections: [],
+    num_units: null,
+  });
+
+  const [modularUnitParams, setModularUnitParams] = useState<ModularUnitParams>({
+    name: "",
+    nodes: [],
+    connections: [],
+    num_units: null,
+  });
+
+  const [junctionParams, setJunctionParams] = useState<JunctionParams>({
+    name: "",
+    diameter: null,
+    num_units: null,
   });
 
   const [pumpParams, setPumpParams] = useState<PumpParams>({
@@ -375,8 +389,17 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
           name: id,
           nodes: currentNode["nodes"] ?? [],
           connections: currentNode["connections"] ?? [],
+          num_units: currentNode["num_units"] ?? null,
         });
         break;
+      case "ModularUnit":
+          setModularUnitParams({
+            name: id,
+            nodes: currentNode["nodes"] ?? [],
+            connections: currentNode["connections"] ?? [],
+            num_units: currentNode["num_units"] ?? null,
+          });
+          break;
       case "Pump":
         setPumpParams({
           name: id,
@@ -693,6 +716,80 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         {nodeType === "Network" && (
           <div className={modal_main_section_wrapper_css}>
             <SectionTitle title="NETWORK PARAMETERS" />
+            <div className={modal_section_horizontal_css}>
+              <div className={modal_left_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="string"
+                  value={networkParams.name}
+                  onChange={(e: any) =>
+                    setNetworkParams({
+                      name: e.target.value,
+                      nodes: networkParams.nodes,
+                      connections: networkParams.connections,
+                      num_units: networkParams.num_units
+                    })
+                  }
+                />
+              </div>
+              <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={networkParams.num_units}
+                    onChange={(e: any) => {
+                      setNetworkParams((prevState) => ({
+                        ...prevState,
+                        num_units: handleNumericInput(e.target.value),
+                      }));
+                    }}
+                  />
+                </div>
+            </div>
+          </div>
+        )}
+
+      {(nodeType === "ModularUnit") && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="MODULAR UNIT PARAMETERS" />
+            <div className={modal_section_horizontal_css}>
+              <div className={modal_left_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="string"
+                  value={modularUnitParams.name}
+                  onChange={(e: any) =>
+                    setModularUnitParams({
+                      ...modularUnitParams,
+                      name: e.target.value,
+                    })
+                  }
+                />
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Number of units"
+                  type="number"
+                  value={modularUnitParams.num_units}
+                  onChange={(e: any) =>
+                    setModularUnitParams({
+                      ...modularUnitParams,
+                      num_units: handleNumericInput(e.target.value),
+                    })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {nodeType === "Junction" && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="JUNCTION PARAMETERS" />
             <div className={modal_section_horizontal_css}>
               <div className={modal_left_subsection_wrapper_css}>
                 <FlowsTextField
