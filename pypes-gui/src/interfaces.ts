@@ -13,14 +13,14 @@ export interface ReservoirParams {
 export interface Flowrate {
   min?: number | null;
   max?: number | null;
-  avg: number | null;
+  design: number | null;
   units?: string;
 }
 
 export interface GenerationCapacity {
   min?: number | null;
   max?: number | null;
-  avg: number | null;
+  design: number | null;
   units?: string;
 }
 

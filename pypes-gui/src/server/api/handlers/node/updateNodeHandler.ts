@@ -83,7 +83,7 @@ const updateNodeHandler = async (
         flowrate: {
           min: input.newNode.additionalData.flowrate.min,
           max: input.newNode.additionalData.flowrate.max,
-          avg: input.newNode.additionalData.flowrate.avg,
+          design: input.newNode.additionalData.flowrate.design,
           units: input.newNode.additionalData.flowrate.units,
         },
         tags: input.newNode.data.tags,
@@ -104,7 +104,7 @@ const updateNodeHandler = async (
         flowrate: {
           min: input.newNode.additionalData.flowrate.min,
           max: input.newNode.additionalData.flowrate.max,
-          avg: input.newNode.additionalData.flowrate.avg,
+          design: input.newNode.additionalData.flowrate.design,
           units: input.newNode.additionalData.flowrate.units,
         },
         tags: input.newNode.data.tags,
@@ -132,7 +132,7 @@ const updateNodeHandler = async (
         flowrate: {
           min: input.newNode.additionalData.flowrate.min,
           max: input.newNode.additionalData.flowrate.max,
-          avg: input.newNode.additionalData.flowrate.avg,
+          design: input.newNode.additionalData.flowrate.design,
           units: input.newNode.additionalData.flowrate.units,
         },
         nodes: input.newNode.additionalData.nodes,
@@ -151,7 +151,7 @@ const updateNodeHandler = async (
         flowrate: {
           min: input.newNode.additionalData.flowrate.min,
           max: input.newNode.additionalData.flowrate.max,
-          avg: input.newNode.additionalData.flowrate.avg,
+          design: input.newNode.additionalData.flowrate.design,
           units: input.newNode.additionalData.flowrate.units,
         },
         num_units: input.newNode.additionalData.num_units,
@@ -172,7 +172,7 @@ const updateNodeHandler = async (
         flowrate: {
           min: input.newNode.additionalData.flowrate.min,
           max: input.newNode.additionalData.flowrate.max,
-          avg: input.newNode.additionalData.flowrate.avg,
+          design: input.newNode.additionalData.flowrate.design,
           units: input.newNode.additionalData.flowrate.units,
         },
         num_units: input.newNode.additionalData.num_units,
@@ -191,7 +191,7 @@ const updateNodeHandler = async (
         generation_capacity: {
           min: input.newNode.additionalData.generation_capacity.min,
           max: input.newNode.additionalData.generation_capacity.max,
-          avg: input.newNode.additionalData.generation_capacity.avg,
+          design: input.newNode.additionalData.generation_capacity.design,
           units: input.newNode.additionalData.generation_capacity.units,
         },
         num_units: input.newNode.additionalData.num_units,

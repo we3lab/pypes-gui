@@ -104,7 +104,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
   const [aerationParams, setAerationParams] = useState<AerationParams>({
     name: "",
     flowrate: {
-      avg: null,
+      design: null,
       max: null,
       min: null,
       units: "MGD",
@@ -116,7 +116,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
   const [filtrationParams, setFiltrationParams] = useState<FiltrationParams>({
     name: "",
     flowrate: {
-      avg: null,
+      design: null,
       max: null,
       min: null,
       units: "MGD",
@@ -140,7 +140,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     name: "",
     elevation: null,
     flowrate: {
-      avg: null,
+      design: null,
       max: null,
       min: null,
       units: "MGD",
@@ -153,7 +153,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     useState<ChlorinationParams>({
       name: "",
       flowrate: {
-        avg: null,
+        design: null,
         max: null,
         min: null,
         units: "MGD",
@@ -174,7 +174,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     horsepower: null,
     num_units: null,
     flowrate: {
-      avg: null,
+      design: null,
       max: null,
       min: null,
       units: "MGD",
@@ -185,7 +185,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
   const [digestionParams, setDigestionParams] = useState<DigestionParams>({
     name: "",
     flowrate: {
-      avg: null,
+      design: null,
       max: null,
       min: null,
       units: "MGD",
@@ -199,7 +199,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     useState<CogenerationParams>({
       name: "",
       generation_capacity: {
-        avg: null,
+        design: null,
         max: null,
         min: null,
         units: "MGD",
@@ -211,7 +211,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     useState<ClarificationParams>({
       name: "",
       flowrate: {
-        avg: null,
+        design: null,
         max: null,
         min: null,
         units: "MGD",
@@ -223,7 +223,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
   const [screeningParams, setScreeningParams] = useState<ScreeningParams>({
     name: "",
     flowrate: {
-      avg: null,
+      design: null,
       max: null,
       min: null,
       units: "MGD",
@@ -235,7 +235,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     useState<ConditioningParams>({
       name: "",
       flowrate: {
-        avg: null,
+        design: null,
         max: null,
         min: null,
         units: "MGD",
@@ -246,7 +246,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
   const [thickeningParams, setThickeningParams] = useState<ThickeningParams>({
     name: "",
     flowrate: {
-      avg: null,
+      design: null,
       max: null,
       min: null,
       units: "MGD",
@@ -258,7 +258,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
   const [flaringParams, setFlaringParams] = useState<FlaringParams>({
     name: "",
     flowrate: {
-      avg: null,
+      design: null,
       max: null,
       min: null,
       units: "MGD",
@@ -288,7 +288,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setAerationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? null,
+            design: currentNode.flowrate?.design ?? null,
             max: currentNode.flowrate?.max ?? null,
             min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
@@ -301,7 +301,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setFiltrationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? null,
+            design: currentNode.flowrate?.design ?? null,
             max: currentNode.flowrate?.max ?? null,
             min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
@@ -348,7 +348,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
           name: id,
           elevation: currentNode["elevation"] ?? null,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? null,
+            design: currentNode.flowrate?.design ?? null,
             max: currentNode.flowrate?.max ?? null,
             min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
@@ -361,7 +361,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setChlorinationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? null,
+            design: currentNode.flowrate?.design ?? null,
             max: currentNode.flowrate?.max ?? null,
             min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
@@ -384,7 +384,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
           horsepower: currentNode["horsepower"] ?? null,
           num_units: currentNode["num_units"] ?? null,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? null,
+            design: currentNode.flowrate?.design ?? null,
             max: currentNode.flowrate?.max ?? null,
             min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
@@ -396,7 +396,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setDigestionParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? null,
+            design: currentNode.flowrate?.design ?? null,
             max: currentNode.flowrate?.max ?? null,
             min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
@@ -410,7 +410,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setCogenerationParams({
           name: id,
           generation_capacity: {
-            avg: currentNode.generation_capacity?.avg ?? null,
+            design: currentNode.generation_capacity?.design ?? null,
             max: currentNode.generation_capacity?.max ?? null,
             min: currentNode.generation_capacity?.min ?? null,
             units: currentNode.generation_capacity?.units ?? "MGD",
@@ -422,7 +422,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setClarificationParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? null,
+            design: currentNode.flowrate?.design ?? null,
             max: currentNode.flowrate?.max ?? null,
             min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
@@ -435,7 +435,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setScreeningParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? null,
+            design: currentNode.flowrate?.design ?? null,
             max: currentNode.flowrate?.max ?? null,
             min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
@@ -447,7 +447,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setConditioningParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? null,
+            design: currentNode.flowrate?.design ?? null,
             max: currentNode.flowrate?.max ?? null,
             min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
@@ -459,7 +459,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setThickeningParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? null,
+            design: currentNode.flowrate?.design ?? null,
             max: currentNode.flowrate?.max ?? null,
             min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
@@ -472,7 +472,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setFlaringParams({
           name: id,
           flowrate: {
-            avg: currentNode.flowrate?.avg ?? null,
+            design: currentNode.flowrate?.design ?? null,
             max: currentNode.flowrate?.max ?? null,
             min: currentNode.flowrate?.min ?? null,
             units: currentNode.flowrate?.units ?? "MGD",
@@ -828,15 +828,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Flowrate - avg"
+                    label="Flowrate - design"
                     type="number"
-                    value={aerationParams.flowrate.avg}
+                    value={aerationParams.flowrate.design}
                     onChange={(e: any) => {
                       setAerationParams((prevState) => ({
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -948,15 +948,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Flowrate - avg"
+                    label="Flowrate - design"
                     type="number"
-                    value={filtrationParams.flowrate.avg}
+                    value={filtrationParams.flowrate.design}
                     onChange={(e: any) => {
                       setFiltrationParams((prevState) => ({
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1068,15 +1068,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Flowrate - avg"
+                    label="Flowrate - design"
                     type="number"
-                    value={clarificationParams.flowrate.avg}
+                    value={clarificationParams.flowrate.design}
                     onChange={(e: any) => {
                       setClarificationParams((prevState) => ({
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1188,15 +1188,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Flowrate - avg"
+                    label="Flowrate - design"
                     type="number"
-                    value={thickeningParams.flowrate.avg}
+                    value={thickeningParams.flowrate.design}
                     onChange={(e: any) => {
                       setThickeningParams((prevState) => ({
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1308,15 +1308,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Flowrate - avg"
+                    label="Flowrate - design"
                     type="number"
-                    value={facilityParams.flowrate.avg}
+                    value={facilityParams.flowrate.design}
                     onChange={(e: any) => {
                       setFacilityParams((prevState) => ({
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1415,15 +1415,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Flowrate - avg"
+                    label="Flowrate - design"
                     type="number"
-                    value={chlorinationParams.flowrate.avg}
+                    value={chlorinationParams.flowrate.design}
                     onChange={(e: any) => {
                       setChlorinationParams((prevState) => ({
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1535,15 +1535,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Flowrate - avg"
+                    label="Flowrate - design"
                     type="number"
-                    value={flaringParams.flowrate.avg}
+                    value={flaringParams.flowrate.design}
                     onChange={(e: any) => {
                       setFlaringParams((prevState) => ({
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1642,15 +1642,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Flowrate - avg"
+                    label="Flowrate - design"
                     type="number"
-                    value={conditioningParams.flowrate.avg}
+                    value={conditioningParams.flowrate.design}
                     onChange={(e: any) => {
                       setConditioningParams((prevState) => ({
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1749,15 +1749,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Flowrate - avg"
+                    label="Flowrate - design"
                     type="number"
-                    value={screeningParams.flowrate.avg}
+                    value={screeningParams.flowrate.design}
                     onChange={(e: any) => {
                       setScreeningParams((prevState) => ({
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -1856,15 +1856,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Flowrate - avg"
+                    label="Flowrate - design"
                     type="number"
-                    value={pumpParams.flowrate.avg}
+                    value={pumpParams.flowrate.design}
                     onChange={(e: any) => {
                       setPumpParams((prevState) => ({
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -2004,15 +2004,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Flowrate - avg"
+                    label="Flowrate - design"
                     type="number"
-                    value={digestionParams.flowrate.avg}
+                    value={digestionParams.flowrate.design}
                     onChange={(e: any) => {
                       setDigestionParams((prevState) => ({
                         ...prevState,
                         flowrate: {
                           ...prevState.flowrate,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}
@@ -2139,15 +2139,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Generation capacity - avg"
+                    label="Generation capacity - design"
                     type="number"
-                    value={cogenerationParams.generation_capacity.avg}
+                    value={cogenerationParams.generation_capacity.design}
                     onChange={(e: any) => {
                       setCogenerationParams((prevState) => ({
                         ...prevState,
                         generation_capacity: {
                           ...prevState.generation_capacity,
-                          avg: handleNumericInput(e.target.value),
+                          design: handleNumericInput(e.target.value),
                         },
                       }));
                     }}

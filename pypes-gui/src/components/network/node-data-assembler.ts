@@ -92,7 +92,7 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
           flowrate: {
             min: payload.flowrate?.min ?? 0,
             max: payload.flowrate?.max ?? 0,
-            avg: payload.flowrate?.avg ?? 0,
+            design: payload.flowrate?.design ?? 0,
             units: payload.flowrate?.units ?? "m3/h",
           },
           tags: {},
@@ -122,7 +122,7 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
           flowrate: {
             min: payload.flowrate?.min ?? 0,
             max: payload.flowrate?.max ?? 0,
-            avg: payload.flowrate?.avg ?? 0,
+            design: payload.flowrate?.design ?? 0,
             units: payload.flowrate?.units ?? "m3/h",
           },
           tags: {},
@@ -149,7 +149,7 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
           flowrate: {
             min: payload.flowrate?.min ?? 0,
             max: payload.flowrate?.max ?? 0,
-            avg: payload.flowrate?.avg ?? 0,
+            design: payload.flowrate?.design ?? 0,
             units: payload.flowrate?.units ?? "m3/h",
           },
           tags: {},
@@ -172,7 +172,7 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
           flowrate: {
             min: payload.flowrate?.min ?? 0,
             max: payload.flowrate?.max ?? 0,
-            avg: payload.flowrate?.avg ?? 0,
+            design: payload.flowrate?.design ?? 0,
             units: payload.flowrate?.units ?? "m3/h",
           },
 
@@ -222,7 +222,7 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
           flowrate: {
             min: payload.flowrate?.min ?? 0,
             max: payload.flowrate?.max ?? 0,
-            avg: payload.flowrate?.avg ?? 0,
+            design: payload.flowrate?.design ?? 0,
             units: payload.flowrate?.units ?? "m3/h",
           },
           nodes: payload.nodes ?? [],
@@ -251,7 +251,7 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
           flowrate: {
             min: payload.flowrate?.min ?? 0,
             max: payload.flowrate?.max ?? 0,
-            avg: payload.flowrate?.avg ?? 0,
+            design: payload.flowrate?.design ?? 0,
             units: payload.flowrate?.units ?? "m3/h",
           },
           tags: {},
@@ -273,7 +273,7 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
           flowrate: {
             min: payload.flowrate?.min ?? 0,
             max: payload.flowrate?.max ?? 0,
-            avg: payload.flowrate?.avg ?? 0,
+            design: payload.flowrate?.design ?? 0,
             units: payload.flowrate?.units ?? "m3/h",
           },
           tags: {},
