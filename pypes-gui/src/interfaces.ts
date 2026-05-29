@@ -1,13 +1,19 @@
 export interface TankParams {
   name: string;
-  elevation?: number | null;
-  volume: number | null;
+  elevation?: ValuedUnit | null;
+  volume: ValuedUnit | null;
+  num_units?: number | null;
 }
 
 export interface ReservoirParams {
   name: string;
-  elevation?: number | null;
-  volume: number | null;
+  elevation?: ValuedUnit | null;
+  volume: ValuedUnit | null;
+}
+
+export interface ValuedUnit {
+  value: number | null;
+  units: string;
 }
 
 export interface Flowrate {
@@ -28,14 +34,16 @@ export interface FiltrationParams {
   name: string;
   flowrate: Flowrate;
   num_units: number | null;
-  volume: number | null;
+  volume: ValuedUnit | null;
+  dosing_rate?: number | null;
+  settling_time?: ValuedUnit | null;
 }
 
 export interface AerationParams {
   name: string;
   flowrate: Flowrate;
   num_units: number | null;
-  volume: number | null;
+  volume: ValuedUnit | null;
 }
 
 export interface BatteryParams {
@@ -46,11 +54,13 @@ export interface BatteryParams {
   charge_rate_units: string;
   discharge_rate: number | null;
   discharge_rate_units: string;
+  leakage?: number | null;
+  rte?: number | null;
 }
 
 export interface FacilityParams {
   name: string;
-  elevation: number | null;
+  elevation: ValuedUnit | null;
   flowrate: Flowrate;
   nodes: string[];
   connections: string[];
@@ -60,31 +70,36 @@ export interface ChlorinationParams {
   name: string;
   flowrate: Flowrate;
   num_units: number | null;
-  volume: number | null;
+  volume: ValuedUnit | null;
+  dosing_rate?: number | null;
+  residence_time?: ValuedUnit | null;
 }
 
 export interface NetworkParams {
   name: string;
   nodes: [];
   connections: [];
+  num_units?: number | null;
 }
 
 export interface ModularUnitParams extends NetworkParams {}
 
 export interface PumpParams {
   name: string;
-  elevation?: number | null;
+  elevation?: ValuedUnit | null;
   horsepower: number | null;
   num_units: number | null;
   flowrate: Flowrate;
   pump_type: string;
+  efficiency?: number | null;
+  pump_curve?: string;
 }
 
 export interface DigestionParams {
   name: string;
   flowrate: Flowrate;
   num_units: number | null;
-  volume: number | null;
+  volume: ValuedUnit | null;
   digester_type: string;
 }
 
@@ -92,13 +107,15 @@ export interface CogenerationParams {
   name: string;
   generation_capacity: GenerationCapacity;
   num_units: number | null;
+  electrical_efficiency?: string;
+  thermal_efficiency?: string;
 }
 
 export interface ClarificationParams {
   name: string;
   flowrate: Flowrate;
   num_units: number | null;
-  volume: number | null;
+  volume: ValuedUnit | null;
 }
 
 export interface ScreeningParams {
@@ -117,7 +134,7 @@ export interface ThickeningParams {
   name: string;
   flowrate: Flowrate;
   num_units: number | null;
-  volume: number | null;
+  volume: ValuedUnit | null;
 }
 
 export interface FlaringParams {
@@ -136,6 +153,17 @@ export interface connectionParams {
   bidirectional: boolean;
   exit_point: string;
   entry_point: string;
+  diameter?: number;
+  friction_coeff?: number;
+  min_flow?: number;
+  max_flow?: number;
+  design_flow?: number;
+  min_pressure?: number;
+  max_pressure?: number;
+  design_pressure?: number;
+  frequency?: ValuedUnit | null;
+  heating_value_lower?: ValuedUnit | null;
+  heating_value_higher?: ValuedUnit | null;
 }
 
 export interface OptimizationBatteryParams {
