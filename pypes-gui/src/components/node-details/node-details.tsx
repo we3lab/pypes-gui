@@ -431,35 +431,35 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
           <SectionTitle title="NODE DETAILS" />
           <HelperText text="Use the buttons below to edit, delete the node or add tags to it." />
           <div className={modal_section_vertical_css}>
-            <div className={modal_section_horizontal_css}>
+            <div className="flex flex-row mt-10 gap-2">
               <FlowsButtonDark
-                className="w-1/5 font-normal capitalize p-2"
+                className="flex-1 font-normal capitalize p-2"
                 onClick={onEditNode}
               >
                 Edit Node
               </FlowsButtonDark>
               <FlowsButtonDark
-                className="w-1/5 font-normal capitalize p-2 ml-5"
+                className="flex-1 font-normal capitalize p-2"
                 onClick={() => setDeleteNodeModal(true)}
               >
                 Delete Node
               </FlowsButtonDark>
               <FlowsButtonDark
-                className="w-1/5 font-normal capitalize p-2 ml-5"
+                className="flex-1 font-normal capitalize p-2"
                 onClick={onAddTag}
               >
                 Add tag
               </FlowsButtonDark>
               {canEnterNode && (
                 <FlowsButtonDark
-                  className="w-1/5 font-normal capitalize p-2 ml-5"
+                  className="flex-1 font-normal capitalize p-2"
                   onClick={onEnterNode}
                 >
                   Enter Node
                 </FlowsButtonDark>
               )}
               <FlowsButtonDark
-                className="w-1/5 font-normal capitalize p-2 ml-5"
+                className="flex-1 font-normal capitalize p-2 whitespace-nowrap"
                 onClick={() => setVirtualTagModalOpen(true)}
               >
                 Add VirtualTag

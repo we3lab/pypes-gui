@@ -219,7 +219,6 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
     },
     pump_type: "VFD",
     efficiency: null,
-    pump_curve: "",
   });
 
   const [digestionParams, setDigestionParams] = useState<DigestionParams>({

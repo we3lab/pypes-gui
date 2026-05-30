@@ -74,6 +74,22 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
   const [selectedEntry, setSelectedEntry] = useState<string>("");
   const [currentConnection, setCurrentConnection] = useState<any>({});
 
+  const [diameter, setDiameter] = useState<number>(0);
+  const [diameterUnits, setDiameterUnits] = useState<string>("meters");
+  const [frequency, setFrequency] = useState<number>(0);
+  const [frequencyUnits, setFrequencyUnits] = useState<string>("days");
+  const [lowerHeatingValue, setLowerHeatingValue] = useState<number>(0);
+  const [higherHeatingValue, setHigherHeatingValue] = useState<number>(0);
+  const [heatingValueUnits, setHeatingValueUnits] = useState<string>("BTU/SCFM");
+  const [minPressure, setMinPressure] = useState<number>(0);
+  const [maxPressure, setMaxPressure] = useState<number>(0);
+  const [designPressure, setDesignPressure] = useState<number>(0);
+  const [minFlow, setMinFlow] = useState<number>(0);
+  const [maxFlow, setMaxFlow] = useState<number>(0);
+  const [designFlow, setDesignFlow] = useState<number>(0);
+  const [frictionCoeff, setFrictionCoeff] = useState<number>(0);
+  const [connectionType, setConnectionType] = useState<string>("Pipe");
+
   useEffect(() => {
     const fetchData = async () => {
       // Strictly get data from the store (memory)
@@ -83,6 +99,7 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
           ...storeEdge.data.additionalData,
           source: storeEdge.edge.source,
           destination: storeEdge.edge.target,
+          type: storeEdge.type,
           id: storeEdge.id,
           parent: storeEdge.data.parent || "world",
         });
@@ -90,6 +107,7 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
         setCurrentConnection({
           source: storeEdge.edge.source,
           destination: storeEdge.edge.target,
+          type: storeEdge.type,
           id: storeEdge.id,
           parent: storeEdge.data.parent || "world",
         });
@@ -108,10 +126,27 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
       setName(selectedEdgeId);
       setSelectedSource(currentConnection.source ?? "");
       setSelectedDestination(currentConnection.destination ?? "");
+      setConnectionType(currentConnection.type ?? "Pipe");
+      
       if (currentConnection.exit_point != undefined)
         {setSelectedExit(currentConnection.exit_point);}
       if (currentConnection.entry_point != undefined)
         {setSelectedEntry(currentConnection.entry_point);}
+
+      setDiameter(currentConnection.diameter?.value ?? currentConnection.diameter ?? 0);
+      setDiameterUnits(currentConnection.diameter?.units ?? "meters");
+      setFrequency(currentConnection.frequency?.value ?? currentConnection.frequency ?? 0);
+      setFrequencyUnits(currentConnection.frequency?.units ?? "days");
+      setLowerHeatingValue(currentConnection.heating_value_lower?.value ?? currentConnection.heating_value_lower ?? 0);
+      setHigherHeatingValue(currentConnection.heating_value_higher?.value ?? currentConnection.heating_value_higher ?? 0);
+      setHeatingValueUnits(currentConnection.heating_value_lower?.units ?? "BTU/SCFM");
+      setMinPressure(currentConnection.min_pressure ?? 0);
+      setMaxPressure(currentConnection.max_pressure ?? 0);
+      setDesignPressure(currentConnection.design_pressure ?? 0);
+      setMinFlow(currentConnection.min_flow ?? 0);
+      setMaxFlow(currentConnection.max_flow ?? 0);
+      setDesignFlow(currentConnection.design_flow ?? 0);
+      setFrictionCoeff(currentConnection.friction_coeff ?? 0);
     },
     [selectedEdgeId]
   );
@@ -305,6 +340,167 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
                   </FlowsSelect>
                 </div>
               )}
+              {connectionType === "Pipe" && (
+                <>
+                  <div className={modal_section_horizontal_css + " items-center gap-4"}>
+                    <div className="w-1/4">Diameter:</div>
+                    <div className="flex-1 flex gap-2">
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Value"
+                        type="number"
+                        placeholder="0"
+                        value={diameter}
+                        onChange={(e: any) => setDiameter(Number(e.target.value))}
+                      />
+                      <FlowsSelect
+                        label="Units"
+                        value={diameterUnits}
+                        onChange={(e: any) => setDiameterUnits(e.target.value as string)}
+                      >
+                        <MenuItem value="meters">meters</MenuItem>
+                        <MenuItem value="feet">feet</MenuItem>
+                        <MenuItem value="inches">inches</MenuItem>
+                        <MenuItem value="mm">mm</MenuItem>
+                      </FlowsSelect>
+                    </div>
+                  </div>
+                  {["Biogas", "NaturalGas", "GasBlend"].includes(selectedContentType) && (
+                    <div className="mt-4 p-4 border border-gray-200 rounded">
+                      <div className="font-semibold mb-2">Heating Values</div>
+                      <div className="grid grid-cols-2 gap-4 mb-2">
+                        <FlowsTextField
+                          label="Lower Heating Value"
+                          type="number"
+                          value={lowerHeatingValue}
+                          onChange={(e: any) => setLowerHeatingValue(Number(e.target.value))}
+                        />
+                        <FlowsTextField
+                          label="Higher Heating Value"
+                          type="number"
+                          value={higherHeatingValue}
+                          onChange={(e: any) => setHigherHeatingValue(Number(e.target.value))}
+                        />
+                      </div>
+                      <FlowsSelect
+                        label="Units"
+                        value={heatingValueUnits}
+                        onChange={(e: any) => setHeatingValueUnits(e.target.value as string)}
+                      >
+                        <MenuItem value="BTU/SCFM">BTU/SCFM</MenuItem>
+                        <MenuItem value="MJ/m3">MJ/m3</MenuItem>
+                        <MenuItem value="kWh/m3">kWh/m3</MenuItem>
+                      </FlowsSelect>
+                    </div>
+                  )}
+                  <div className={modal_section_horizontal_css + " items-center"}>
+                    <div className="w-1/4">Friction Coefficient:</div>
+                    <FlowsTextField
+                      className={modal_textfield_css}
+                      label="Friction Coefficient"
+                      type="number"
+                      placeholder="0"
+                      value={frictionCoeff}
+                      onChange={(e: any) => setFrictionCoeff(Number(e.target.value))}
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Min Flow:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Min Flow"
+                        type="number"
+                        placeholder="0"
+                        value={minFlow}
+                        onChange={(e: any) => setMinFlow(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Max Flow:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Max Flow"
+                        type="number"
+                        placeholder="0"
+                        value={maxFlow}
+                        onChange={(e: any) => setMaxFlow(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Design Flow:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Design Flow"
+                        type="number"
+                        placeholder="0"
+                        value={designFlow}
+                        onChange={(e: any) => setDesignFlow(Number(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Min Pressure:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Min Pressure"
+                        type="number"
+                        placeholder="0"
+                        value={minPressure}
+                        onChange={(e: any) => setMinPressure(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Max Pressure:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Max Pressure"
+                        type="number"
+                        placeholder="0"
+                        value={maxPressure}
+                        onChange={(e: any) => setMaxPressure(Number(e.target.value))}
+                      />
+                    </div>
+                    <div className={modal_section_horizontal_css + " items-center"}>
+                      <div className="w-1/2">Design Pressure:</div>
+                      <FlowsTextField
+                        className={modal_textfield_css}
+                        label="Design Pressure"
+                        type="number"
+                        placeholder="0"
+                        value={designPressure}
+                        onChange={(e: any) => setDesignPressure(Number(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+              {connectionType === "Delivery" && (
+                <div className={modal_section_horizontal_css + " items-center gap-4"}>
+                  <div className="w-1/4">Frequency:</div>
+                  <div className="flex-1 flex gap-2">
+                    <FlowsTextField
+                      className={modal_textfield_css}
+                      label="Value"
+                      type="number"
+                      placeholder="0"
+                      value={frequency}
+                      onChange={(e: any) => setFrequency(Number(e.target.value))}
+                    />
+                    <FlowsSelect
+                      label="Units"
+                      value={frequencyUnits}
+                      onChange={(e: any) => setFrequencyUnits(e.target.value as string)}
+                    >
+                      <MenuItem value="days">days</MenuItem>
+                      <MenuItem value="weeks">weeks</MenuItem>
+                      <MenuItem value="months">months</MenuItem>
+                      <MenuItem value="/ day">/ day</MenuItem>
+                    </FlowsSelect>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -333,6 +529,19 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
                 destination: selectedDestination,
                 entry_point: selectedEntry,
                 exit_point: selectedExit,
+                additionalData: {
+                  diameter: { value: diameter, units: diameterUnits },
+                  friction_coeff: frictionCoeff,
+                  min_flow: minFlow,
+                  max_flow: maxFlow,
+                  design_flow: designFlow,
+                  min_pressure: minPressure,
+                  max_pressure: maxPressure,
+                  design_pressure: designPressure,
+                  frequency: connectionType === "Delivery" ? { value: frequency, units: frequencyUnits } : undefined,
+                  heating_value_lower: ["Biogas", "NaturalGas", "GasBlend"].includes(selectedContentType) ? { value: lowerHeatingValue, units: heatingValueUnits } : undefined,
+                  heating_value_higher: ["Biogas", "NaturalGas", "GasBlend"].includes(selectedContentType) ? { value: higherHeatingValue, units: heatingValueUnits } : undefined,
+                }
               });
               console.log("Connection updated...");
               setExit(false);

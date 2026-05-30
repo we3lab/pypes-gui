@@ -138,8 +138,7 @@ export interface PumpParams {
   num_units: number | null;
   flowrate: Flowrate;
   pump_type: string;
-  efficiency?: number | null;
-  pump_curve?: string;
+  efficiency?: number | string | null;
 }
 
 export interface DigestionParams {
