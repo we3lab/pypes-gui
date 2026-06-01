@@ -243,7 +243,6 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
           num_units: payload.num_units ?? 1,
           pump_type: payload.pump_type ?? "VFD",
           efficiency: payload.efficiency ?? 0,
-          pump_curve: payload.pump_curve ?? {},
           flowrate: {
             min: payload.flowrate?.min ?? 0,
             max: payload.flowrate?.max ?? 0,
