@@ -1,0 +1,537 @@
+import useStore, { EdgeWithData } from "@/store/store";
+import {
+  Box,
+  Button,
+  Modal,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tabs,
+  Tab,
+} from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
+import { FaTimes } from "react-icons/fa";
+import SectionTitle from "../global/section-title";
+import HelperText from "../global/helper-text";
+import {
+  modal_box_css,
+  modal_section_horizontal_css,
+  modal_section_vertical_css,
+  modal_main_section_wrapper_css,
+  page_tablecell_css,
+  modal_tab_selected_css,
+  modal_tab_notselected_css,
+} from "../global/flows-style";
+import FlowsButtonDark from "../global/flows-button-dark";
+import FlowsButtonLight from "../global/flows-button-light";
+import FlowsPopUpWindow from "../global/flows-pop-up-window";
+import dynamic from "next/dynamic";
+import VirtualTagEditModal, {
+  VirtualTagPayload,
+} from "../virtual-tag-edit-modal/virtual-tag-edit-modal";
+
+interface ConnectionDeatailsProps {
+  open: boolean;
+  onClose: () => void;
+  callRedraw: () => void;
+  connectionData?: EdgeWithData; // Optional prop for connection data if passed from parent
+  similarConnections?: string[]; // Optional prop for similar connections
+}
+
+const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
+  open,
+  onClose,
+  callRedraw,
+  connectionData: propConnectionData,
+  similarConnections: propSimilarConnections,
+}: ConnectionDeatailsProps) => {
+  const {
+    setSelectedEdgeId,
+    closeEdgeDetailsModal,
+    openEdgeUpdateModal,
+    closeEdgeUpdateModal,
+    openTagCreationModal,
+    closeTagCreationModal,
+    openTagEditModal,
+    closeTagEditModal,
+    selectedEdgeId,
+    tagCreationModalOpen,
+    tagEditModalOpen,
+    edges, // Assuming edges are stored in useStore
+  } = useStore();
+
+  const [deleteConnectionModal, setDeleteConnectionModal] = useState<boolean>(false);
+  const [deleteTagModal, setDeleteTagModal] = useState<boolean>(false);
+  const [deleteVirtualTagModal, setDeleteVirtualTagModal] = useState<boolean>(false);
+  const [virtualTagModalOpen, setVirtualTagModalOpen] = useState<boolean>(false);
+  const [selectedTag, setSelectedTag] = useState<string>("");
+  const [selectedVirtualTag, setSelectedVirtualTag] = useState<string>("");
+  const [tagMode, setTagMode] = useState<string>("add");
+  const [selectedTab, setSelectedTab] = useState(0);
+
+  const TagCreationModal = dynamic(
+    () => import("@/components/tag-creation-modal/tag-creation-modal"),
+    { ssr: false }
+  );
+  const TagEditModal = dynamic(
+    () => import("@/components/tag-edit-modal/tag-edit-modal"),
+    { ssr: false }
+  );
+
+  // Get connection data from store or props
+  const connectionData = propConnectionData || edges.find((edge) => edge.id === selectedEdgeId);
+  const similarConnections = propSimilarConnections || edges
+    .filter((edge) => edge.edge.source === connectionData?.edge.source && edge.edge.target === connectionData?.edge.target)
+    .map((edge) => edge.id);
+
+  useEffect(() => {
+    if (open && selectedEdgeId) {
+      const edge = edges.find((e) => e.id === selectedEdgeId);
+      if (edge) {
+        setSelectedTab(similarConnections.indexOf(selectedEdgeId));
+      }
+    }
+  }, [open, selectedEdgeId, edges, similarConnections]);
+
+  const handleTabChange = (event: any, newValue: any) => {
+    setSelectedTab(newValue);
+    setSelectedEdgeId(similarConnections[newValue]);
+  };
+
+  const onDeleteConn = useCallback(() => {
+    console.log("Deleting Connection id", selectedEdgeId);
+    // Update local store by removing the edge
+    const updatedEdges = edges.filter((edge) => edge.id !== selectedEdgeId);
+    useStore.setState({ edges: updatedEdges });
+    callRedraw();
+    closeEdgeDetailsModal();
+    setDeleteConnectionModal(false);
+  }, [selectedEdgeId, edges, callRedraw, closeEdgeDetailsModal]);
+
+  const prepareAndUpdateConnection = useCallback(
+    (payload: any) => {
+      const updatedEdge = {
+        ...connectionData,
+        id: payload.name || connectionData?.id,
+        edge: {
+          ...connectionData?.edge,
+          id: payload.name || connectionData?.id,
+          source: payload.source || connectionData?.edge.source,
+          target: payload.destination || connectionData?.edge.target,
+        },
+        data: {
+          ...(connectionData?.data ?? {}),
+          virtual_tags: connectionData?.data?.virtual_tags ?? {},
+          additionalData: {
+            ...(connectionData?.data?.additionalData ?? {}),
+            contents: payload.content,
+            bidirectional: payload.bidirectional,
+            entry_point: payload.entry_point,
+            exit_point: payload.exit_point,
+          },
+        },
+      };
+      const updatedEdges = edges.map((edge) =>
+        edge.id === selectedEdgeId ? updatedEdge : edge
+      );
+      useStore.setState({ edges: updatedEdges as EdgeWithData[] });
+      setSelectedEdgeId(updatedEdge.id);
+      callRedraw();
+      closeEdgeUpdateModal();
+      closeEdgeDetailsModal();
+    },
+    [connectionData, edges, selectedEdgeId, callRedraw, closeEdgeUpdateModal, closeEdgeDetailsModal, setSelectedEdgeId]
+  );
+
+  const onEditConn = () => {
+    if (connectionData) {
+      openEdgeUpdateModal(connectionData.type, (payload) => prepareAndUpdateConnection(payload));
+    } else {
+      console.log("Connection not found");
+    }
+  };
+
+  const prepareAndSendTag = (payload: any) => {
+    if (!connectionData) {
+      return;
+    }
+    const { id, unit, ...tagDetails } = payload;
+    const updatedEdges = edges.map((edge) =>
+      edge.id === connectionData.id
+        ? {
+            ...edge,
+            data: {
+              ...edge.data,
+              tags: {
+                ...(edge.data.tags ?? {}),
+                [id]: {
+                  ...tagDetails,
+                  units: unit,
+                },
+              },
+            },
+          }
+        : edge
+    );
+    useStore.setState({ edges: updatedEdges });
+    closeTagCreationModal();
+  };
+
+  const prepareAndEditTag = (payload: any) => {
+    const updatedTag = payload.id;
+    closeTagEditModal();
+  };
+
+  const onAddTag = () => {
+    const source = connectionData?.edge.source || "";
+    const destination = connectionData?.edge.target || "";
+    if (source && destination) {
+      if (tagMode === "add") {
+        openTagCreationModal((payload) => prepareAndSendTag(payload));
+      } else if (tagMode === "edit") {
+        openTagEditModal((payload) => prepareAndEditTag(payload));
+      }
+    }
+  };
+
+  const onDeleteTag = (tag: string) => {
+    if (!connectionData) {
+      console.error(`Tag "${tag}" not found in the current tags.`);
+      return;
+    }
+    const updatedEdges = edges.map((edge) => {
+      if (edge.id !== connectionData.id) {
+        return edge;
+      }
+      const tags: Record<string, any> = { ...(edge.data.tags ?? {}) };
+      delete tags[tag];
+      return {
+        ...edge,
+        data: {
+          ...edge.data,
+          tags,
+        },
+      };
+    });
+    useStore.setState({ edges: updatedEdges });
+    setDeleteTagModal(false);
+  };
+
+  const onSaveVirtualTag = (
+    virtualTagName: string,
+    payload: VirtualTagPayload,
+    originalName?: string
+  ) => {
+    if (!connectionData) {
+      return;
+    }
+    const updatedEdges = edges.map((edge) => {
+      if (edge.id !== connectionData.id) {
+        return edge;
+      }
+      const virtualTags: Record<string, VirtualTagPayload> = {
+        ...(edge.data.virtual_tags ?? {}),
+      };
+      if (originalName && originalName !== virtualTagName) {
+        delete virtualTags[originalName];
+      }
+      virtualTags[virtualTagName] = payload;
+      return {
+        ...edge,
+        data: {
+          ...edge.data,
+          virtual_tags: virtualTags,
+        },
+      };
+    });
+    useStore.setState({ edges: updatedEdges });
+    setVirtualTagModalOpen(false);
+    setSelectedVirtualTag("");
+  };
+
+  const onDeleteVirtualTag = (virtualTagName: string) => {
+    if (!connectionData) {
+      return;
+    }
+    const updatedEdges = edges.map((edge) => {
+      if (edge.id !== connectionData.id) {
+        return edge;
+      }
+      const virtualTags: Record<string, VirtualTagPayload> = {
+        ...(edge.data.virtual_tags ?? {}),
+      };
+      delete virtualTags[virtualTagName];
+      return {
+        ...edge,
+        data: {
+          ...edge.data,
+          virtual_tags: virtualTags,
+        },
+      };
+    });
+    useStore.setState({ edges: updatedEdges });
+    setDeleteVirtualTagModal(false);
+    setSelectedVirtualTag("");
+  };
+
+  // Extract tags from connectionData or default to empty array
+  const tags = connectionData?.data?.tags ?? {};
+  const virtualTags = connectionData?.data?.virtual_tags ?? {};
+
+  if (!selectedEdgeId) {
+    return null;
+  }
+
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box sx={{ ...modal_box_css }}>
+        <FlowsPopUpWindow
+          title="Delete"
+          question="Are you sure you want to delete this connection?"
+          onClose={() => setDeleteConnectionModal(false)}
+          onClick={onDeleteConn}
+          open={deleteConnectionModal}
+        />
+        <div>
+          <TagCreationModal
+            open={tagCreationModalOpen}
+            onClose={closeTagCreationModal}
+          />
+          <TagEditModal
+            open={tagEditModalOpen}
+            onClose={closeTagEditModal}
+            tag={selectedTag}
+          />
+        </div>
+        <FlowsPopUpWindow
+          title="Delete"
+          question="Are you sure you want to delete this tag?"
+          onClose={() => setDeleteTagModal(false)}
+          onClick={() => onDeleteTag(selectedTag)}
+          open={deleteTagModal}
+        />
+        <FlowsPopUpWindow
+          title="Delete"
+          question="Are you sure you want to delete this VirtualTag?"
+          onClose={() => setDeleteVirtualTagModal(false)}
+          onClick={() => onDeleteVirtualTag(selectedVirtualTag)}
+          open={deleteVirtualTagModal}
+        />
+        <VirtualTagEditModal
+          open={virtualTagModalOpen}
+          onClose={() => {
+            setVirtualTagModalOpen(false);
+            setSelectedVirtualTag("");
+          }}
+          onSave={onSaveVirtualTag}
+          parentId={connectionData?.id ?? ""}
+          existingName={selectedVirtualTag || undefined}
+          existingVirtualTag={
+            selectedVirtualTag ? virtualTags[selectedVirtualTag] : undefined
+          }
+          availableTags={Object.keys(tags)}
+        />
+        <div className={modal_main_section_wrapper_css}>
+          <button
+            onClick={() => {
+              onClose();
+              setSelectedTab(0);
+            }}
+            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 cursor-pointer"
+          >
+            <FaTimes className="text-2xl" />
+          </button>
+          <div className="mb-2">
+            {similarConnections.length > 1 && (
+              <Tabs value={selectedTab} onChange={handleTabChange} variant="fullWidth" centered>
+                {similarConnections.map((conn, index) => (
+                  <Tab
+                    key={index}
+                    label={conn}
+                    className={`${selectedTab === index ? modal_tab_selected_css : modal_tab_notselected_css}`}
+                  />
+                ))}
+              </Tabs>
+            )}
+          </div>
+          <SectionTitle title="CONNECTION DETAILS" />
+          {similarConnections.length === 1 && (
+            <p className="text-black">{`Selected connection: ${selectedEdgeId}`}</p>
+          )}
+          <HelperText text="Use the buttons below to edit, delete the connection or add tags to it." />
+          <div className={modal_section_vertical_css}>
+            <div className="flex flex-row mt-10 gap-2">
+              <FlowsButtonDark
+                className="flex-1 font-normal capitalize p-2"
+                onClick={onEditConn}
+              >
+                Edit
+              </FlowsButtonDark>
+              <FlowsButtonDark
+                className="flex-1 font-normal capitalize p-2"
+                onClick={() => setDeleteConnectionModal(true)}
+              >
+                Delete
+              </FlowsButtonDark>
+              <FlowsButtonDark
+                className="flex-1 font-normal capitalize p-2"
+                onClick={() => {
+                  setTagMode("add");
+                  onAddTag();
+                }}
+              >
+                Add tag
+              </FlowsButtonDark>
+              <FlowsButtonDark
+                className="flex-1 font-normal capitalize p-2 whitespace-nowrap"
+                onClick={() => setVirtualTagModalOpen(true)}
+              >
+                Add VirtualTag
+              </FlowsButtonDark>
+            </div>
+            {Object.keys(tags).length > 0 ? (
+              <TableContainer className="shadow-none mt-10" component={Paper}>
+                <Table className="text-sm">
+                  <TableHead className="bg-flows-light-gray">
+                    <TableRow>
+                      <TableCell className={page_tablecell_css}>Tag Name</TableCell>
+                      <TableCell className={page_tablecell_css}>Type</TableCell>
+                      <TableCell className={page_tablecell_css}>Units</TableCell>
+                      <TableCell className={page_tablecell_css}>Contents</TableCell>
+                      <TableCell className={page_tablecell_css}>Totalized</TableCell>
+                      <TableCell className={page_tablecell_css}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {Object.entries(tags).map(([tagKey, tagValue]: [string, any], index) => (
+                      <TableRow key={index}>
+                        <TableCell className={page_tablecell_css}>{tagKey}</TableCell>
+                        <TableCell className={page_tablecell_css}>{tagValue.type ?? tagValue.tagType ?? "-"}</TableCell>
+                        <TableCell className={page_tablecell_css}>{tagValue.units ?? tagValue.unit ?? "-"}</TableCell>
+                        <TableCell className={page_tablecell_css}>{tagValue.contents ?? tagValue.content ?? "-"}</TableCell>
+                        <TableCell className={page_tablecell_css}>{tagValue.totalized ? "Yes" : "No"}</TableCell>
+                        <TableCell className={page_tablecell_css}>
+                          <div className="flex flex-row items-center">
+                            <Button className="p-0 justify-end cursor-default">
+                              <div
+                                className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
+                                onClick={() => {
+                                  setSelectedTag(tagKey);
+                                  setTagMode("edit");
+                                  onAddTag();
+                                }}
+                              >
+                                <img src="/edit.svg" className="w-4" />
+                              </div>
+                            </Button>
+                            <Button className="p-0 justify-end cursor-default ml-2">
+                              <div
+                                className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
+                                onClick={() => {
+                                  setSelectedTag(tagKey);
+                                  setDeleteTagModal(true);
+                                }}
+                              >
+                                <img src="/trash-delete.svg" className="w-4" />
+                              </div>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <div className="mt-10">No tags available</div>
+            )}
+            {Object.keys(virtualTags).length > 0 ? (
+              <TableContainer className="shadow-none mt-10" component={Paper}>
+                <Table className="text-sm">
+                  <TableHead className="bg-flows-light-gray">
+                    <TableRow>
+                      <TableCell className={page_tablecell_css}>VirtualTag Name</TableCell>
+                      <TableCell className={page_tablecell_css}>Mode</TableCell>
+                      <TableCell className={page_tablecell_css}>Tags</TableCell>
+                      <TableCell className={page_tablecell_css}>Operations</TableCell>
+                      <TableCell className={page_tablecell_css}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {Object.entries(virtualTags).map(([virtualTagKey, virtualTagValue]) => (
+                      <TableRow key={virtualTagKey}>
+                        <TableCell className={page_tablecell_css}>{virtualTagKey}</TableCell>
+                        <TableCell className={page_tablecell_css}>
+                          {virtualTagValue.operations ? "Custom" : "Algebraic"}
+                        </TableCell>
+                        <TableCell className={page_tablecell_css}>
+                          {(virtualTagValue.tags ?? []).join(", ") || "-"}
+                        </TableCell>
+                        <TableCell className={page_tablecell_css}>
+                          {(virtualTagValue.operations ??
+                            [
+                              virtualTagValue.unary_operations
+                                ? `unary: ${JSON.stringify(virtualTagValue.unary_operations)}`
+                                : "",
+                              virtualTagValue.binary_operations
+                                ? `binary: ${JSON.stringify(virtualTagValue.binary_operations)}`
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join("; ")) ||
+                            "-"}
+                        </TableCell>
+                        <TableCell className={page_tablecell_css}>
+                          <div className="flex flex-row items-center">
+                            <Button className="p-0 justify-end cursor-default">
+                              <div
+                                className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
+                                onClick={() => {
+                                  setSelectedVirtualTag(virtualTagKey);
+                                  setVirtualTagModalOpen(true);
+                                }}
+                              >
+                                <img src="/edit.svg" className="w-4" />
+                              </div>
+                            </Button>
+                            <Button className="p-0 justify-end cursor-default ml-2">
+                              <div
+                                className="p-2 border border-flows-light-gray cursor-pointer hover:bg-flows-light-gray"
+                                onClick={() => {
+                                  setSelectedVirtualTag(virtualTagKey);
+                                  setDeleteVirtualTagModal(true);
+                                }}
+                              >
+                                <img src="/trash-delete.svg" className="w-4" />
+                              </div>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <div className="mt-5">No VirtualTags available</div>
+            )}
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <FlowsButtonLight
+            className="w-1/5 font-normal capitalize p-2"
+            onClick={onClose}
+          >
+            Close
+          </FlowsButtonLight>
+        </div>
+      </Box>
+    </Modal>
+  );
+};
+
+export default ConnectionDeatails;
