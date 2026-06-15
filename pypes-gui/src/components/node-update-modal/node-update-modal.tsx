@@ -1,19 +1,22 @@
-import { NodeWithData } from "@/store/store";
-import { Box, Button, MenuItem, Modal } from "@mui/material";
-import TextField from "@mui/material/TextField";
+import { Box, MenuItem, Modal } from "@mui/material";
 import {
   TankParams,
+  StaticMixingParams,
   FiltrationParams,
-  Flowrate,
+  ROMembraneParams,
+  UVSystemParams,
   AerationParams,
   ReservoirParams,
   BatteryParams,
   FacilityParams,
   ChlorinationParams,
   NetworkParams,
+  ModularUnitParams,
+  JunctionParams,
   PumpParams,
   DigestionParams,
   CogenerationParams,
+  BoilerParams,
   ClarificationParams,
   ScreeningParams,
   ConditioningParams,
@@ -25,11 +28,9 @@ import useMainStore from "@/store/store";
 import SectionTitle from "../global/section-title";
 import {
   modal_box_css,
-  modal_first_button_css,
   modal_left_subsection_wrapper_css,
   modal_section_horizontal_css,
   modal_main_section_wrapper_css,
-  modal_other_button_css,
   modal_right_subsection_wrapper_css,
   modal_textfield_css,
   modal_section_vertical_css,
@@ -47,13 +48,7 @@ interface NodeUpdateModalProps {
 }
 
 const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
-  const {
-    nodeType,
-    onUpdate,
-    closeNodeDetailsModal,
-    selectedNodeId,
-    nodes,
-  } = useMainStore();
+  const { nodeType, onUpdate, selectedNodeId, nodes } = useMainStore();
 
   const [currentNode, setCurrentNode] = useState<any>({});
 
@@ -62,6 +57,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     const parsed = parseFloat(val);
     return isNaN(parsed) ? null : parsed;
   };
+
+  const valuedUnit = useCallback((
+    input: any,
+    fallbackUnits: string,
+    legacyValue?: any
+  ) => {
+    if (input && typeof input === "object" && "value" in input) {
+      return {
+        value: input.value ?? null,
+        units: input.units ?? fallbackUnits,
+      };
+    }
+
+    return {
+      value: input ?? legacyValue ?? null,
+      units: fallbackUnits,
+    };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,14 +104,31 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
   const [tankParams, setTankParams] = useState<TankParams>({
     name: "",
-    elevation: null,
-    volume: null,
+    elevation: { value: null, units: "meters" },
+    volume: { value: null, units: "cubic meters" },
+    num_units: null,
   });
+
+  const [staticMixingParams, setStaticMixingParams] =
+    useState<StaticMixingParams>({
+      name: "",
+      volume: { value: null, units: "cubic meters" },
+      flowrate: {
+        design: null,
+        max: null,
+        min: null,
+        units: "MGD",
+      },
+      dosing_rate: {},
+      residence_time: { value: null, units: "hours" },
+      pH: null,
+      num_units: null,
+    });
 
   const [reservoirParamas, setReservoirParams] = useState<ReservoirParams>({
     name: "",
-    elevation: null,
-    volume: null,
+    elevation: { value: null, units: "meters" },
+    volume: { value: null, units: "cubic meters" },
   });
 
   const [aerationParams, setAerationParams] = useState<AerationParams>({
@@ -110,7 +140,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
       units: "MGD",
     },
     num_units: null,
-    volume: null,
+    volume: { value: null, units: "cubic meters" },
   });
 
   const [filtrationParams, setFiltrationParams] = useState<FiltrationParams>({
@@ -121,9 +151,56 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
       min: null,
       units: "MGD",
     },
-
     num_units: null,
-    volume: null,
+    volume: { value: null, units: "cubic meters" },
+    dosing_rate: {},
+    settling_time: { value: null, units: "hours" },
+  });
+
+  const [roMembraneParams, setROMembraneParams] = useState<ROMembraneParams>({
+    name: "",
+    flowrate: {
+      design: null,
+      max: null,
+      min: null,
+      units: "MGD",
+    },
+    num_units: null,
+    volume: { value: null, units: "cubic meters" },
+    dosing_rate: {},
+    settling_time: { value: null, units: "hours" },
+    area: { value: null, units: "square meters" },
+    permeability: { value: null, units: "LMH / bar" },
+    selectivity: { value: null, units: "m / s" },
+  });
+
+  const [uvSystemParams, setUVSystemParams] = useState<UVSystemParams>({
+    name: "",
+    flowrate: {
+      design: null,
+      max: null,
+      min: null,
+      units: "MGD",
+    },
+    num_units: null,
+    volume: { value: null, units: "cubic meters" },
+    dosing_rate: {
+      UVLight: {
+        chemical: "UVLight",
+        value: null,
+        units: "W / square meter",
+        mode: "rate",
+      },
+    },
+    dosing_area: {
+      UVLight: {
+        chemical: "UVLight",
+        value: null,
+        units: "square meters",
+        mode: "area",
+      },
+    },
+    residence_time: { value: null, units: "hours" },
   });
 
   const [batteryParams, setBatteryParams] = useState<BatteryParams>({
@@ -138,7 +215,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
   const [facilityParams, setFacilityParams] = useState<FacilityParams>({
     name: "",
-    elevation: null,
+    elevation: { value: null, units: "meters" },
     flowrate: {
       design: null,
       max: null,
@@ -159,7 +236,9 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         units: "MGD",
       },
       num_units: null,
-      volume: null,
+      volume: { value: null, units: "cubic meters" },
+      dosing_rate: {},
+      residence_time: { value: null, units: "hours" },
     });
 
   const [networkParams, setNetworkParams] = useState<NetworkParams>({
@@ -178,13 +257,12 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
   const [junctionParams, setJunctionParams] = useState<JunctionParams>({
     name: "",
-    diameter: null,
-    num_units: null,
+    diameter: { value: null, units: "meters" },
   });
 
   const [pumpParams, setPumpParams] = useState<PumpParams>({
     name: "",
-    elevation: null,
+    elevation: { value: null, units: "meters" },
     power_rating: null,
     num_units: null,
     flowrate: {
@@ -194,6 +272,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
       units: "MGD",
     },
     pump_type: "VFD",
+    efficiency: null,
   });
 
   const [digestionParams, setDigestionParams] = useState<DigestionParams>({
@@ -205,7 +284,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
       units: "MGD",
     },
     num_units: null,
-    volume: null,
+    volume: { value: null, units: "cubic meters" },
     digester_type: "Anaerobic",
   });
 
@@ -218,6 +297,21 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         min: null,
         units: "MGD",
       },
+      thermal_efficiency: null,
+      electrical_efficiency: null,
+      num_units: null,
+    });
+
+  const [boilerParams, setBoilerParams] =
+    useState<BoilerParams>({
+      name: "",
+      generation_capacity: {
+        design: null,
+        max: null,
+        min: null,
+        units: "MGD",
+      },
+      thermal_efficiency: null,
       num_units: null,
     });
 
@@ -231,7 +325,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         units: "MGD",
       },
       num_units: null,
-      volume: null,
+      volume: { value: null, units: "cubic meters" },
     });
 
   const [screeningParams, setScreeningParams] = useState<ScreeningParams>({
@@ -266,7 +360,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
       units: "MGD",
     },
     num_units: null,
-    volume: null,
+    volume: { value: null, units: "cubic meters" },
   });
 
   const [flaringParams, setFlaringParams] = useState<FlaringParams>({
@@ -287,15 +381,44 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
       case "Tank":
         setTankParams({
           name: id,
-          elevation: currentNode["elevation"] ?? null,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
+          elevation: valuedUnit(currentNode["elevation"], "meters"),
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
+          num_units: currentNode["num_units"] ?? null,
+        });
+        break;
+      case "StaticMixing":
+        setStaticMixingParams({
+          name: id,
+          flowrate: {
+            design: currentNode.flowrate?.design ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
+            units: currentNode.flowrate?.units ?? "MGD",
+          },
+          num_units: currentNode["num_units"] ?? null,
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
+          dosing_rate: currentNode["dosing_rate"] ?? {},
+          residence_time: valuedUnit(currentNode["residence_time"], "hours"),
+          pH: currentNode["pH"] ?? null,
         });
         break;
       case "Reservoir":
         setReservoirParams({
           name: id,
-          elevation: currentNode["elevation"] ?? null,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
+          elevation: valuedUnit(currentNode["elevation"], "meters"),
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
         });
         break;
       case "Aeration":
@@ -308,7 +431,11 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
             units: currentNode.flowrate?.units ?? "MGD",
           },
           num_units: currentNode["num_units"] ?? null,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
         });
         break;
       case "Filtration":
@@ -321,7 +448,69 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
             units: currentNode.flowrate?.units ?? "MGD",
           },
           num_units: currentNode["num_units"] ?? null,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
+          dosing_rate: currentNode["dosing_rate"] ?? {},
+          settling_time: valuedUnit(currentNode["settling_time"], "hours"),
+        });
+        break;
+      case "ROMembrane":
+        setROMembraneParams({
+          name: id,
+          flowrate: {
+            design: currentNode.flowrate?.design ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
+            units: currentNode.flowrate?.units ?? "MGD",
+          },
+          num_units: currentNode["num_units"] ?? null,
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
+          dosing_rate: currentNode["dosing_rate"] ?? {},
+          settling_time: valuedUnit(currentNode["settling_time"], "hours"),
+          area: valuedUnit(currentNode["area"], "square meters"),
+          permeability: valuedUnit(currentNode["permeability"], "LMH / bar"),
+          selectivity: valuedUnit(currentNode["selectivity"], "m / s"),
+        });
+        break;
+      case "UVSystem":
+        setUVSystemParams({
+          name: id,
+          flowrate: {
+            design: currentNode.flowrate?.design ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
+            units: currentNode.flowrate?.units ?? "MGD",
+          },
+          num_units: currentNode["num_units"] ?? null,
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
+          residence_time: valuedUnit(currentNode["residence_time"], "hours"),
+          dosing_rate: currentNode["dosing_rate"] ?? {
+            UVLight: {
+              chemical: "UVLight",
+              value: null,
+              units: "W / square meter",
+              mode: "rate",
+            },
+          },
+          dosing_area: currentNode["dosing_area"] ?? {
+            UVLight: {
+              chemical: "UVLight",
+              value: null,
+              units: "square meters",
+              mode: "area",
+            },
+          },
         });
         break;
       case "Battery":
@@ -381,7 +570,13 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
             units: currentNode.flowrate?.units ?? "MGD",
           },
           num_units: currentNode["num_units"] ?? null,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
+          dosing_rate: currentNode["dosing_rate"] ?? {},
+          residence_time: valuedUnit(currentNode["residence_time"], "hours"),
         });
         break;
       case "Network":
@@ -400,10 +595,16 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
             num_units: currentNode["num_units"] ?? null,
           });
           break;
+      case "Junction":
+        setJunctionParams({
+          name: id,
+          diameter: valuedUnit(currentNode["diameter"], "meters"),
+        });
+        break;
       case "Pump":
         setPumpParams({
           name: id,
-          elevation: currentNode["elevation"] ?? null,
+          elevation: valuedUnit(currentNode["elevation"], "meters"),
           power_rating: currentNode["power_rating"] ?? null,
           num_units: currentNode["num_units"] ?? null,
           flowrate: {
@@ -413,6 +614,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
             units: currentNode.flowrate?.units ?? "MGD",
           },
           pump_type: currentNode["pump_type"] ?? "VFD",
+          efficiency: currentNode["efficiency"] ?? null,
         });
         break;
       case "Digestion":
@@ -425,7 +627,11 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
             units: currentNode.flowrate?.units ?? "MGD",
           },
           num_units: currentNode["num_units"] ?? null,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
           digester_type: currentNode["digester_type"] ?? "Anaerobic",
         });
         break;
@@ -433,11 +639,26 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setCogenerationParams({
           name: id,
           generation_capacity: {
-            design: currentNode.generation_capacity?.design ?? null,
-            max: currentNode.generation_capacity?.max ?? null,
-            min: currentNode.generation_capacity?.min ?? null,
+            design: currentNode.generation_capacity?.design ?? currentNode["design_gen"] ?? null,
+            max: currentNode.generation_capacity?.max ?? currentNode["max_gen"] ?? null,
+            min: currentNode.generation_capacity?.min ?? currentNode["min_gen"] ?? null,
             units: currentNode.generation_capacity?.units ?? "MGD",
           },
+          thermal_efficiency: currentNode["thermal_efficiency"] ?? null,
+          electrical_efficiency: currentNode["electrical_efficiency"] ?? null,
+          num_units: currentNode["num_units"] ?? null,
+        });
+        break;
+      case "Boiler":
+        setBoilerParams({
+          name: id,
+          generation_capacity: {
+            design: currentNode.generation_capacity?.design ?? currentNode["design_gen"] ?? null,
+            max: currentNode.generation_capacity?.max ?? currentNode["max_gen"] ?? null,
+            min: currentNode.generation_capacity?.min ?? currentNode["min_gen"] ?? null,
+            units: currentNode.generation_capacity?.units ?? "MGD",
+          },
+          thermal_efficiency: currentNode["thermal_efficiency"] ?? null,
           num_units: currentNode["num_units"] ?? null,
         });
         break;
@@ -451,7 +672,11 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
             units: currentNode.flowrate?.units ?? "MGD",
           },
           num_units: currentNode["num_units"] ?? null,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
         });
         break;
       case "Screening":
@@ -488,7 +713,11 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
             units: currentNode.flowrate?.units ?? "MGD",
           },
           num_units: currentNode["num_units"] ?? null,
-          volume: currentNode["volume"] ?? currentNode["volume (cubic meters)"] ?? null,
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
         });
         break;
       case "Flaring":
@@ -506,7 +735,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
       default:
         break;
     }
-  }, []);
+  }, [valuedUnit]);
 
   useEffect(() => {
     addDefaultValueFromDB(currentNode, selectedNodeId);
@@ -672,6 +901,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     setTankParams({
                       elevation: tankParams.elevation,
                       volume: tankParams.volume,
+                      num_units: tankParams.num_units,
                       name: e.target.value,
                     })
                   }
@@ -683,11 +913,15 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Elevation"
                     type="number"
-                    value={tankParams.elevation}
+                    value={tankParams.elevation?.value}
                     onChange={(e: any) =>
                       setTankParams({
-                        elevation: handleNumericInput(e.target.value),
+                        elevation: {
+                          value: handleNumericInput(e.target.value),
+                          units: tankParams.elevation?.units || "meters",
+                        },
                         volume: tankParams.volume,
+                        num_units: tankParams.num_units,
                         name: tankParams.name,
                       })
                     }
@@ -698,12 +932,180 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Volume"
                     type="number"
-                    value={tankParams.volume}
+                    value={tankParams.volume?.value}
                     onChange={(e: any) =>
                       setTankParams({
                         elevation: tankParams.elevation,
-                        volume: handleNumericInput(e.target.value),
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: tankParams.volume?.units || "cubic meters",
+                        },
+                        num_units: tankParams.num_units,
                         name: tankParams.name,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {nodeType === "StaticMixing" && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="STATIC MIXING PARAMETERS" />
+            <div className={modal_section_vertical_css}>
+              <div className={modal_top_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="text"
+                  value={staticMixingParams.name}
+                  onChange={(e: any) =>
+                    setStaticMixingParams((prevState) => ({
+                      ...prevState,
+                      name: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className={modal_section_horizontal_css}>
+                <div className={modal_left_subsection_wrapper_css}>
+                  {(["min", "max", "design"] as const).map((key) => (
+                    <FlowsTextField
+                      key={key}
+                      className={modal_textfield_css}
+                      label={`Flowrate - ${key}`}
+                      type="number"
+                      value={staticMixingParams.flowrate[key]}
+                      onChange={(e: any) =>
+                        setStaticMixingParams((prevState) => ({
+                          ...prevState,
+                          flowrate: {
+                            ...prevState.flowrate,
+                            [key]: handleNumericInput(e.target.value),
+                          },
+                        }))
+                      }
+                    />
+                  ))}
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - units"
+                    type="text"
+                    value={staticMixingParams.flowrate.units}
+                    onChange={(e: any) =>
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          units: e.target.value,
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Residence time"
+                    type="number"
+                    value={staticMixingParams.residence_time?.value}
+                    onChange={(e: any) =>
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        residence_time: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.residence_time?.units || "hours",
+                        },
+                      }))
+                    }
+                  />
+                </div>
+                <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={staticMixingParams.num_units}
+                    onChange={(e: any) =>
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        num_units: handleNumericInput(e.target.value),
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Volume"
+                    type="number"
+                    value={staticMixingParams.volume?.value}
+                    onChange={(e: any) =>
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="pH"
+                    type="number"
+                    value={staticMixingParams.pH}
+                    onChange={(e: any) =>
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        pH: handleNumericInput(e.target.value),
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Chemical dosed"
+                    type="text"
+                    value={Object.keys(staticMixingParams.dosing_rate || {})[0] || ""}
+                    onChange={(e: any) =>
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        dosing_rate: {
+                          [e.target.value]: {
+                            chemical: e.target.value,
+                            value:
+                              Object.values(prevState.dosing_rate || {})[0]?.value ??
+                              null,
+                            units:
+                              Object.values(prevState.dosing_rate || {})[0]?.units ??
+                              "mg / L",
+                            mode: "rate",
+                          },
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Dosing rate"
+                    type="number"
+                    value={Object.values(staticMixingParams.dosing_rate || {})[0]?.value || null}
+                    onChange={(e: any) =>
+                      setStaticMixingParams((prevState) => {
+                        const chemical =
+                          Object.keys(prevState.dosing_rate || {})[0] || "Chemical";
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            [chemical]: {
+                              chemical,
+                              value: handleNumericInput(e.target.value),
+                              units:
+                                prevState.dosing_rate[chemical]?.units ?? "mg / L",
+                              mode: "rate",
+                            },
+                          },
+                        };
                       })
                     }
                   />
@@ -797,13 +1199,11 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                   label="Name"
                   placeholder="Start typing..."
                   type="string"
-                  value={networkParams.name}
+                  value={junctionParams.name}
                   onChange={(e: any) =>
-                    setNetworkParams({
+                    setJunctionParams({
+                      ...junctionParams,
                       name: e.target.value,
-                      nodes: networkParams.nodes,
-                      connections: networkParams.connections,
-                      num_units: networkParams.num_units
                     })
                   }
                 />
@@ -811,16 +1211,38 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
               <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
                     className={modal_textfield_css}
-                    label="Number of units"
+                    label="Diameter"
                     type="number"
-                    value={networkParams.num_units}
-                    onChange={(e: any) => {
-                      setNetworkParams((prevState) => ({
-                        ...prevState,
-                        num_units: handleNumericInput(e.target.value),
-                      }));
-                    }}
+                    value={junctionParams.diameter?.value}
+                    onChange={(e: any) =>
+                      setJunctionParams({
+                        ...junctionParams,
+                        diameter: {
+                          value: handleNumericInput(e.target.value),
+                          units: junctionParams.diameter?.units || "meters",
+                        },
+                      })
+                    }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Diameter units"
+                    value={junctionParams.diameter?.units || "meters"}
+                    onChange={(e: any) =>
+                      setJunctionParams({
+                        ...junctionParams,
+                        diameter: {
+                          value: junctionParams.diameter?.value ?? null,
+                          units: e.target.value,
+                        },
+                      })
+                    }
+                  >
+                    <MenuItem value="meters">meters</MenuItem>
+                    <MenuItem value="feet">feet</MenuItem>
+                    <MenuItem value="centimeters">centimeters</MenuItem>
+                    <MenuItem value="inches">inches</MenuItem>
+                  </FlowsSelect>
                 </div>
             </div>
           </div>
@@ -852,10 +1274,13 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Elevation"
                     type="number"
-                    value={reservoirParamas.elevation}
+                    value={reservoirParamas.elevation?.value}
                     onChange={(e: any) =>
                       setReservoirParams({
-                        elevation: handleNumericInput(e.target.value),
+                        elevation: {
+                          value: handleNumericInput(e.target.value),
+                          units: reservoirParamas.elevation?.units || "meters",
+                        },
                         volume: reservoirParamas.volume,
                         name: reservoirParamas.name,
                       })
@@ -867,11 +1292,14 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Volume"
                     type="number"
-                    value={reservoirParamas.volume}
+                    value={reservoirParamas.volume?.value}
                     onChange={(e: any) =>
                       setReservoirParams({
                         elevation: reservoirParamas.elevation,
-                        volume: handleNumericInput(e.target.value),
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: reservoirParamas.volume?.units || "cubic meters",
+                        },
                         name: reservoirParamas.name,
                       })
                     }
@@ -988,13 +1416,359 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Volume"
                     type="number"
-                    value={aerationParams.volume}
+                    value={aerationParams.volume?.value}
                     onChange={(e: any) => {
                       setAerationParams((prevState) => ({
                         ...prevState,
-                        volume: handleNumericInput(e.target.value),
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
                       }));
                     }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {nodeType === "ROMembrane" && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="REVERSE OSMOSIS MEMBRANE PARAMETERS" />
+            <div className={modal_section_vertical_css}>
+              <div className={modal_top_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="text"
+                  value={roMembraneParams.name}
+                  onChange={(e: any) =>
+                    setROMembraneParams((prevState) => ({
+                      ...prevState,
+                      name: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className={modal_section_horizontal_css}>
+                <div className={modal_left_subsection_wrapper_css}>
+                  {(["min", "max", "design"] as const).map((key) => (
+                    <FlowsTextField
+                      key={key}
+                      className={modal_textfield_css}
+                      label={`Flowrate - ${key}`}
+                      type="number"
+                      value={roMembraneParams.flowrate[key]}
+                      onChange={(e: any) =>
+                        setROMembraneParams((prevState) => ({
+                          ...prevState,
+                          flowrate: {
+                            ...prevState.flowrate,
+                            [key]: handleNumericInput(e.target.value),
+                          },
+                        }))
+                      }
+                    />
+                  ))}
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - units"
+                    type="text"
+                    value={roMembraneParams.flowrate.units}
+                    onChange={(e: any) =>
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          units: e.target.value,
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Settling time"
+                    type="number"
+                    value={roMembraneParams.settling_time?.value}
+                    onChange={(e: any) =>
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        settling_time: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.settling_time?.units || "hours",
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Area"
+                    type="number"
+                    value={roMembraneParams.area?.value}
+                    onChange={(e: any) =>
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        area: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.area?.units || "square meters",
+                        },
+                      }))
+                    }
+                  />
+                </div>
+                <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={roMembraneParams.num_units}
+                    onChange={(e: any) =>
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        num_units: handleNumericInput(e.target.value),
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Volume"
+                    type="number"
+                    value={roMembraneParams.volume?.value}
+                    onChange={(e: any) =>
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Permeability"
+                    type="number"
+                    value={roMembraneParams.permeability?.value}
+                    onChange={(e: any) =>
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        permeability: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.permeability?.units || "LMH / bar",
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Selectivity"
+                    type="number"
+                    value={roMembraneParams.selectivity?.value}
+                    onChange={(e: any) =>
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        selectivity: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.selectivity?.units || "m / s",
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Chemical dosed"
+                    type="text"
+                    value={Object.keys(roMembraneParams.dosing_rate || {})[0] || ""}
+                    onChange={(e: any) =>
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        dosing_rate: {
+                          [e.target.value]: {
+                            chemical: e.target.value,
+                            value:
+                              Object.values(prevState.dosing_rate || {})[0]?.value ??
+                              null,
+                            units:
+                              Object.values(prevState.dosing_rate || {})[0]?.units ??
+                              "mg / L",
+                            mode: "rate",
+                          },
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Dosing rate"
+                    type="number"
+                    value={Object.values(roMembraneParams.dosing_rate || {})[0]?.value || null}
+                    onChange={(e: any) =>
+                      setROMembraneParams((prevState) => {
+                        const chemical =
+                          Object.keys(prevState.dosing_rate || {})[0] || "Chemical";
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            [chemical]: {
+                              chemical,
+                              value: handleNumericInput(e.target.value),
+                              units:
+                                prevState.dosing_rate[chemical]?.units ?? "mg / L",
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {nodeType === "UVSystem" && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="ULTRAVIOLET SYSTEM PARAMETERS" />
+            <div className={modal_section_vertical_css}>
+              <div className={modal_top_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="text"
+                  value={uvSystemParams.name}
+                  onChange={(e: any) =>
+                    setUVSystemParams((prevState) => ({
+                      ...prevState,
+                      name: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className={modal_section_horizontal_css}>
+                <div className={modal_left_subsection_wrapper_css}>
+                  {(["min", "max", "design"] as const).map((key) => (
+                    <FlowsTextField
+                      key={key}
+                      className={modal_textfield_css}
+                      label={`Flowrate - ${key}`}
+                      type="number"
+                      value={uvSystemParams.flowrate[key]}
+                      onChange={(e: any) =>
+                        setUVSystemParams((prevState) => ({
+                          ...prevState,
+                          flowrate: {
+                            ...prevState.flowrate,
+                            [key]: handleNumericInput(e.target.value),
+                          },
+                        }))
+                      }
+                    />
+                  ))}
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - units"
+                    type="text"
+                    value={uvSystemParams.flowrate.units}
+                    onChange={(e: any) =>
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          units: e.target.value,
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Residence time"
+                    type="number"
+                    value={uvSystemParams.residence_time?.value}
+                    onChange={(e: any) =>
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        residence_time: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.residence_time?.units || "hours",
+                        },
+                      }))
+                    }
+                  />
+                </div>
+                <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={uvSystemParams.num_units}
+                    onChange={(e: any) =>
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        num_units: handleNumericInput(e.target.value),
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Volume"
+                    type="number"
+                    value={uvSystemParams.volume?.value}
+                    onChange={(e: any) =>
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Dosing intensity"
+                    type="number"
+                    value={uvSystemParams.dosing_rate.UVLight?.value || null}
+                    onChange={(e: any) =>
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        dosing_rate: {
+                          UVLight: {
+                            chemical: "UVLight",
+                            value: handleNumericInput(e.target.value),
+                            units:
+                              prevState.dosing_rate.UVLight?.units ??
+                              "W / square meter",
+                            mode: "rate",
+                          },
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Dosing area"
+                    type="number"
+                    value={uvSystemParams.dosing_area.UVLight?.value || null}
+                    onChange={(e: any) =>
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        dosing_area: {
+                          UVLight: {
+                            chemical: "UVLight",
+                            value: handleNumericInput(e.target.value),
+                            units:
+                              prevState.dosing_area.UVLight?.units ??
+                              "square meters",
+                            mode: "area",
+                          },
+                        },
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -1108,11 +1882,14 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Volume"
                     type="number"
-                    value={filtrationParams.volume}
+                    value={filtrationParams.volume?.value}
                     onChange={(e: any) => {
                       setFiltrationParams((prevState) => ({
                         ...prevState,
-                        volume: handleNumericInput(e.target.value),
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
                       }));
                     }}
                   />
@@ -1228,11 +2005,14 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Volume"
                     type="number"
-                    value={clarificationParams.volume}
+                    value={clarificationParams.volume?.value}
                     onChange={(e: any) => {
                       setClarificationParams((prevState) => ({
                         ...prevState,
-                        volume: handleNumericInput(e.target.value),
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
                       }));
                     }}
                   />
@@ -1348,11 +2128,14 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Volume"
                     type="number"
-                    value={thickeningParams.volume}
+                    value={thickeningParams.volume?.value}
                     onChange={(e: any) => {
                       setThickeningParams((prevState) => ({
                         ...prevState,
-                        volume: handleNumericInput(e.target.value),
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
                       }));
                     }}
                   />
@@ -1455,11 +2238,14 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Elevation"
                     type="number"
-                    value={facilityParams.elevation}
+                    value={facilityParams.elevation?.value}
                     onChange={(e: any) => {
                       setFacilityParams((prevState) => ({
                         ...prevState,
-                        elevation: handleNumericInput(e.target.value),
+                        elevation: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.elevation?.units || "meters",
+                        },
                       }));
                     }}
                   />
@@ -1575,11 +2361,14 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Volume"
                     type="number"
-                    value={chlorinationParams.volume}
+                    value={chlorinationParams.volume?.value}
                     onChange={(e: any) => {
                       setChlorinationParams((prevState) => ({
                         ...prevState,
-                        volume: handleNumericInput(e.target.value),
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
                       }));
                     }}
                   />
@@ -2016,11 +2805,14 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Elevation"
                     type="number"
-                    value={pumpParams.elevation}
+                    value={pumpParams.elevation?.value}
                     onChange={(e: any) => {
                       setPumpParams((prevState) => ({
                         ...prevState,
-                        elevation: handleNumericInput(e.target.value),
+                        elevation: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.elevation?.units || "meters",
+                        },
                       }));
                     }}
                   />
@@ -2164,11 +2956,14 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Volume"
                     type="number"
-                    value={digestionParams.volume}
+                    value={digestionParams.volume?.value}
                     onChange={(e: any) => {
                       setDigestionParams((prevState) => ({
                         ...prevState,
-                        volume: handleNumericInput(e.target.value),
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
                       }));
                     }}
                   />
@@ -2208,7 +3003,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     setCogenerationParams((prevState) => ({
                       ...prevState,
                       name: e.target.value,
-                      flowrate: {
+                      generation_capacity: {
                         ...prevState.generation_capacity,
                       },
                     }));
@@ -2294,6 +3089,149 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }));
                     }}
                   />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Electrical efficiency"
+                    type="number"
+                    value={cogenerationParams.electrical_efficiency}
+                    onChange={(e: any) => {
+                      setCogenerationParams((prevState) => ({
+                        ...prevState,
+                        electrical_efficiency: handleNumericInput(e.target.value),
+                      }));
+                    }}
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Thermal efficiency"
+                    type="number"
+                    value={cogenerationParams.thermal_efficiency}
+                    onChange={(e: any) => {
+                      setCogenerationParams((prevState) => ({
+                        ...prevState,
+                        thermal_efficiency: handleNumericInput(e.target.value),
+                      }));
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {nodeType === "Boiler" && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="BOILER PARAMETERS" />
+            <div className={modal_section_vertical_css}>
+              <div className={modal_top_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="text"
+                  value={boilerParams.name}
+                  onChange={(e: any) => {
+                    setBoilerParams((prevState) => ({
+                      ...prevState,
+                      name: e.target.value,
+                      generation_capacity: {
+                        ...prevState.generation_capacity,
+                      },
+                    }));
+                  }}
+                />
+              </div>
+              <div className={modal_section_horizontal_css}>
+                <div className={modal_left_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Generation capacity - min"
+                    type="number"
+                    value={boilerParams.generation_capacity.min}
+                    onChange={(e: any) => {
+                      setBoilerParams((prevState) => ({
+                        ...prevState,
+                        generation_capacity: {
+                          ...prevState.generation_capacity,
+                          min: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Generation capacity - max"
+                    type="number"
+                    value={boilerParams.generation_capacity.max}
+                    onChange={(e: any) => {
+                      setBoilerParams((prevState) => ({
+                        ...prevState,
+                        generation_capacity: {
+                          ...prevState.generation_capacity,
+                          max: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Generation capacity - design"
+                    type="number"
+                    value={boilerParams.generation_capacity.design}
+                    onChange={(e: any) => {
+                      setBoilerParams((prevState) => ({
+                        ...prevState,
+                        generation_capacity: {
+                          ...prevState.generation_capacity,
+                          design: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Generation capacity - units"
+                    type="text"
+                    value={boilerParams.generation_capacity.units}
+                    onChange={(e: any) => {
+                      setBoilerParams((prevState) => ({
+                        ...prevState,
+                        generation_capacity: {
+                          ...prevState.generation_capacity,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  />
+                </div>
+                <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={boilerParams.num_units}
+                    onChange={(e: any) => {
+                      setBoilerParams((prevState) => ({
+                        ...prevState,
+                        num_units: handleNumericInput(e.target.value),
+                      }));
+                    }}
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Thermal efficiency"
+                    type="number"
+                    value={boilerParams.thermal_efficiency}
+                    onChange={(e: any) => {
+                      setBoilerParams((prevState) => ({
+                        ...prevState,
+                        thermal_efficiency: handleNumericInput(e.target.value),
+                      }));
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -2317,6 +3255,10 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                   //closeNodeDetailsModal();
                   onUpdate(tankParams);
                   break;
+                case "StaticMixing":
+                  //closeNodeDetailsModal();
+                  onUpdate(staticMixingParams);
+                  break;
                 case "Aeration":
                   //closeNodeDetailsModal();
                   onUpdate(aerationParams);
@@ -2324,6 +3266,14 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                 case "Filtration":
                   //closeNodeDetailsModal();
                   onUpdate(filtrationParams);
+                  break;
+                case "ROMembrane":
+                  //closeNodeDetailsModal();
+                  onUpdate(roMembraneParams);
+                  break;
+                case "UVSystem":
+                  //closeNodeDetailsModal();
+                  onUpdate(uvSystemParams);
                   break;
                 case "Reservoir":
                   //closeNodeDetailsModal();
@@ -2365,6 +3315,14 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                   //closeNodeDetailsModal();
                   onUpdate(networkParams);
                   break;
+                case "Junction":
+                  //closeNodeDetailsModal();
+                  onUpdate(junctionParams);
+                  break;
+                case "ModularUnit":
+                  //closeNodeDetailsModal();
+                  onUpdate(modularUnitParams);
+                  break;
                 case "Pump":
                   //closeNodeDetailsModal();
                   onUpdate(pumpParams);
@@ -2376,6 +3334,10 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                 case "Cogeneration":
                   //closeNodeDetailsModal();
                   onUpdate(cogenerationParams);
+                  break;
+                case "Boiler":
+                  //closeNodeDetailsModal();
+                  onUpdate(boilerParams);
                   break;
               }
             }}
