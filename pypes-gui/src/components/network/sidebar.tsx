@@ -115,6 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
               <NodeComponent text="Thickening" margins="ml-1 mr-1 mb-1" src="/Thickening.svg" />
               <NodeComponent text="Flaring" margins="ml-1 mr-1 mb-1" src="/Flaring.svg" />
               <NodeComponent text="Cogeneration" margins="ml-1 mr-1 mb-1" src="/Cogenerator.svg" />
+              <NodeComponent text="Boiler" margins="ml-1 mr-1 mb-1" src="/Boiler.svg" />
               <NodeComponent text="Junction" margins="ml-1 mr-1 mb-1" src="/Junction.svg" />
               <NodeComponent text="UVSystem" margins="ml-1 mr-1 mb-1" src="/UVSystem.svg" />
             </div>

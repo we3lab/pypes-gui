@@ -30,6 +30,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ConnectionParams } from "@/interfaces";
 import ClarificationNode from "./nodes/clarification-node";
 import CogenerationNode from "./nodes/cogeneration-node";
+import BoilerNode from "./nodes/boiler-node";
 import ConditioningNode from "./nodes/conditioning-node";
 import DigestionNode from "./nodes/digestion-node";
 import FlaringNode from "./nodes/flaring-node";
@@ -72,6 +73,7 @@ const nodeTypes = {
   Digestion: DigestionNode,
   Pump: PumpNode,
   Cogeneration: CogenerationNode,
+  Boiler: BoilerNode,
   Flaring: FlaringNode,
   Screening: ScreeningNode,
   Conditioning: ConditioningNode,
@@ -105,9 +107,6 @@ const getRenderableNodeType = (type: string | undefined) => {
   }
   if (type === "ROModule") {
     return "ROMembrane";
-  }
-  if (type === "Boiler") {
-    return "Cogeneration";
   }
   return nodeTypes[type as keyof typeof nodeTypes] ? type : "Network";
 };

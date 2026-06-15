@@ -153,8 +153,15 @@ export interface CogenerationParams {
   name: string;
   generation_capacity: GenerationCapacity;
   num_units: number | null;
-  electrical_efficiency?: string;
-  thermal_efficiency?: string;
+  electrical_efficiency?: number | string | null;
+  thermal_efficiency?: number | string | null;
+}
+
+export interface BoilerParams {
+  name: string;
+  generation_capacity: GenerationCapacity;
+  num_units: number | null;
+  thermal_efficiency?: number | string | null;
 }
 
 export interface ClarificationParams {

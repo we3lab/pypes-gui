@@ -16,6 +16,7 @@ import {
   PumpParams,
   DigestionParams,
   CogenerationParams,
+  BoilerParams,
   ClarificationParams,
   ScreeningParams,
   ConditioningParams,
@@ -244,8 +245,21 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
         units: "MGD",
       },
       num_units: null,
-      electrical_efficiency: "",
-      thermal_efficiency: "",
+      electrical_efficiency: null,
+      thermal_efficiency: null,
+    });
+
+    const [boilerParams, setBoilerParams] =
+      useState<BoilerParams>({
+        name: "",
+        generation_capacity: {
+          design: null,
+          max: null,
+          min: null,
+          units: "MGD",
+        },
+        num_units: null,
+        thermal_efficiency: null,
     });
 
   const [clarificationParams, setClarificationParams] =
@@ -352,6 +366,9 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
       case "Cogeneration":
         setName(cogenerationParams.name);
         break;
+      case "Boiler":
+        setName(boilerParams.name);
+        break;
       case "Clarification":
         setName(clarificationParams.name);
         break;
@@ -388,6 +405,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
     pumpParams.name,
     digestionParams.name,
     cogenerationParams.name,
+    boilerParams.name,
     clarificationParams.name,
     screeningParams.name,
     conditioningParams.name,
@@ -3727,6 +3745,113 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     value={cogenerationParams.num_units}
                     onChange={(e: any) => {
                       setCogenerationParams((prevState) => ({
+                        ...prevState,
+                        num_units: handleNumericInput(e.target.value),
+                      }));
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {nodeType === "Boiler" && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="BOILER PARAMETERS" />
+            <div className={modal_section_vertical_css}>
+              <div className={modal_top_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="text"
+                  value={boilerParams.name}
+                  onChange={(e: any) => {
+                    setBoilerParams((prevState) => ({
+                      ...prevState,
+                      name: e.target.value,
+                      flowrate: {
+                        ...prevState.generation_capacity,
+                      },
+                    }));
+                  }}
+                />
+              </div>
+              <div className={modal_section_horizontal_css}>
+                <div className={modal_left_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Generation capacity - min"
+                    type="number"
+                    value={boilerParams.generation_capacity.min}
+                    onChange={(e: any) => {
+                      setBoilerParams((prevState) => ({
+                        ...prevState,
+                        generation_capacity: {
+                          ...prevState.generation_capacity,
+                          min: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Generation capacity - max"
+                    type="number"
+                    value={boilerParams.generation_capacity.max}
+                    onChange={(e: any) => {
+                      setBoilerParams((prevState) => ({
+                        ...prevState,
+                        generation_capacity: {
+                          ...prevState.generation_capacity,
+                          max: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Generation capacity - design"
+                    type="number"
+                    value={boilerParams.generation_capacity.design}
+                    onChange={(e: any) => {
+                      setBoilerParams((prevState) => ({
+                        ...prevState,
+                        generation_capacity: {
+                          ...prevState.generation_capacity,
+                          design: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Generation capacity - units"
+                    type="text"
+                    value={boilerParams.generation_capacity.units}
+                    onChange={(e: any) => {
+                      setBoilerParams((prevState) => ({
+                        ...prevState,
+                        generation_capacity: {
+                          ...prevState.generation_capacity,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  />
+                </div>
+                <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={boilerParams.num_units}
+                    onChange={(e: any) => {
+                      setBoilerParams((prevState) => ({
                         ...prevState,
                         num_units: handleNumericInput(e.target.value),
                       }));

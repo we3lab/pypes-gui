@@ -38,6 +38,25 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
       return newNode;
     }
 
+    case "Boiler": {
+      const newNode = {
+        id: nodeName,
+        type: nodeType,
+        position,
+        additionalData: {
+          min_gen: payload.min_gen ?? 0,
+          max_gen: payload.max_gen ?? 0,
+          design_gen: payload.design_gen ?? 0,
+          thermal_efficiency: payload.thermal_efficiency ?? 0,
+          num_units: payload.num_units ?? 1,
+          tags: {},
+        },
+        data: { label: `${nodeType} node` },
+      };
+
+      return newNode;
+    }
+
     case "Network":
     case "ModularUnit": {
       const newNode = {
