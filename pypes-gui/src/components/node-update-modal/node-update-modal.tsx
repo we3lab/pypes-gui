@@ -926,6 +926,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       })
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Elevation units"
+                    value={tankParams.elevation?.units || "meters"}
+                    onChange={(e: any)=> {
+                      setTankParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.elevation?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="meters">meters</MenuItem>
+                    <MenuItem value="feet">feet</MenuItem>
+                    <MenuItem value="inches">inches</MenuItem>
+                  </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
@@ -945,6 +963,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       })
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={tankParams.volume?.units || "cubic meters"}
+                    onChange={(e: any) =>
+                      setTankParams({
+                        ...tankParams,
+                        volume: {
+                          value: tankParams.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      })
+                    }
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -1020,6 +1056,28 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }))
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Residence time units"
+                    value={staticMixingParams.residence_time?.units || "hours"}
+                    onChange={(e: any) =>
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        residence_time: {
+                          value: prevState.residence_time?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }))
+                    }
+                  >
+                    <MenuItem value="seconds">seconds</MenuItem>
+                    <MenuItem value="minutes">minutes</MenuItem>
+                    <MenuItem value="hours">hours</MenuItem>
+                    <MenuItem value="days">days</MenuItem>
+                    <MenuItem value="weeks">weeks</MenuItem>
+                    <MenuItem value="months">months</MenuItem>
+                    <MenuItem value="years">years</MenuItem>
+                  </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
@@ -1049,6 +1107,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }))
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={staticMixingParams.volume?.units || "cubic meters"}
+                    onChange={(e: any) =>
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }))
+                    }
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
                   <FlowsTextField
                     className={modal_textfield_css}
                     label="pH"
@@ -1286,6 +1362,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       })
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Elevation units"
+                    value={reservoirParamas.elevation?.units || "meters"}
+                    onChange={(e: any)=> {
+                      setReservoirParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.elevation?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="meters">meters</MenuItem>
+                    <MenuItem value="feet">feet</MenuItem>
+                    <MenuItem value="inches">inches</MenuItem>
+                  </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
@@ -1304,6 +1398,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       })
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={reservoirParamas.volume?.units || "meters"}
+                    onChange={(e: any)=> {
+                      setReservoirParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -1427,6 +1539,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }));
                     }}
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={aerationParams.volume?.units || "cubic meters"}
+                    onChange={(e: any)=> {
+                      setAerationParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -1546,6 +1676,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }))
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={roMembraneParams.volume?.units || "cubic meters"}
+                    onChange={(e: any)=> {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
                   <FlowsTextField
                     className={modal_textfield_css}
                     label="Permeability"
@@ -1699,6 +1847,28 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }))
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Residence time units"
+                    value={uvSystemParams.residence_time?.units || "hours"}
+                    onChange={(e: any) =>
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        residence_time: {
+                          value: prevState.residence_time?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }))
+                    }
+                  >
+                    <MenuItem value="seconds">seconds</MenuItem>
+                    <MenuItem value="minutes">minutes</MenuItem>
+                    <MenuItem value="hours">hours</MenuItem>
+                    <MenuItem value="days">days</MenuItem>
+                    <MenuItem value="weeks">weeks</MenuItem>
+                    <MenuItem value="months">months</MenuItem>
+                    <MenuItem value="years">years</MenuItem>
+                  </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
@@ -1728,6 +1898,25 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }))
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={uvSystemParams.volume?.units || "cubic meters"}
+                    onChange={(e: any) =>
+                      setUVSystemParams({
+                        ...uvSystemParams,
+                        volume: {
+                          value: uvSystemParams.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      })
+                    }
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
+
                   <FlowsTextField
                     className={modal_textfield_css}
                     label="Dosing intensity"
@@ -1893,6 +2082,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }));
                     }}
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={filtrationParams.volume?.units || "cubic meters"}
+                    onChange={(e: any)=> {
+                      setFiltrationParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -2016,6 +2223,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }));
                     }}
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={clarificationParams.volume?.units || "cubic meters"}
+                    onChange={(e: any)=> {
+                      setClarificationParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -2139,6 +2364,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }));
                     }}
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={thickeningParams.volume?.units || "cubic meters"}
+                    onChange={(e: any)=> {
+                      setThickeningParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -2249,6 +2492,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }));
                     }}
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Elevation units"
+                    value={facilityParams.elevation?.units || "meters"}
+                    onChange={(e: any)=> {
+                      setFacilityParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.elevation?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="meters">meters</MenuItem>
+                    <MenuItem value="feet">feet</MenuItem>
+                    <MenuItem value="inches">inches</MenuItem>
+                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -2359,6 +2620,42 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
 
                   <FlowsTextField
                     className={modal_textfield_css}
+                    label="Residence time"
+                    type="number"
+                    value={chlorinationParams.residence_time?.value}
+                    onChange={(e: any) => {
+                      setChlorinationParams((prevState) => ({
+                        ...prevState,
+                        residence_time: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "hours",
+                        },
+                      }));
+                    }}
+                  />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Residence time units"
+                    value={chlorinationParams.residence_time?.units || "hours"}
+                    onChange={(e: any) =>
+                      setChlorinationParams((prevState) => ({
+                        ...prevState,
+                        residence_time: {
+                          value: prevState.residence_time?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }))
+                    }
+                  >
+                    <MenuItem value="seconds">seconds</MenuItem>
+                    <MenuItem value="minutes">minutes</MenuItem>
+                    <MenuItem value="hours">hours</MenuItem>
+                    <MenuItem value="days">days</MenuItem>
+                    <MenuItem value="weeks">weeks</MenuItem>
+                  </FlowsSelect>
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
                     label="Volume"
                     type="number"
                     value={chlorinationParams.volume?.value}
@@ -2372,6 +2669,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }));
                     }}
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={chlorinationParams.volume?.units || "cubic meters"}
+                    onChange={(e: any) =>
+                      setChlorinationParams({
+                        ...chlorinationParams,
+                        volume: {
+                          value: chlorinationParams.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      })
+                    }
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -2816,6 +3131,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }));
                     }}
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Elevation units"
+                    value={pumpParams.elevation?.units || "meters"}
+                    onChange={(e: any)=> {
+                      setPumpParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.elevation?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="meters">meters</MenuItem>
+                    <MenuItem value="feet">feet</MenuItem>
+                    <MenuItem value="inches">inches</MenuItem>
+                  </FlowsSelect>
 
                   <FlowsTextField
                     className={modal_textfield_css}
@@ -2967,6 +3300,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }));
                     }}
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={digestionParams.volume?.units || "cubic meters"}
+                    onChange={(e: any) =>
+                      setDigestionParams({
+                        ...digestionParams,
+                        volume: {
+                          value: digestionParams.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      })
+                    }
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
 
                   <FlowsSelect
                     className="m-5 w-2/3"
