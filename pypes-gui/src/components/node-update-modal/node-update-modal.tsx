@@ -1627,11 +1627,29 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         settling_time: {
                           value: handleNumericInput(e.target.value),
-                          units: prevState.settling_time?.units || "hours",
+                          units: prevState.settling_time?.units || "minutes",
                         },
                       }))
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Settling time units"
+                    value={roMembraneParams.settling_time?.units || "minutes"}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        settling_time: {
+                          value: prevState.settling_time?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="seconds">seconds</MenuItem>
+                    <MenuItem value="minutes">minutes</MenuItem>
+                    <MenuItem value="hours">hours</MenuItem>
+                  </FlowsSelect>
                   <FlowsTextField
                     className={modal_textfield_css}
                     label="Area"
@@ -1647,6 +1665,24 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }))
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Area units"
+                    value={roMembraneParams.area?.units || "square meters"}
+                    onChange={(e: any)=> {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.area?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="square meters">square meters</MenuItem>
+                    <MenuItem value="sq ft">square feet</MenuItem>
+                    <MenuItem value="sq in">square inches</MenuItem>
+                  </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
                   <FlowsTextField
@@ -1709,6 +1745,22 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }))
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Permeability units"
+                    value={roMembraneParams.permeability?.units || "LMH / bar"}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        permeability: {
+                          value: prevState.permeability?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="LMH / bar">LMH / bar</MenuItem>
+                  </FlowsSelect>
                   <FlowsTextField
                     className={modal_textfield_css}
                     label="Selectivity"
@@ -1724,6 +1776,23 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }))
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Selectivity units"
+                    value={roMembraneParams.selectivity?.units || "m / s"}
+                    onChange={(e: any) => {
+                      setROMembraneParams((prevState) => ({
+                        ...prevState,
+                        selectivity: {
+                          value: prevState.selectivity?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="m / s">m / s</MenuItem>
+                    <MenuItem value="">%</MenuItem>
+                  </FlowsSelect>
                   <FlowsTextField
                     className={modal_textfield_css}
                     label="Chemical dosed"
@@ -2099,6 +2168,40 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     <MenuItem value="cubic meters">cubic meters</MenuItem>
                     <MenuItem value="L">liters</MenuItem>
                     <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
+
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Settling time"
+                    type="number"
+                    value={filtrationParams.settling_time?.value}
+                    onChange={(e: any) =>
+                      setFiltrationParams((prevState) => ({
+                        ...prevState,
+                        settling_time: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.settling_time?.units || "minutes",
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Settling time units"
+                    value={filtrationParams.settling_time?.units || "minutes"}
+                    onChange={(e: any) => {
+                      setFiltrationParams((prevState) => ({
+                        ...prevState,
+                        settling_time: {
+                          value: prevState.settling_time?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="seconds">seconds</MenuItem>
+                    <MenuItem value="minutes">minutes</MenuItem>
+                    <MenuItem value="hours">hours</MenuItem>
                   </FlowsSelect>
                 </div>
               </div>
@@ -3154,14 +3257,35 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Power rating"
                     type="number"
-                    value={pumpParams.power_rating}
+                    value={pumpParams.power_rating?.value ?? null}
                     onChange={(e: any) => {
                       setPumpParams((prevState) => ({
                         ...prevState,
-                        power_rating: handleNumericInput(e.target.value),
+                        power_rating: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.power_rating?.units || "horsepower",
+                        }
                       }));
                     }}
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Power rating units"
+                    value={pumpParams.power_rating?.units || "horsepower"}
+                    onChange={(e: any) => {
+                      setPumpParams((prevState) => ({
+                        ...prevState,
+                        power_rating: {
+                          value: prevState.power_rating?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="hp">horsepower</MenuItem>
+                    <MenuItem value="W">watts</MenuItem>
+                  </FlowsSelect>
+
 
                   <FlowsSelect
                     className="m-5 w-2/3"

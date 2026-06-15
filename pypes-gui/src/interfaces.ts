@@ -134,7 +134,7 @@ export interface JunctionParams {
 export interface PumpParams {
   name: string;
   elevation?: ValuedUnit | null;
-  power_rating: number | null;
+  power_rating: ValuedUnit | null;
   num_units: number | null;
   flowrate: Flowrate;
   pump_type: string;
