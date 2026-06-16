@@ -1195,6 +1195,40 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       })
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Dosing rate units"
+                    value={Object.values(staticMixingParams.dosing_rate || {})[0]?.units || "mg / L"}
+                    onChange={(e: any) => {                      
+                      setStaticMixingParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: dosingRate[chemicalKey]?.value ?? null,
+                              units: e.target.value,
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  >
+                    <MenuItem value="mg / L">mg / L</MenuItem>
+                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -2015,6 +2049,40 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }))
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Intensity units"
+                    value={uvSystemParams.dosing_rate["UVLight"]?.units || "W / square meter"}
+                    onChange={(e: any) => {                      
+                      setUVSystemParams((prevState) => {
+                        const dosingRate = prevState.dosing_rate || {};
+                        const chemicalKeys = Object.keys(dosingRate);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_rate: {
+                            ...dosingRate,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: dosingRate[chemicalKey]?.value ?? null,
+                              units: e.target.value,
+                              mode: "rate",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  >
+                    <MenuItem value="W / square meter">W / square meter</MenuItem>
+                  </FlowsSelect>
                   <FlowsTextField
                     className={modal_textfield_css}
                     label="Dosing area"
@@ -2036,6 +2104,40 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                       }))
                     }
                   />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Area units"
+                    value={uvSystemParams.dosing_area["UVLight"]?.units || "square meters"}
+                    onChange={(e: any) => {                      
+                      setUVSystemParams((prevState) => {
+                        const dosingArea = prevState.dosing_area || {};
+                        const chemicalKeys = Object.keys(dosingArea);
+                        
+                        if (chemicalKeys.length === 0) {
+                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
+                          return prevState;
+                        }
+
+                        // Use the first available chemical key to update the rate
+                        const chemicalKey = chemicalKeys[0];
+
+                        return {
+                          ...prevState,
+                          dosing_area: {
+                            ...dosingArea,
+                            [chemicalKey]: {
+                              chemical: chemicalKey,
+                              value: dosingArea[chemicalKey]?.value ?? null,
+                              units: e.target.value,
+                              mode: "area",
+                            },
+                          },
+                        };
+                      });
+                    }}
+                  >
+                    <MenuItem value="square meters">square meters</MenuItem>
+                  </FlowsSelect>
                 </div>
               </div>
             </div>
