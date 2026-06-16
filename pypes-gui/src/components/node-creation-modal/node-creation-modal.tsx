@@ -2912,18 +2912,23 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     type="string"
                     value={Object.keys(chlorinationParams.dosing_rate || {})[0] || ""}
                     onChange={(e: any) => {
-                      setChlorinationParams((prevState) => ({
-                        ...prevState,
-                        dosing_rate: {
-                          ...prevState.dosing_rate,
-                          [e.target.value]: {
-                            chemical: e.target.value,
-                            value: prevState.dosing_rate[e.target.value]?.value ?? null,
-                            units: prevState.dosing_rate[e.target.value]?.units ?? "mg / L",
-                            mode: "rate",
+                      const newChemical = e.target.value;
+                      setChlorinationParams((prevState) => { 
+                        const existingChemical = Object.keys(prevState.dosing_rate || {})[0];
+                        const existingEntry = existingChemical ? prevState.dosing_rate?.[existingChemical] : undefined;
+
+                        return { 
+                          ...prevState, 
+                          dosing_rate: { 
+                            [newChemical]: { 
+                              chemical: newChemical, 
+                              value: existingEntry?.value ?? null,
+                              units: existingEntry?.units ?? "mg / L",
+                              mode: "rate", 
+                            },
                           },
-                        },
-                      }));
+                        };
+                      });
                     }}
                   />
 
