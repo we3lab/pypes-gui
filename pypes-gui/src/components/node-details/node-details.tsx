@@ -150,18 +150,18 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
       } as NodeWithData;
 
       // Keep unit-bearing attribute names in the schema payload.
+      if ("elevation (meters)" in payload_wo_name) {
+        updatedNode.data.additionalData = updatedNode.data.additionalData || {};
+        updatedNode.data.additionalData.elevation = {
+          value: payload_wo_name["elevation (meters)"],
+          units: "meters",
+        };
+      }
       if ("elevation" in payload_wo_name) {
         updatedNode.data.additionalData = updatedNode.data.additionalData || {};
         updatedNode.data.additionalData.elevation = {
-          value: payload_wo_name.elevation,
-          units: payload_wo_name.elevation_units ?? "meters",
-        };
-      }
-      if ("volume" in payload_wo_name) {
-        updatedNode.data.additionalData = updatedNode.data.additionalData || {};
-        updatedNode.data.additionalData.volume = {
-          value: payload_wo_name.volume,
-          units: payload_wo_name.volume_units ?? "cubic meters",
+          value: payload_wo_name.elevation.value,
+          units: payload_wo_name.elevation.units ?? "meters",
         };
       }
       if ("volume (cubic meters)" in payload_wo_name) {
@@ -171,7 +171,14 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
           units: "cubic meters",
         };
       }
-
+      if ("volume" in payload_wo_name) {
+        updatedNode.data.additionalData = updatedNode.data.additionalData || {};
+        updatedNode.data.additionalData.volume = {
+          value: payload_wo_name.volume.value,
+          units: payload_wo_name.volume.units ?? "cubic meters",
+        };
+      }
+      
       if ("capacity" in payload_wo_name) {
         updatedNode.data.additionalData = updatedNode.data.additionalData || {};
         updatedNode.data.additionalData.capacity = {

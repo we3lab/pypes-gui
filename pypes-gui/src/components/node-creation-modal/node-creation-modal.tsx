@@ -210,7 +210,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
   const [pumpParams, setPumpParams] = useState<PumpParams>({
     name: "",
     elevation: { value: null, units: "meters" },
-    power_rating: { value: null, units: "horsepower" },
+    power_rating: { value: null, units: "hp" },
     num_units: null,
     flowrate: {
       design: null,
@@ -838,30 +838,30 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     label="Volume"
                     type="number"
                     value={staticMixingParams.volume?.value}
-                    onChange={(e: any) =>
-                      setStaticMixingParams({
-                        ...staticMixingParams,
+                    onChange={(e: any) => {
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
                         volume: {
                           value: handleNumericInput(e.target.value),
-                          units: staticMixingParams.volume?.units || "cubic meters",
+                          units: prevState.volume?.units || "cubic meters",
                         },
-                      })
-                    }
+                      }));
+                    }}
                   />
 
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Volume units"
                     value={staticMixingParams.volume?.units || "cubic meters"}
-                    onChange={(e: any) =>
-                      setStaticMixingParams({
-                        ...staticMixingParams,
+                    onChange={(e: any) => {
+                      setStaticMixingParams((prevState) => ({
+                        ...prevState,
                         volume: {
                           value: staticMixingParams.volume?.value ?? null,
                           units: e.target.value,
                         },
-                      })
-                    }
+                      }));
+                    }}
                   >
                     <MenuItem value="cubic meters">cubic meters</MenuItem>
                     <MenuItem value="L">liters</MenuItem>
@@ -3456,7 +3456,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   >
                     <MenuItem value="meters">meters</MenuItem>
                     <MenuItem value="feet">feet</MenuItem>
-                    <MenuItem value="inches">feet</MenuItem>
+                    <MenuItem value="inches">inches</MenuItem>
                   </FlowsSelect>
 
                   <FlowsTextField
@@ -3469,7 +3469,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                         ...prevState,
                         power_rating: {
                           value: handleNumericInput(e.target.value),
-                          units: prevState.power_rating?.units || "horsepower",
+                          units: prevState.power_rating?.units || "hp",
                         }
                       }));
                     }}
@@ -3477,7 +3477,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Power rating units"
-                    value={pumpParams.power_rating?.units || "horsepower"}
+                    value={pumpParams.power_rating?.units || "hp"}
                     onChange={(e: any) => {
                       setPumpParams((prevState) => ({
                         ...prevState,

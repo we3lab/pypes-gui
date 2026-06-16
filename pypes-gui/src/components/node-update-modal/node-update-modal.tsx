@@ -125,7 +125,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
       num_units: null,
     });
 
-  const [reservoirParamas, setReservoirParams] = useState<ReservoirParams>({
+  const [reservoirParams, setReservoirParams] = useState<ReservoirParams>({
     name: "",
     elevation: { value: null, units: "meters" },
     volume: { value: null, units: "cubic meters" },
@@ -154,7 +154,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     num_units: null,
     volume: { value: null, units: "cubic meters" },
     dosing_rate: {},
-    settling_time: { value: null, units: "hours" },
+    settling_time: { value: null, units: "minutes" },
   });
 
   const [roMembraneParams, setROMembraneParams] = useState<ROMembraneParams>({
@@ -168,7 +168,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     num_units: null,
     volume: { value: null, units: "cubic meters" },
     dosing_rate: {},
-    settling_time: { value: null, units: "hours" },
+    settling_time: { value: null, units: "minutes" },
     area: { value: null, units: "square meters" },
     permeability: { value: null, units: "LMH / bar" },
     selectivity: { value: null, units: "m / s" },
@@ -454,7 +454,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
             currentNode["volume (cubic meters)"]
           ),
           dosing_rate: currentNode["dosing_rate"] ?? {},
-          settling_time: valuedUnit(currentNode["settling_time"], "hours"),
+          settling_time: valuedUnit(currentNode["settling_time"], "minutes"),
         });
         break;
       case "ROMembrane":
@@ -473,7 +473,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
             currentNode["volume (cubic meters)"]
           ),
           dosing_rate: currentNode["dosing_rate"] ?? {},
-          settling_time: valuedUnit(currentNode["settling_time"], "hours"),
+          settling_time: valuedUnit(currentNode["settling_time"], "minutes"),
           area: valuedUnit(currentNode["area"], "square meters"),
           permeability: valuedUnit(currentNode["permeability"], "LMH / bar"),
           selectivity: valuedUnit(currentNode["selectivity"], "m / s"),
@@ -605,7 +605,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setPumpParams({
           name: id,
           elevation: valuedUnit(currentNode["elevation"], "meters"),
-          power_rating: currentNode["power_rating"] ?? null,
+          power_rating: valuedUnit(currentNode["power_rating"], "hp"),
           num_units: currentNode["num_units"] ?? null,
           flowrate: {
             design: currentNode.flowrate?.design ?? null,
@@ -933,7 +933,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any)=> {
                       setTankParams((prevState) => ({
                         ...prevState,
-                        volume: {
+                        elevation: {
                           value: prevState.elevation?.value ?? null,
                           units: e.target.value,
                         },
@@ -953,13 +953,11 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     value={tankParams.volume?.value}
                     onChange={(e: any) =>
                       setTankParams({
-                        elevation: tankParams.elevation,
+                        ...tankParams,
                         volume: {
                           value: handleNumericInput(e.target.value),
                           units: tankParams.volume?.units || "cubic meters",
                         },
-                        num_units: tankParams.num_units,
-                        name: tankParams.name,
                       })
                     }
                   />
@@ -1334,11 +1332,11 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                   label="Name"
                   placeholder="Start typing..."
                   type="text"
-                  value={reservoirParamas.name}
+                  value={reservoirParams.name}
                   onChange={(e: any) =>
                     setReservoirParams({
-                      elevation: reservoirParamas.elevation,
-                      volume: reservoirParamas.volume,
+                      elevation: reservoirParams.elevation,
+                      volume: reservoirParams.volume,
                       name: e.target.value,
                     })
                   }
@@ -1350,26 +1348,25 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Elevation"
                     type="number"
-                    value={reservoirParamas.elevation?.value}
-                    onChange={(e: any) =>
-                      setReservoirParams({
+                    value={reservoirParams.elevation?.value}
+                    onChange={(e: any) => {
+                      setReservoirParams((prevState) => ({
+                        ...prevState,
                         elevation: {
                           value: handleNumericInput(e.target.value),
-                          units: reservoirParamas.elevation?.units || "meters",
+                          units: prevState.elevation?.units || "meters",
                         },
-                        volume: reservoirParamas.volume,
-                        name: reservoirParamas.name,
-                      })
-                    }
+                      }));
+                    }}
                   />
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Elevation units"
-                    value={reservoirParamas.elevation?.units || "meters"}
+                    value={reservoirParams.elevation?.units || "meters"}
                     onChange={(e: any)=> {
                       setReservoirParams((prevState) => ({
                         ...prevState,
-                        volume: {
+                        elevation: {
                           value: prevState.elevation?.value ?? null,
                           units: e.target.value,
                         },
@@ -1386,22 +1383,21 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     className={modal_textfield_css}
                     label="Volume"
                     type="number"
-                    value={reservoirParamas.volume?.value}
-                    onChange={(e: any) =>
-                      setReservoirParams({
-                        elevation: reservoirParamas.elevation,
+                    value={reservoirParams.volume?.value}
+                    onChange={(e: any)=> {
+                      setReservoirParams((prevState) => ({
+                        ...prevState,
                         volume: {
                           value: handleNumericInput(e.target.value),
-                          units: reservoirParamas.volume?.units || "cubic meters",
+                          units: reservoirParams.volume?.units || "cubic meters",
                         },
-                        name: reservoirParamas.name,
-                      })
-                    }
+                      }));
+                    }}
                   />
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Volume units"
-                    value={reservoirParamas.volume?.units || "meters"}
+                    value={reservoirParams.volume?.units || "meters"}
                     onChange={(e: any)=> {
                       setReservoirParams((prevState) => ({
                         ...prevState,
@@ -1672,7 +1668,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     onChange={(e: any)=> {
                       setROMembraneParams((prevState) => ({
                         ...prevState,
-                        volume: {
+                        area: {
                           value: prevState.area?.value ?? null,
                           units: e.target.value,
                         },
@@ -2731,7 +2727,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         residence_time: {
                           value: handleNumericInput(e.target.value),
-                          units: prevState.volume?.units || "hours",
+                          units: prevState.residence_time?.units || "hours",
                         },
                       }));
                     }}
@@ -3263,7 +3259,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                         ...prevState,
                         power_rating: {
                           value: handleNumericInput(e.target.value),
-                          units: prevState.power_rating?.units || "horsepower",
+                          units: prevState.power_rating?.units || "hp",
                         }
                       }));
                     }}
@@ -3271,7 +3267,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                   <FlowsSelect
                     className={modal_textfield_css}
                     label="Power rating units"
-                    value={pumpParams.power_rating?.units || "horsepower"}
+                    value={pumpParams.power_rating?.units || "hp"}
                     onChange={(e: any) => {
                       setPumpParams((prevState) => ({
                         ...prevState,
@@ -3752,7 +3748,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                   break;
                 case "Reservoir":
                   //closeNodeDetailsModal();
-                  onUpdate(reservoirParamas);
+                  onUpdate(reservoirParams);
                   break;
                 case "Battery":
                   //closeNodeDetailsModal();

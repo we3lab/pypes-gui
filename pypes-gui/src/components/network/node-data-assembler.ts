@@ -89,6 +89,7 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
       return newNode;
     }
 
+    // TODO: some of these have different parameters than StaticMixing
     case "Aeration":
     case "Chlorination":
     case "Clarification":
@@ -99,7 +100,10 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         type: nodeType,
         position,
         additionalData: {
-          volume: payload.volume ?? 0,
+          volume: {
+            value: payload.volume?.value ?? null,
+            units: payload.volume?.units ?? "cubic meters",
+          },
           residence_time: payload.residence_time ?? 0,
           dosing_rate: payload.dosing_rate ?? {},
           pH: payload.pH ?? 7.0,
@@ -259,8 +263,8 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         additionalData: {
           elevation: payload.elevation ?? 0,
           power_rating: {
-            value: payload.power_rating?.value ?? 0,
-            units: payload.power_rating?.units ?? "hp",
+            value: payload.power_rating?.value ?? null,
+            units: payload.power_rating?.units ?? "horsepower",
           },
           num_units: payload.num_units ?? 1,
           pump_type: payload.pump_type ?? "VFD",
