@@ -946,6 +946,18 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                   </FlowsSelect>
                 </div>
                 <div className={modal_right_subsection_wrapper_css}>
+                <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={tankParams.num_units}
+                    onChange={(e: any) =>
+                      setTankParams((prevState) => ({
+                        ...prevState,
+                        num_units: handleNumericInput(e.target.value),
+                      }))
+                    }
+                  />
                   <FlowsTextField
                     className={modal_textfield_css}
                     label="Volume"

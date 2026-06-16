@@ -264,7 +264,7 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
           elevation: payload.elevation ?? 0,
           power_rating: {
             value: payload.power_rating?.value ?? null,
-            units: payload.power_rating?.units ?? "horsepower",
+            units: payload.power_rating?.units ?? "hp",
           },
           num_units: payload.num_units ?? 1,
           pump_type: payload.pump_type ?? "VFD",
