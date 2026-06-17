@@ -14,10 +14,6 @@ import uploadFilesHandler, {
   uploadFilesInputZ,
   uploadFilesOutputZ,
 } from "../handlers/file/uploadFilesHandler";
-import uploadRateScheduleHandler, {
-  uploadRateScheduleInputZ,
-  uploadRateScheduleOutputZ,
-} from "../handlers/file/uploadRateSchedule";
 import getFileLinkHandler, {
   getFileLinkInputZ,
   getFileLinkOutputZ,
@@ -27,8 +23,6 @@ import { publicProcedure, router } from "../trpc";
 
 import getBillingDatesHandler, {getBillingDatesInputZ, getBillingDatesOutputZ} from "../handlers/file/getBillingDatesHandler";
 import getSCADATemplateHeadersHandler, { getSCADATemplateHeadersInputZ, getSCADATemplateHeadersOutputZ } from "../handlers/file/getSCADATemplateHeadersHandler";
-import getRateSchedulesHandler, { getRateSchedulesInputZ, getRateSchedulesOutputZ } from "../handlers/file/getRateSchedulesHandler";
-import getRateScheduleHandler, { getRateScheduleInputZ, getRateScheduleOutputZ } from "../handlers/file/getRateScheduleHandler";
 import saveDataStreamHandler, { saveDataStreamInputZ, saveDataStreamOutputZ } from "../handlers/file/saveDataStreamHandler";
 import getAllStreamsHandler, { getAllStreamsInputZ, getAllStreamsOutputZ } from "../handlers/file/getAllStreamsHandler";
 import removeDataStreamHandler, { removeDataStreamInputZ, removeDataStreamOutputZ } from "../handlers/file/removeDataStream";
@@ -57,12 +51,6 @@ export const filesRouter = router({
       return importEpanetHandler(input, ctx);
     }),
 
-  uploadRateSchedule: publicProcedure
-    .input(uploadRateScheduleInputZ)
-    .output(uploadRateScheduleOutputZ)
-    .mutation(({ input, ctx }) => {
-      return uploadRateScheduleHandler(input, ctx);
-    }),
 
   preview: publicProcedure
     .input(previewFileInputZ)
@@ -76,21 +64,6 @@ export const filesRouter = router({
     .output(removeFileOutputZ)
     .mutation(({ input, ctx }) => {
       return removeFileHandler(input, ctx);
-    }),
-  
-  getRateSchedules: publicProcedure
-    .input(getRateSchedulesInputZ)
-    .output(getRateSchedulesOutputZ)
-    .query(({ input, ctx }) => {
-      return getRateSchedulesHandler(input, ctx);
-    }),
-  
-
-    getRateSchedule: publicProcedure
-    .input(getRateScheduleInputZ)
-    .output(getRateScheduleOutputZ)
-    .query(({ input, ctx }) => {
-      return getRateScheduleHandler(input, ctx);
     }),
   
   getBillingDates: publicProcedure

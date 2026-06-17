@@ -36,8 +36,6 @@ import FlowsSelect from "../global/flows-select";
 import FlowsButtonDark from "../global/flows-button-dark";
 import FlowsButtonLight from "../global/flows-button-light";
 import FlowsPopUpWindow from "../global/flows-pop-up-window";
-import RateScheduleEditor from "./rate-schedule-editor";
-import RateSchedule from "../data-ingestion/rate_schedule";
 import TagSection from "../data-ingestion/tag_table";
 import FlowsTextField from "../global/flows-text-field";
 import { da } from "@faker-js/faker";
@@ -72,8 +70,6 @@ const SensorData = ({
   const [deleteRateModal, setDeleteRateModal] = useState<boolean>(false);
   const [selectedRateData, setSelectedRateData] = useState<string>("");
   const [selectedFileData, setSelectedFileData] = useState<string>("");
-  const [rateScheduleEditorModal, setRateScheduleEditorModal] =
-    useState<boolean>(false);
   const [previewPage, setPreviewPage] = useState<number>(1);
   const [previewRowsPerPage, setPreviewRowsPerPage] = useState<number>(5);
   const [previewTotalPages, setPreviewTotalPages] = useState<number>(5);
@@ -86,9 +82,7 @@ const SensorData = ({
   });
 
   const [csvList, setCsvList] = useState<any[] | undefined>([]);
-  const [rateScheduleList, setRateScheduleList] = useState<any[] | undefined>(
-    []
-  );
+  
   const { mutateAsync: removeFileTrpc } = trpc.filesRouter.remove.useMutation();
   const [showPreviewTable, setShowPreviewTable] = useState<boolean>(false);
   const [uploadDataType, setUploadDataType] = useState<string>("other_data");
@@ -202,9 +196,6 @@ const SensorData = ({
   }, []);
 
   useEffect(() => {
-    const rate_schedule_files = fileList?.data.filter(
-      (value) => value.type === "rate_schedule_data"
-    );
     const csv_files = fileList?.data.filter(
       (value) => value.type != "rate_schedule_data" && value.type != ""
     );
@@ -218,7 +209,6 @@ const SensorData = ({
       // console.log("ASDSAD", historicalData);
       setHistoricalData(historicalData);
     }
-    setRateScheduleList(rate_schedule_files);
   }, [fileList]);
 
   useEffect(() => {
@@ -356,15 +346,6 @@ const SensorData = ({
 
   return (
     <div className={page_section_vertical_css}>
-      {/* <RateScheduleEditor
-        onClose={() => {
-          setRateScheduleEditorModal(false);
-        }}
-        onClick={() => {
-          setRateScheduleEditorModal(false);
-        }}
-        open={rateScheduleEditorModal}
-      /> */}
       <FlowsPopUpWindow
         title="Delete"
         question="Are you sure you want to delete this item?"

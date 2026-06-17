@@ -167,7 +167,7 @@ const withUnitBearingAttributeKeys = (data: Record<string, any>) => {
     ) {
       normalized[key] = {
         value: normalized[key],
-        units,
+        units: units,
       };
     }
   });
