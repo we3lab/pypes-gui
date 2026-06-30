@@ -368,15 +368,25 @@ const Network = ({
     setSelectedNodeId,
     parentId,
     setParentId,
+    history,
+    future,
     undo,
+    redo,
     pushToHistory,
   } = useMainStore();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+      const isUndoRedoShortcut = event.ctrlKey || event.metaKey;
+      const key = event.key.toLowerCase();
+
+      if (isUndoRedoShortcut && key === "z" && !event.shiftKey) {
         event.preventDefault();
         undo();
+      }
+      if (isUndoRedoShortcut && ((key === "z" && event.shiftKey) || key === "y")) {
+        event.preventDefault();
+        redo();
       }
     };
 
@@ -384,7 +394,7 @@ const Network = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [undo]);
+  }, [redo, undo]);
   const {
     addNode,
     addWorld,
@@ -630,10 +640,11 @@ const Network = ({
       });
       setNetworkUpdated(true); // Notify parent of update
     },
-    [parentId, setSelectedNode, setSelectedNodeId, setNetworkUpdated, storedNodes]
+    [parentId, pushToHistory, setSelectedNode, setSelectedNodeId, setNetworkUpdated, storedNodes]
   );
 
   const handleClearLevel = () => {
+    pushToHistory();
     // Filter out edges in this level
     const updatedEdges = storedEdges.filter((edge) => (edge.data.parent ?? "world") !== parentId);
     
@@ -657,6 +668,7 @@ const Network = ({
 
   const handleNetworkUpload = (jsonContents: any) => {
     if (jsonContents.nodes && jsonContents.connections) {
+      pushToHistory();
       const parsed = buildStoreFromPypesJson(jsonContents);
       useStore.setState({
         nodes: parsed.nodes,
@@ -763,7 +775,7 @@ const Network = ({
           <FlowsButtonDark
             className="px-3 py-2 capitalize font-normal"
             onClick={() => undo()}
-            disabled={useStore.getState().history.length === 0}
+            disabled={history.length === 0}
           >
             <div className="flex flex-row items-center justify-center whitespace-nowrap">
               <img
@@ -771,6 +783,20 @@ const Network = ({
                 className="network-action-icon mr-2"
               />
               <span>Undo</span>
+            </div>
+          </FlowsButtonDark>
+          <FlowsButtonDark
+            className="px-3 py-2 capitalize font-normal"
+            onClick={() => redo()}
+            disabled={future.length === 0}
+          >
+            <div className="flex flex-row items-center justify-center whitespace-nowrap">
+              <img
+                src="undo.svg"
+                className="network-action-icon mr-2"
+                style={{ transform: "scaleX(-1)" }}
+              />
+              <span>Redo</span>
             </div>
           </FlowsButtonDark>
           <FlowsButtonDark
