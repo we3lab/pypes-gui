@@ -325,6 +325,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
     switch (nodeType) {
       case "Tank":
         setName(tankParams.name);
+        break;
       case "StaticMixing":
         setName(staticMixingParams.name);
         break;
@@ -336,8 +337,10 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
         break;
       case "Filtration":
         setName(filtrationParams.name);
+        break;
       case "ROMembrane":
-        setName(roMembraneParams.name)
+        setName(roMembraneParams.name);
+        break;
       case "UVSystem":
         setName(uvSystemParams.name);
         break;
@@ -352,8 +355,10 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
         break;
       case "Network":
         setName(networkParams.name);
+        break;
       case "Junction":
         setName(junctionParams.name);
+        break;
       case "ModularUnit":
         setName(modularUnitParams.name);
         break;
@@ -3953,6 +3958,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     dosing_rate: {},
                     settling_time: null,
                   });
+                  break;
                 case "ROMembrane":
                   onCreate(roMembraneParams);
                   setROMembraneParams({
@@ -3970,6 +3976,7 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     selectivity: null,
                     permeability: null,
                   });
+                  break;
                 case "UVSystem":
                   onCreate(uvSystemParams);
                   setUVSystemParams({
