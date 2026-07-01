@@ -45,6 +45,7 @@ import FlowsButtonDark from "../global/flows-button-dark";
 import { FaTimes } from "react-icons/fa";
 import FlowsSelect from "../global/flows-select";
 import ROMembraneNode from "../network/nodes/ro-membrane-node";
+import DosingRateFields from "../global/dosing-rate-fields";
 
 interface NodeCreationModalProps {
   open: boolean;
@@ -932,95 +933,16 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     }
                   />
 
-                  <FlowsTextField
+                  <DosingRateFields
                     className={modal_textfield_css}
-                    label="Chemical dosed"
-                    type="string"
-                    value={Object.keys(staticMixingParams.dosing_rate || {})[0] || ""}
-                    onChange={(e: any) => {
+                    dosingRate={staticMixingParams.dosing_rate || {}}
+                    onChange={(dosing_rate) =>
                       setStaticMixingParams((prevState) => ({
                         ...prevState,
-                        dosing_rate: {
-                          ...prevState.dosing_rate,
-                          [e.target.value]: {
-                            chemical: e.target.value,
-                            value: prevState.dosing_rate[e.target.value]?.value ?? null,
-                            units: prevState.dosing_rate[e.target.value]?.units ?? "mg / L",
-                            mode: "rate",
-                          },
-                        },
-                      }));
-                    }}
+                        dosing_rate,
+                      }))
+                    }
                   />
-
-                  <FlowsTextField
-                    className={modal_textfield_css}
-                    label="Dosing rate"
-                    type="number"
-                    value={Object.values(staticMixingParams.dosing_rate || {})[0]?.value || null}
-                    onChange={(e: any) => {                      
-                      setStaticMixingParams((prevState) => {
-                        const dosingRate = prevState.dosing_rate || {};
-                        const chemicalKeys = Object.keys(dosingRate);
-                        
-                        if (chemicalKeys.length === 0) {
-                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
-                          return prevState;
-                        }
-
-                        // Use the first available chemical key to update the rate
-                        const chemicalKey = chemicalKeys[0];
-
-                        return {
-                          ...prevState,
-                          dosing_rate: {
-                            ...dosingRate,
-                            [chemicalKey]: {
-                              chemical: chemicalKey,
-                              value: handleNumericInput(e.target.value),
-                              units: dosingRate[chemicalKey]?.units ?? "mg / L",
-                              mode: "rate",
-                            },
-                          },
-                        };
-                      });
-                    }}
-                  />
-
-                  <FlowsSelect
-                    className={modal_textfield_css}
-                    label="Dosing rate units"
-                    value={Object.values(staticMixingParams.dosing_rate || {})[0]?.units || "mg / L"}
-                    onChange={(e: any) => {                      
-                      setStaticMixingParams((prevState) => {
-                        const dosingRate = prevState.dosing_rate || {};
-                        const chemicalKeys = Object.keys(dosingRate);
-                        
-                        if (chemicalKeys.length === 0) {
-                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
-                          return prevState;
-                        }
-
-                        // Use the first available chemical key to update the rate
-                        const chemicalKey = chemicalKeys[0];
-
-                        return {
-                          ...prevState,
-                          dosing_rate: {
-                            ...dosingRate,
-                            [chemicalKey]: {
-                              chemical: chemicalKey,
-                              value: dosingRate[chemicalKey]?.value ?? null,
-                              units: e.target.value,
-                              mode: "rate",
-                            },
-                          },
-                        };
-                      });
-                    }}
-                  >
-                    <MenuItem value="mg / L">mg / L</MenuItem>
-                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -1765,95 +1687,16 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
 
-                  <FlowsTextField
+                  <DosingRateFields
                     className={modal_textfield_css}
-                    label="Chemical dosed"
-                    type="string"
-                    value={Object.keys(roMembraneParams.dosing_rate || {})[0] || ""}
-                    onChange={(e: any) => {
+                    dosingRate={roMembraneParams.dosing_rate || {}}
+                    onChange={(dosing_rate) =>
                       setROMembraneParams((prevState) => ({
                         ...prevState,
-                        dosing_rate: {
-                          ...prevState.dosing_rate,
-                          [e.target.value]: {
-                            chemical: e.target.value,
-                            value: prevState.dosing_rate[e.target.value]?.value ?? null,
-                            units: prevState.dosing_rate[e.target.value]?.units ?? "mg / L",
-                            mode: "rate",
-                          },
-                        },
-                      }));
-                    }}
+                        dosing_rate,
+                      }))
+                    }
                   />
-
-                  <FlowsTextField
-                    className={modal_textfield_css}
-                    label="Dosing rate"
-                    type="number"
-                    value={Object.values(roMembraneParams.dosing_rate || {})[0]?.value || null}
-                    onChange={(e: any) => {                      
-                      setROMembraneParams((prevState) => {
-                        const dosingRate = prevState.dosing_rate || {};
-                        const chemicalKeys = Object.keys(dosingRate);
-                        
-                        if (chemicalKeys.length === 0) {
-                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
-                          return prevState;
-                        }
-
-                        // Use the first available chemical key to update the rate
-                        const chemicalKey = chemicalKeys[0];
-
-                        return {
-                          ...prevState,
-                          dosing_rate: {
-                            ...dosingRate,
-                            [chemicalKey]: {
-                              chemical: chemicalKey,
-                              value: handleNumericInput(e.target.value),
-                              units: dosingRate[chemicalKey]?.units ?? "mg / L",
-                              mode: "rate",
-                            },
-                          },
-                        };
-                      });
-                    }}
-                  />
-
-                  <FlowsSelect
-                    className={modal_textfield_css}
-                    label="Dosing rate units"
-                    value={Object.values(roMembraneParams.dosing_rate || {})[0]?.units || "mg / L"}
-                    onChange={(e: any) => {                      
-                      setROMembraneParams((prevState) => {
-                        const dosingRate = prevState.dosing_rate || {};
-                        const chemicalKeys = Object.keys(dosingRate);
-                        
-                        if (chemicalKeys.length === 0) {
-                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
-                          return prevState;
-                        }
-
-                        // Use the first available chemical key to update the rate
-                        const chemicalKey = chemicalKeys[0];
-
-                        return {
-                          ...prevState,
-                          dosing_rate: {
-                            ...dosingRate,
-                            [chemicalKey]: {
-                              chemical: chemicalKey,
-                              value: dosingRate[chemicalKey]?.value ?? null,
-                              units: e.target.value,
-                              mode: "rate",
-                            },
-                          },
-                        };
-                      });
-                    }}
-                  >
-                    <MenuItem value="mg / L">mg / L</MenuItem>
-                  </FlowsSelect>
 
                   <FlowsTextField
                     className={modal_textfield_css}
@@ -2075,74 +1918,19 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
 
-                  <FlowsTextField
+                  <DosingRateFields
                     className={modal_textfield_css}
-                    label="Dosing intensity"
-                    type="number"
-                    value={uvSystemParams.dosing_rate["UVLight"]?.value || null}
-                    onChange={(e: any) => {                      
-                      setUVSystemParams((prevState) => {
-                        const dosingRate = prevState.dosing_rate || {};
-                        const chemicalKeys = Object.keys(dosingRate);
-                        
-                        if (chemicalKeys.length === 0) {
-                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
-                          return prevState;
-                        }
-
-                        // Use the first available chemical key to update the rate
-                        const chemicalKey = chemicalKeys[0];
-
-                        return {
-                          ...prevState,
-                          dosing_rate: {
-                            ...dosingRate,
-                            [chemicalKey]: {
-                              chemical: chemicalKey,
-                              value: handleNumericInput(e.target.value),
-                              units: dosingRate[chemicalKey]?.units ?? "W / square meter",
-                              mode: "rate",
-                            },
-                          },
-                        };
-                      });
-                    }}
+                    dosingRate={uvSystemParams.dosing_rate || {}}
+                    defaultUnits="W / square meter"
+                    rateLabel="Dosing intensity"
+                    unitOptions={["W / square meter"]}
+                    onChange={(dosing_rate) =>
+                      setUVSystemParams((prevState) => ({
+                        ...prevState,
+                        dosing_rate,
+                      }))
+                    }
                   />
-
-                  <FlowsSelect
-                    className={modal_textfield_css}
-                    label="Intensity units"
-                    value={uvSystemParams.dosing_rate["UVLight"]?.units || "W / square meter"}
-                    onChange={(e: any) => {                      
-                      setUVSystemParams((prevState) => {
-                        const dosingRate = prevState.dosing_rate || {};
-                        const chemicalKeys = Object.keys(dosingRate);
-                        
-                        if (chemicalKeys.length === 0) {
-                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
-                          return prevState;
-                        }
-
-                        // Use the first available chemical key to update the rate
-                        const chemicalKey = chemicalKeys[0];
-
-                        return {
-                          ...prevState,
-                          dosing_rate: {
-                            ...dosingRate,
-                            [chemicalKey]: {
-                              chemical: chemicalKey,
-                              value: dosingRate[chemicalKey]?.value ?? null,
-                              units: e.target.value,
-                              mode: "rate",
-                            },
-                          },
-                        };
-                      });
-                    }}
-                  >
-                    <MenuItem value="W / square meter">W / square meter</MenuItem>
-                  </FlowsSelect>
 
                   <FlowsTextField
                     className={modal_textfield_css}
@@ -2391,95 +2179,16 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
 
-                  <FlowsTextField
+                  <DosingRateFields
                     className={modal_textfield_css}
-                    label="Chemical dosed"
-                    type="string"
-                    value={Object.keys(filtrationParams.dosing_rate || {})[0] || ""}
-                    onChange={(e: any) => {
+                    dosingRate={filtrationParams.dosing_rate || {}}
+                    onChange={(dosing_rate) =>
                       setFiltrationParams((prevState) => ({
                         ...prevState,
-                        dosing_rate: {
-                          ...prevState.dosing_rate,
-                          [e.target.value]: {
-                            chemical: e.target.value,
-                            value: prevState.dosing_rate[e.target.value]?.value ?? null,
-                            units: prevState.dosing_rate[e.target.value]?.units ?? "mg / L",
-                            mode: "rate",
-                          },
-                        },
-                      }));
-                    }}
+                        dosing_rate,
+                      }))
+                    }
                   />
-
-                  <FlowsTextField
-                    className={modal_textfield_css}
-                    label="Dosing rate"
-                    type="number"
-                    value={Object.values(filtrationParams.dosing_rate || {})[0]?.value || null}
-                    onChange={(e: any) => {                      
-                      setFiltrationParams((prevState) => {
-                        const dosingRate = prevState.dosing_rate || {};
-                        const chemicalKeys = Object.keys(dosingRate);
-                        
-                        if (chemicalKeys.length === 0) {
-                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
-                          return prevState;
-                        }
-
-                        // Use the first available chemical key to update the rate
-                        const chemicalKey = chemicalKeys[0];
-
-                        return {
-                          ...prevState,
-                          dosing_rate: {
-                            ...dosingRate,
-                            [chemicalKey]: {
-                              chemical: chemicalKey,
-                              value: handleNumericInput(e.target.value),
-                              units: dosingRate[chemicalKey]?.units ?? "mg / L",
-                              mode: "rate",
-                            },
-                          },
-                        };
-                      });
-                    }}
-                  />
-
-                  <FlowsSelect
-                    className={modal_textfield_css}
-                    label="Dosing rate units"
-                    value={Object.values(filtrationParams.dosing_rate || {})[0]?.units || "mg / L"}
-                    onChange={(e: any) => {                      
-                      setFiltrationParams((prevState) => {
-                        const dosingRate = prevState.dosing_rate || {};
-                        const chemicalKeys = Object.keys(dosingRate);
-                        
-                        if (chemicalKeys.length === 0) {
-                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
-                          return prevState;
-                        }
-
-                        // Use the first available chemical key to update the rate
-                        const chemicalKey = chemicalKeys[0];
-
-                        return {
-                          ...prevState,
-                          dosing_rate: {
-                            ...dosingRate,
-                            [chemicalKey]: {
-                              chemical: chemicalKey,
-                              value: dosingRate[chemicalKey]?.value ?? null,
-                              units: e.target.value,
-                              mode: "rate",
-                            },
-                          },
-                        };
-                      });
-                    }}
-                  >
-                    <MenuItem value="mg / L">mg / L</MenuItem>
-                  </FlowsSelect>
                 </div>
               </div>
             </div>
@@ -3277,100 +2986,16 @@ const NodeCreationModal: React.FC<NodeCreationModalProps> = ({
                     <MenuItem value="gallons">gallons</MenuItem>
                   </FlowsSelect>
 
-                  <FlowsTextField
+                  <DosingRateFields
                     className={modal_textfield_css}
-                    label="Chemical dosed"
-                    type="string"
-                    value={Object.keys(chlorinationParams.dosing_rate || {})[0] || ""}
-                    onChange={(e: any) => {
-                      const newChemical = e.target.value;
-                      setChlorinationParams((prevState) => { 
-                        const existingChemical = Object.keys(prevState.dosing_rate || {})[0];
-                        const existingEntry = existingChemical ? prevState.dosing_rate?.[existingChemical] : undefined;
-
-                        return { 
-                          ...prevState, 
-                          dosing_rate: { 
-                            [newChemical]: { 
-                              chemical: newChemical, 
-                              value: existingEntry?.value ?? null,
-                              units: existingEntry?.units ?? "mg / L",
-                              mode: "rate", 
-                            },
-                          },
-                        };
-                      });
-                    }}
+                    dosingRate={chlorinationParams.dosing_rate || {}}
+                    onChange={(dosing_rate) =>
+                      setChlorinationParams((prevState) => ({
+                        ...prevState,
+                        dosing_rate,
+                      }))
+                    }
                   />
-
-                  <FlowsTextField
-                    className={modal_textfield_css}
-                    label="Dosing rate"
-                    type="number"
-                    value={Object.values(chlorinationParams.dosing_rate || {})[0]?.value || null}
-                    onChange={(e: any) => {                      
-                      setChlorinationParams((prevState) => {
-                        const dosingRate = prevState.dosing_rate || {};
-                        const chemicalKeys = Object.keys(dosingRate);
-                        
-                        if (chemicalKeys.length === 0) {
-                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
-                          return prevState;
-                        }
-
-                        // Use the first available chemical key to update the rate
-                        const chemicalKey = chemicalKeys[0];
-
-                        return {
-                          ...prevState,
-                          dosing_rate: {
-                            ...dosingRate,
-                            [chemicalKey]: {
-                              chemical: chemicalKey,
-                              value: handleNumericInput(e.target.value),
-                              units: dosingRate[chemicalKey]?.units ?? "mg / L",
-                              mode: "rate",
-                            },
-                          },
-                        };
-                      });
-                    }}
-                  />
-
-                  <FlowsSelect
-                    className={modal_textfield_css}
-                    label="Dosing rate units"
-                    value={Object.values(chlorinationParams.dosing_rate || {})[0]?.units || "mg / L"}
-                    onChange={(e: any) => {                      
-                      setChlorinationParams((prevState) => {
-                        const dosingRate = prevState.dosing_rate || {};
-                        const chemicalKeys = Object.keys(dosingRate);
-                        
-                        if (chemicalKeys.length === 0) {
-                          // If no chemicals are set up yet, we can't update the rate meaningfully here.
-                          return prevState;
-                        }
-
-                        // Use the first available chemical key to update the rate
-                        const chemicalKey = chemicalKeys[0];
-
-                        return {
-                          ...prevState,
-                          dosing_rate: {
-                            ...dosingRate,
-                            [chemicalKey]: {
-                              chemical: chemicalKey,
-                              value: dosingRate[chemicalKey]?.value ?? null,
-                              units: e.target.value,
-                              mode: "rate",
-                            },
-                          },
-                        };
-                      });
-                    }}
-                  >
-                    <MenuItem value="mg / L">mg / L</MenuItem>
-                  </FlowsSelect>
                 </div>
               </div>
             </div>
