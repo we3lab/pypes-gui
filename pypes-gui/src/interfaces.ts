@@ -131,6 +131,15 @@ export interface JunctionParams {
   diameter?: ValuedUnit | null;
 }
 
+export interface ValveParams {
+  name: string;
+  diameter?: ValuedUnit | null;
+}
+
+export interface PRVParams extends ValveParams {
+  pressure_setting?: ValuedUnit | null;
+}
+
 export interface PumpParams {
   name: string;
   elevation?: ValuedUnit | null;
@@ -194,6 +203,15 @@ export interface FlaringParams {
   name: string;
   flowrate: Flowrate;
   num_units: number | null;
+}
+
+export interface SeparationParams {
+  name: string;
+  elevation?: ValuedUnit | null;
+  power_rating: ValuedUnit | null;
+  num_units: number | null;
+  flowrate: Flowrate;
+  volume: ValuedUnit | null;
 }
 
 export interface ConnectionParams {

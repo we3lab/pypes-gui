@@ -18,10 +18,13 @@ import {
   CogenerationParams,
   BoilerParams,
   ClarificationParams,
+  ValveParams,
+  PRVParams,
   ScreeningParams,
   ConditioningParams,
   ThickeningParams,
   FlaringParams,
+  SeparationParams,
 } from "../../interfaces";
 import { useCallback, useEffect, useState } from "react";
 import useMainStore from "@/store/store";
@@ -260,6 +263,17 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     diameter: { value: null, units: "meters" },
   });
 
+  const [valveParams, setValveParams] = useState<ValveParams>({
+    name: "",
+    diameter: { value: null, units: "meters" },
+  });
+
+  const [prvParams, setPRVParams] = useState<PRVParams>({
+    name: "",
+    diameter: { value: null, units: "meters" },
+    pressure_setting: { value: null, units: "psi" },
+  });
+
   const [pumpParams, setPumpParams] = useState<PumpParams>({
     name: "",
     elevation: { value: null, units: "meters" },
@@ -374,6 +388,20 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
     num_units: null,
   });
 
+  const [separationParams, setSeparationParams] = useState<SeparationParams>({
+    name: "",
+    elevation: { value: null, units: "meters" },
+    power_rating: { value: null, units: "hp" },
+    num_units: null,
+    flowrate: {
+      design: null,
+      max: null,
+      min: null,
+      units: "MGD",
+    },
+    volume: { value: null, units: "cubic meters" },
+  });
+
   const addDefaultValueFromDB = useCallback((currentNode: any, id: string) => {
     if (!currentNode || !currentNode.type) return;
 
@@ -391,6 +419,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         });
         break;
       case "StaticMixing":
+      case "Reactor":
         setStaticMixingParams({
           name: id,
           flowrate: {
@@ -561,6 +590,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         });
         break;
       case "Chlorination":
+      case "Disinfection":
         setChlorinationParams({
           name: id,
           flowrate: {
@@ -599,6 +629,19 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
         setJunctionParams({
           name: id,
           diameter: valuedUnit(currentNode["diameter"], "meters"),
+        });
+        break;
+      case "Valve":
+        setValveParams({
+          name: id,
+          diameter: valuedUnit(currentNode["diameter"], "meters"),
+        });
+        break;
+      case "PRV":
+        setPRVParams({
+          name: id,
+          diameter: valuedUnit(currentNode["diameter"], "meters"),
+          pressure_setting: valuedUnit(currentNode["pressure_setting"], "psi"),
         });
         break;
       case "Pump":
@@ -672,6 +715,25 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
             units: currentNode.flowrate?.units ?? "MGD",
           },
           num_units: currentNode["num_units"] ?? null,
+          volume: valuedUnit(
+            currentNode["volume"],
+            "cubic meters",
+            currentNode["volume (cubic meters)"]
+          ),
+        });
+        break;
+      case "Separation":
+        setSeparationParams({
+          name: id,
+          elevation: valuedUnit(currentNode["elevation"], "meters"),
+          power_rating: valuedUnit(currentNode["power_rating"], "hp"),
+          num_units: currentNode["num_units"] ?? null,
+          flowrate: {
+            design: currentNode.flowrate?.design ?? null,
+            max: currentNode.flowrate?.max ?? null,
+            min: currentNode.flowrate?.min ?? null,
+            units: currentNode.flowrate?.units ?? "MGD",
+          },
           volume: valuedUnit(
             currentNode["volume"],
             "cubic meters",
@@ -997,9 +1059,9 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
           </div>
         )}
 
-        {nodeType === "StaticMixing" && (
+        {(nodeType === "StaticMixing" || nodeType === "Reactor") && (
           <div className={modal_main_section_wrapper_css}>
-            <SectionTitle title="STATIC MIXING PARAMETERS" />
+            <SectionTitle title={`${nodeType === "Reactor" ? "REACTOR" : "STATIC MIXING"} PARAMETERS`} />
             <div className={modal_section_vertical_css}>
               <div className={modal_top_subsection_wrapper_css}>
                 <FlowsTextField
@@ -1364,6 +1426,127 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                     <MenuItem value="inches">inches</MenuItem>
                   </FlowsSelect>
                 </div>
+            </div>
+          </div>
+        )}
+
+        {(nodeType === "Valve" || nodeType === "PRV") && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title={`${nodeType === "PRV" ? "PRV" : "VALVE"} PARAMETERS`} />
+            <div className={modal_section_horizontal_css}>
+              <div className={modal_left_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="string"
+                  value={nodeType === "PRV" ? prvParams.name : valveParams.name}
+                  onChange={(e: any) => {
+                    if (nodeType === "PRV") {
+                      setPRVParams((prevState) => ({
+                        ...prevState,
+                        name: e.target.value,
+                      }));
+                    } else {
+                      setValveParams((prevState) => ({
+                        ...prevState,
+                        name: e.target.value,
+                      }));
+                    }
+                  }}
+                />
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Diameter"
+                  type="number"
+                  value={nodeType === "PRV" ? prvParams.diameter?.value : valveParams.diameter?.value}
+                  onChange={(e: any) => {
+                    if (nodeType === "PRV") {
+                      setPRVParams((prevState) => ({
+                        ...prevState,
+                        diameter: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.diameter?.units || "meters",
+                        },
+                      }));
+                    } else {
+                      setValveParams((prevState) => ({
+                        ...prevState,
+                        diameter: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.diameter?.units || "meters",
+                        },
+                      }));
+                    }
+                  }}
+                />
+                <FlowsSelect
+                  className={modal_textfield_css}
+                  label="Diameter units"
+                  value={nodeType === "PRV" ? prvParams.diameter?.units || "meters" : valveParams.diameter?.units || "meters"}
+                  onChange={(e: any) => {
+                    if (nodeType === "PRV") {
+                      setPRVParams((prevState) => ({
+                        ...prevState,
+                        diameter: {
+                          value: prevState.diameter?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    } else {
+                      setValveParams((prevState) => ({
+                        ...prevState,
+                        diameter: {
+                          value: prevState.diameter?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }
+                  }}
+                >
+                  <MenuItem value="meters">meters</MenuItem>
+                  <MenuItem value="feet">feet</MenuItem>
+                  <MenuItem value="centimeters">centimeters</MenuItem>
+                  <MenuItem value="inches">inches</MenuItem>
+                </FlowsSelect>
+              </div>
+              {nodeType === "PRV" && (
+                <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Pressure setting"
+                    type="number"
+                    value={prvParams.pressure_setting?.value}
+                    onChange={(e: any) =>
+                      setPRVParams((prevState) => ({
+                        ...prevState,
+                        pressure_setting: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.pressure_setting?.units || "psi",
+                        },
+                      }))
+                    }
+                  />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Pressure setting units"
+                    value={prvParams.pressure_setting?.units || "psi"}
+                    onChange={(e: any) =>
+                      setPRVParams((prevState) => ({
+                        ...prevState,
+                        pressure_setting: {
+                          value: prevState.pressure_setting?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }))
+                    }
+                  >
+                    <MenuItem value="psi">psi</MenuItem>
+                    <MenuItem value="bar">bar</MenuItem>
+                    <MenuItem value="kPa">kPa</MenuItem>
+                  </FlowsSelect>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -2562,6 +2745,205 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
           </div>
         )}
 
+        {nodeType === "Separation" && (
+          <div className={modal_main_section_wrapper_css}>
+            <SectionTitle title="SEPARATION PARAMETERS" />
+            <div className={modal_section_vertical_css}>
+              <div className={modal_top_subsection_wrapper_css}>
+                <FlowsTextField
+                  className={modal_textfield_css}
+                  label="Name"
+                  placeholder="Start typing..."
+                  type="text"
+                  value={separationParams.name}
+                  onChange={(e: any) => {
+                    setSeparationParams((prevState) => ({
+                      ...prevState,
+                      name: e.target.value,
+                    }));
+                  }}
+                />
+              </div>
+              <div className={modal_section_horizontal_css}>
+                <div className={modal_left_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - min"
+                    type="number"
+                    value={separationParams.flowrate.min}
+                    onChange={(e: any) => {
+                      setSeparationParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          min: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - max"
+                    type="number"
+                    value={separationParams.flowrate.max}
+                    onChange={(e: any) => {
+                      setSeparationParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          max: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - design"
+                    type="number"
+                    value={separationParams.flowrate.design}
+                    onChange={(e: any) => {
+                      setSeparationParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          design: handleNumericInput(e.target.value),
+                        },
+                      }));
+                    }}
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Flowrate - units"
+                    type="text"
+                    value={separationParams.flowrate.units}
+                    onChange={(e: any) => {
+                      setSeparationParams((prevState) => ({
+                        ...prevState,
+                        flowrate: {
+                          ...prevState.flowrate,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  />
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Number of units"
+                    type="number"
+                    value={separationParams.num_units}
+                    onChange={(e: any) => {
+                      setSeparationParams((prevState) => ({
+                        ...prevState,
+                        num_units: handleNumericInput(e.target.value),
+                      }));
+                    }}
+                  />
+                </div>
+                <div className={modal_right_subsection_wrapper_css}>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Volume"
+                    type="number"
+                    value={separationParams.volume?.value}
+                    onChange={(e: any) => {
+                      setSeparationParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.volume?.units || "cubic meters",
+                        },
+                      }));
+                    }}
+                  />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Volume units"
+                    value={separationParams.volume?.units || "cubic meters"}
+                    onChange={(e: any)=> {
+                      setSeparationParams((prevState) => ({
+                        ...prevState,
+                        volume: {
+                          value: prevState.volume?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="cubic meters">cubic meters</MenuItem>
+                    <MenuItem value="L">liters</MenuItem>
+                    <MenuItem value="gallons">gallons</MenuItem>
+                  </FlowsSelect>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Elevation"
+                    type="number"
+                    value={separationParams.elevation?.value}
+                    onChange={(e: any) => {
+                      setSeparationParams((prevState) => ({
+                        ...prevState,
+                        elevation: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.elevation?.units || "meters",
+                        },
+                      }));
+                    }}
+                  />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Elevation units"
+                    value={separationParams.elevation?.units || "meters"}
+                    onChange={(e: any) => {
+                      setSeparationParams((prevState) => ({
+                        ...prevState,
+                        elevation: {
+                          value: prevState.elevation?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="meters">meters</MenuItem>
+                    <MenuItem value="feet">feet</MenuItem>
+                    <MenuItem value="inches">inches</MenuItem>
+                  </FlowsSelect>
+                  <FlowsTextField
+                    className={modal_textfield_css}
+                    label="Power rating"
+                    type="number"
+                    value={separationParams.power_rating?.value}
+                    onChange={(e: any) => {
+                      setSeparationParams((prevState) => ({
+                        ...prevState,
+                        power_rating: {
+                          value: handleNumericInput(e.target.value),
+                          units: prevState.power_rating?.units || "hp",
+                        },
+                      }));
+                    }}
+                  />
+                  <FlowsSelect
+                    className={modal_textfield_css}
+                    label="Power rating units"
+                    value={separationParams.power_rating?.units || "hp"}
+                    onChange={(e: any) => {
+                      setSeparationParams((prevState) => ({
+                        ...prevState,
+                        power_rating: {
+                          value: prevState.power_rating?.value ?? null,
+                          units: e.target.value,
+                        },
+                      }));
+                    }}
+                  >
+                    <MenuItem value="hp">hp</MenuItem>
+                    <MenuItem value="kW">kW</MenuItem>
+                  </FlowsSelect>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {nodeType === "Thickening" && (
           <div className={modal_main_section_wrapper_css}>
             <SectionTitle title="THICKENING PARAMETERS" />
@@ -2831,9 +3213,9 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
           </div>
         )}
 
-        {nodeType === "Chlorination" && (
+        {(nodeType === "Chlorination" || nodeType === "Disinfection") && (
           <div className={modal_main_section_wrapper_css}>
-            <SectionTitle title="CHLORINATION PARAMETERS" />
+            <SectionTitle title={`${nodeType === "Disinfection" ? "DISINFECTION" : "CHLORINATION"} PARAMETERS`} />
             <div className={modal_section_vertical_css}>
               <div className={modal_top_subsection_wrapper_css}>
                 <FlowsTextField
@@ -4011,6 +4393,7 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                   onUpdate(tankParams);
                   break;
                 case "StaticMixing":
+                case "Reactor":
                   //closeNodeDetailsModal();
                   onUpdate(staticMixingParams);
                   break;
@@ -4043,12 +4426,17 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                   onUpdate(facilityParams);
                   break;
                 case "Chlorination":
+                case "Disinfection":
                   //closeNodeDetailsModal();
                   onUpdate(chlorinationParams);
                   break;
                 case "Clarification":
                   //closeNodeDetailsModal();
                   onUpdate(clarificationParams);
+                  break;
+                case "Separation":
+                  //closeNodeDetailsModal();
+                  onUpdate(separationParams);
                   break;
                 case "Thickening":
                   //closeNodeDetailsModal();
@@ -4073,6 +4461,14 @@ const NodeUpdateModal: React.FC<NodeUpdateModalProps> = ({ open, onClose }) => {
                 case "Junction":
                   //closeNodeDetailsModal();
                   onUpdate(junctionParams);
+                  break;
+                case "Valve":
+                  //closeNodeDetailsModal();
+                  onUpdate(valveParams);
+                  break;
+                case "PRV":
+                  //closeNodeDetailsModal();
+                  onUpdate(prvParams);
                   break;
                 case "ModularUnit":
                   //closeNodeDetailsModal();

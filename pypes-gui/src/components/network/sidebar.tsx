@@ -105,6 +105,9 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
               <NodeComponent text="Pump" margins="ml-1 mb-1" src="/Pump.svg" />
               <NodeComponent text="Filtration" margins="ml-1 mb-1" src="/Filtration.svg" />
               <NodeComponent text="Facility" margins="ml-1 mb-1" src="/Facility.svg" />
+              <NodeComponent text="Valve" margins="ml-1 mb-1" src="/Junction.svg" />
+              <NodeComponent text="PRV" margins="ml-1 mb-1" src="/Junction.svg" />
+              <NodeComponent text="Reactor" margins="ml-1 mb-1" src="/StaticMixing.svg" />
             </div>
             <div>
               <NodeComponent text="Chlorination" margins="ml-1 mr-1 mb-1 mt-1" src="/Chlorination.svg" />
@@ -118,6 +121,8 @@ const Sidebar: React.FC<SidebarProps> = ({ connection, setConnection }) => {
               <NodeComponent text="Boiler" margins="ml-1 mr-1 mb-1" src="/Boiler.svg" />
               <NodeComponent text="Junction" margins="ml-1 mr-1 mb-1" src="/Junction.svg" />
               <NodeComponent text="UVSystem" margins="ml-1 mr-1 mb-1" src="/UVSystem.svg" />
+              <NodeComponent text="Disinfection" margins="ml-1 mr-1 mb-1" src="/Chlorination.svg" />
+              <NodeComponent text="Separation" margins="ml-1 mr-1 mb-1" src="/Clarification.svg" />
             </div>
           </div>
         </div>

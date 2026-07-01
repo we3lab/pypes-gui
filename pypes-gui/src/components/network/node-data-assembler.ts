@@ -96,6 +96,38 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
         type: nodeType,
         position,
         additionalData: {
+          diameter: payload.diameter ?? null,
+          tags: {},
+        },
+        data: { label: `${nodeType} node` },
+      };
+
+      return newNode;
+    }
+
+    case "Valve": {
+      const newNode = {
+        id: nodeName,
+        type: nodeType,
+        position,
+        additionalData: {
+          diameter: payload.diameter ?? null,
+          tags: {},
+        },
+        data: { label: `${nodeType} node` },
+      };
+
+      return newNode;
+    }
+
+    case "PRV": {
+      const newNode = {
+        id: nodeName,
+        type: nodeType,
+        position,
+        additionalData: {
+          diameter: payload.diameter ?? null,
+          pressure_setting: payload.pressure_setting ?? null,
           tags: {},
         },
         data: { label: `${nodeType} node` },
@@ -131,7 +163,8 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
       return newNode;
     }
 
-    case "Chlorination": {
+    case "Chlorination":
+    case "Disinfection": {
       const newNode = {
         id: nodeName,
         type: nodeType,
@@ -159,7 +192,8 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
     }
     
     
-    case "StaticMixing": {
+    case "StaticMixing":
+    case "Reactor": {
       const newNode = {
         id: nodeName,
         type: nodeType,
@@ -354,6 +388,35 @@ export const assembleNode = (nodeName: string, nodeType: string, payload: any, p
           num_units: payload.num_units ?? 1,
           pump_type: payload.pump_type ?? "VFD",
           efficiency: payload.efficiency ?? 0,
+          flowrate: {
+            min: payload.flowrate?.min ?? 0,
+            max: payload.flowrate?.max ?? 0,
+            design: payload.flowrate?.design ?? 0,
+            units: payload.flowrate?.units ?? "MGD",
+          },
+          tags: {},
+        },
+        data: { label: `${nodeType} node` },
+      };
+      return newNode;
+    }
+
+    case "Separation": {
+      const newNode = {
+        id: nodeName,
+        type: nodeType,
+        position,
+        additionalData: {
+          elevation: payload.elevation ?? null,
+          power_rating: {
+            value: payload.power_rating?.value ?? null,
+            units: payload.power_rating?.units ?? "hp",
+          },
+          volume: {
+            value: payload.volume?.value ?? null,
+            units: payload.volume?.units ?? "cubic meters",
+          },
+          num_units: payload.num_units ?? 1,
           flowrate: {
             min: payload.flowrate?.min ?? 0,
             max: payload.flowrate?.max ?? 0,

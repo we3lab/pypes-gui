@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ReactNode } from "react";
 
-export type NodeType = "Filtration" | "Tank" | "Reservoir" | "Facility" | "Aeration" | "Chlorination" | "Battery";
+export type NodeType = "Filtration" | "Tank" | "Reservoir" | "Facility" | "Aeration" | "Chlorination" | "Battery" | "Valve" | "PRV" | "Reactor" | "Disinfection" | "Separation";
 
 export const icons: {
   [key in NodeType]: ReactNode;
@@ -15,4 +15,9 @@ export const icons: {
   Aeration: <Image src="/placeholder.webp" alt="aeration" width={100} height={100} />,
   Chlorination: <Image src="/placeholder.webp" alt="chloriation" width={100} height={100} />,
   Battery: <Image src="/placeholder.webp" alt="battery" width={100} height={100}/>,
+  Valve: <Image src="/placeholder.webp" alt="valve" width={100} height={100} />,
+  PRV: <Image src="/placeholder.webp" alt="pressure reducing valve" width={100} height={100} />,
+  Reactor: <Image src="/placeholder.webp" alt="reactor" width={100} height={100} />,
+  Disinfection: <Image src="/placeholder.webp" alt="disinfection" width={100} height={100} />,
+  Separation: <Image src="/placeholder.webp" alt="separation" width={100} height={100} />,
 };

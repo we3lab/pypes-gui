@@ -43,6 +43,11 @@ import ModularUnitNode from "./nodes/modular-unit-node";
 import ROMembraneNode from "./nodes/ro-membrane-node";
 import StaticMixingNode from "./nodes/static-mixer-node";
 import UVSystemNode from "./nodes/uv-system-node";
+import ValveNode from "./nodes/valve-node";
+import PRVNode from "./nodes/prv-node";
+import ReactorNode from "./nodes/reactor-node";
+import DisinfectionNode from "./nodes/disinfection-node";
+import SeparationNode from "./nodes/separation-node";
 import SectionTitle from "../global/section-title";
 import HelperText from "../global/helper-text";
 import {
@@ -83,6 +88,11 @@ const nodeTypes = {
   ROMembrane: ROMembraneNode,
   StaticMixing: StaticMixingNode,
   UVSystem: UVSystemNode,
+  Valve: ValveNode,
+  PRV: PRVNode,
+  Reactor: ReactorNode,
+  Disinfection: DisinfectionNode,
+  Separation: SeparationNode,
 };
 
 const edgeTypes: EdgeTypes = {
@@ -136,6 +146,8 @@ const withUnitBearingAttributeKeys = (data: Record<string, any>) => {
     charge_rate: "kW",
     discharge_rate: "kW",
     power_rating: "hp",
+    diameter: "meters",
+    pressure_setting: "psi",
   };
   const legacyUnitBearingKeys: Record<string, { key: string; units: string }> = {
     "elevation (meters)": { key: "elevation", units: "meters" },

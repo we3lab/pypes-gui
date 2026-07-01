@@ -104,7 +104,24 @@ const updateNodeHandler = async (
       break;
     }
 
-    case "StaticMixing": {
+    case "Disinfection": {
+      body_data = {
+        id: input.newNode.id,
+        type: input.newNode.type,
+        position: input.newNode.position,
+        num_units: input.newNode.additionalData.num_units,
+        volume: input.newNode.additionalData.volume,
+        residence_time: input.newNode.additionalData.residence_time,
+        dosing_rate: input.newNode.additionalData.dosing_rate,
+        flowrate: input.newNode.additionalData.flowrate,
+        tags: input.newNode.data.tags,
+      };
+
+      break;
+    }
+
+    case "StaticMixing":
+    case "Reactor": {
       body_data = {
         id: input.newNode.id,
         type: input.newNode.type,
@@ -235,6 +252,22 @@ const updateNodeHandler = async (
       break;
     }
 
+    case "Separation": {
+      body_data = {
+        id: input.newNode.id,
+        type: input.newNode.type,
+        position: input.newNode.position,
+        elevation: input.newNode.additionalData.elevation,
+        flowrate: input.newNode.additionalData.flowrate,
+        num_units: input.newNode.additionalData.num_units,
+        power_rating: input.newNode.additionalData.power_rating,
+        volume: input.newNode.additionalData.volume,
+        tags: input.newNode.data.tags,
+      };
+
+      break;
+    }
+
     case "Digestion": {
       body_data = {
         id: input.newNode.id,
@@ -283,11 +316,26 @@ const updateNodeHandler = async (
       break;
     }
 
-    case "Junction": {
+    case "Junction":
+    case "Valve": {
       body_data = {
         id: input.newNode.id,
         type: input.newNode.type,
         position: input.newNode.position,
+        diameter: input.newNode.additionalData.diameter,
+        tags: input.newNode.data.tags,
+      };
+
+      break;
+    }
+
+    case "PRV": {
+      body_data = {
+        id: input.newNode.id,
+        type: input.newNode.type,
+        position: input.newNode.position,
+        diameter: input.newNode.additionalData.diameter,
+        pressure_setting: input.newNode.additionalData.pressure_setting,
         tags: input.newNode.data.tags,
       };
 
