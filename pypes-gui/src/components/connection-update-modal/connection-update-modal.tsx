@@ -16,6 +16,7 @@ import FlowsButtonDark from "../global/flows-button-dark";
 import FlowsTextField from "../global/flows-text-field";
 import FlowsSelect from "../global/flows-select";
 import { FaTimes } from "react-icons/fa";
+import { getUnitsForAttribute } from "../global/unit-groups";
 
 interface ConnectionUpdateModalProps {
   open: boolean;
@@ -89,6 +90,12 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
   const [designFlow, setDesignFlow] = useState<number>(0);
   const [frictionCoeff, setFrictionCoeff] = useState<number>(0);
   const [connectionType, setConnectionType] = useState<string>("Pipe");
+  const diameterUnitOptions = getUnitsForAttribute("diameter", diameterUnits);
+  const frequencyUnitOptions = getUnitsForAttribute("frequency", frequencyUnits);
+  const heatingValueUnitOptions = getUnitsForAttribute(
+    "heating_value_lower",
+    heatingValueUnits,
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -358,10 +365,11 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
                         value={diameterUnits}
                         onChange={(e: any) => setDiameterUnits(e.target.value as string)}
                       >
-                        <MenuItem value="meters">meters</MenuItem>
-                        <MenuItem value="feet">feet</MenuItem>
-                        <MenuItem value="inches">inches</MenuItem>
-                        <MenuItem value="mm">mm</MenuItem>
+                        {diameterUnitOptions.map((unit) => (
+                          <MenuItem key={unit} value={unit}>
+                            {unit}
+                          </MenuItem>
+                        ))}
                       </FlowsSelect>
                     </div>
                   </div>
@@ -387,9 +395,11 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
                         value={heatingValueUnits}
                         onChange={(e: any) => setHeatingValueUnits(e.target.value as string)}
                       >
-                        <MenuItem value="BTU/SCFM">BTU/SCFM</MenuItem>
-                        <MenuItem value="MJ/m3">MJ/m3</MenuItem>
-                        <MenuItem value="kWh/m3">kWh/m3</MenuItem>
+                        {heatingValueUnitOptions.map((unit) => (
+                          <MenuItem key={unit} value={unit}>
+                            {unit}
+                          </MenuItem>
+                        ))}
                       </FlowsSelect>
                     </div>
                   )}
@@ -493,10 +503,11 @@ const ConnectionUpdateModal: React.FC<ConnectionUpdateModalProps> = ({
                       value={frequencyUnits}
                       onChange={(e: any) => setFrequencyUnits(e.target.value as string)}
                     >
-                      <MenuItem value="days">days</MenuItem>
-                      <MenuItem value="weeks">weeks</MenuItem>
-                      <MenuItem value="months">months</MenuItem>
-                      <MenuItem value="/ day">/ day</MenuItem>
+                      {frequencyUnitOptions.map((unit) => (
+                        <MenuItem key={unit} value={unit}>
+                          {unit}
+                        </MenuItem>
+                      ))}
                     </FlowsSelect>
                   </div>
                 </div>

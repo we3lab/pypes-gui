@@ -25,10 +25,13 @@ import FlowsButtonDark from "../global/flows-button-dark";
 import { FaTimes } from "react-icons/fa";
 import { convertUnits } from "../utils/unitParser";
 import {
-  unitTypes,
   contentTypes,
   tagTypes,
 } from "../tag-creation-modal/tag-creation-modal";
+import {
+  getDefaultUnitForTagType,
+  getUnitsForTagType,
+} from "../global/unit-groups";
 
 interface TagEditModalProps {
   open: boolean;
@@ -60,6 +63,7 @@ const TagEditModal: React.FC<TagEditModalProps> = ({
   const [sourceUnitID, setSourceUnitID] = useState<string>("");
   const [destUnitID, setDestUnitID] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const unitOptions = getUnitsForTagType(selectedTagType, selectedUnitType);
   useEffect(() => {
     setSelectedDestination(selectedNodeId);
   }, [selectedNodeId]);
@@ -159,7 +163,14 @@ const TagEditModal: React.FC<TagEditModalProps> = ({
                     placeholder="Please select"
                     value={selectedTagType}
                     onChange={(e: any) => {
-                      setSelectedTagType(e.target.value as string);
+                      const nextTagType = e.target.value as string;
+                      const nextUnitOptions = getUnitsForTagType(nextTagType);
+                      setSelectedTagType(nextTagType);
+                      setSelectedUnitType((currentUnit) =>
+                        nextUnitOptions.includes(currentUnit)
+                          ? currentUnit
+                          : getDefaultUnitForTagType(nextTagType)
+                      );
                     }}
                   >
                     {tagTypes.map((item, index) => (
@@ -181,7 +192,7 @@ const TagEditModal: React.FC<TagEditModalProps> = ({
                       setSelectedUnitType(e.target.value as string);
                     }}
                   >
-                    {unitTypes.map((item, index) => (
+                    {unitOptions.map((item, index) => (
                       <MenuItem key={index} value={item}>
                         {item}
                       </MenuItem>

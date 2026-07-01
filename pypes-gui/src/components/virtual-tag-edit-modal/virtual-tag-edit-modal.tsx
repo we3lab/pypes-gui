@@ -19,8 +19,11 @@ import {
 import {
   contentTypes,
   tagTypes,
-  unitTypes,
 } from "../tag-creation-modal/tag-creation-modal";
+import {
+  getDefaultUnitForTagType,
+  getUnitsForTagType,
+} from "../global/unit-groups";
 
 export type VirtualTagPayload = {
   tags?: string[];
@@ -122,6 +125,7 @@ const VirtualTagEditModal = ({
   const [lambdaOperation, setLambdaOperation] = useState("");
   const [unaryOperations, setUnaryOperations] = useState("");
   const [binaryOperations, setBinaryOperations] = useState("");
+  const unitOptions = getUnitsForTagType(tagType, unit);
 
   const availableTagText = useMemo(
     () => availableTags.slice().sort().join(", "),
@@ -250,9 +254,16 @@ const VirtualTagEditModal = ({
                     className="m-5 w-full"
                     label="Type"
                     value={tagType}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                      setTagType(event.target.value)
-                    }
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      const nextTagType = event.target.value;
+                      const nextUnitOptions = getUnitsForTagType(nextTagType);
+                      setTagType(nextTagType);
+                      setUnit((currentUnit) =>
+                        nextUnitOptions.includes(currentUnit)
+                          ? currentUnit
+                          : getDefaultUnitForTagType(nextTagType)
+                      );
+                    }}
                   >
                     <MenuItem value="">None</MenuItem>
                     {tagTypes.map((option) => (
@@ -271,7 +282,7 @@ const VirtualTagEditModal = ({
                   }
                 >
                   <MenuItem value="">None</MenuItem>
-                  {unitTypes.map((option) => (
+                  {unitOptions.map((option) => (
                     <MenuItem key={option} value={option}>
                       {option}
                     </MenuItem>

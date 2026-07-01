@@ -4,6 +4,7 @@ import { Dosing } from "@/interfaces";
 import FlowsButtonLight from "./flows-button-light";
 import FlowsSelect from "./flows-select";
 import FlowsTextField from "./flows-text-field";
+import { getUnitsForAttribute } from "./unit-groups";
 
 interface DosingRateFieldsProps {
   className: string;
@@ -51,7 +52,7 @@ const DosingRateFields: React.FC<DosingRateFieldsProps> = ({
   dosingRate,
   defaultUnits = DEFAULT_UNITS,
   rateLabel = "Dosing rate",
-  unitOptions = [DEFAULT_UNITS],
+  unitOptions = getUnitsForAttribute("dosing_rate"),
   onChange,
 }) => {
   const [selectedChemical, setSelectedChemical] = useState("");

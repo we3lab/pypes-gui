@@ -24,27 +24,13 @@ import FlowsSelect from "../global/flows-select";
 import FlowsButtonLight from "../global/flows-button-light";
 import FlowsButtonDark from "../global/flows-button-dark";
 import { FaTimes } from "react-icons/fa";
+import {
+  getDefaultUnitForTagType,
+  getUnitsForTagType,
+  unitTypes,
+} from "../global/unit-groups";
 
-export const unitTypes: string[] = [
-  "milliongallons/day",
-  "cubicmeters",
-  "horsepower",
-  "cubicfeet/min",
-  "cubicfeet",
-  "gallon/min",
-  "gallon",
-  "gallon/day",
-  "meter/second",
-  "cubicmeters/day",
-  "pound/squareinch",
-  "britishthermalunits",
-  "britishthermalunits/cubicfeet",
-  "kwh",
-  "kwh/cubicmeters",
-  "kW",
-  "meters",
-  "inches",
-];
+export { unitTypes };
 
 export const contentTypes: string[] = [
   "UntreatedSewage",
@@ -135,6 +121,7 @@ const TagCreationModal: React.FC<TagCreationModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const defaultSourceUnitID = source?.[0] ?? "";
   const defaultDestUnitID = destination?.[0] ?? "";
+  const unitOptions = getUnitsForTagType(selectedTagType, selectedUnitType);
 
   useEffect(() => {
     setSelectedDestination(selectedNodeId);
@@ -207,7 +194,14 @@ const TagCreationModal: React.FC<TagCreationModalProps> = ({
                     placeholder="Please select"
                     value={selectedTagType}
                     onChange={(e: any) => {
-                      setSelectedTagType(e.target.value as string);
+                      const nextTagType = e.target.value as string;
+                      const nextUnitOptions = getUnitsForTagType(nextTagType);
+                      setSelectedTagType(nextTagType);
+                      setSelectedUnitType((currentUnit) =>
+                        nextUnitOptions.includes(currentUnit)
+                          ? currentUnit
+                          : getDefaultUnitForTagType(nextTagType)
+                      );
                     }}
                   >
                     {tagTypes.map((item, index) => (
@@ -229,7 +223,7 @@ const TagCreationModal: React.FC<TagCreationModalProps> = ({
                       setSelectedUnitType(e.target.value as string);
                     }}
                   >
-                    {unitTypes.map((item, index) => (
+                    {unitOptions.map((item, index) => (
                       <MenuItem key={index} value={item}>
                         {item}
                       </MenuItem>

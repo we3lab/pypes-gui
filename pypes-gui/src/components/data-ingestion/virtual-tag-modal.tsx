@@ -15,10 +15,13 @@ import {
 import { da } from "@faker-js/faker";
 import { FaTimes } from "react-icons/fa";
 import {
-  unitTypes,
   contentTypes,
   tagTypes,
 } from "../tag-creation-modal/tag-creation-modal";
+import {
+  getDefaultUnitForTagType,
+  getUnitsForTagType,
+} from "../global/unit-groups";
 import FlowsTextField from "../global/flows-text-field";
 import { convertUnits } from "../utils/unitParser";
 
@@ -141,6 +144,7 @@ const VirtualTagForVariable = ({
   const [lambdaOperation, setLambdaOperation] = useState<string>(
     virtualTags[parentVariable][firstKey]?.operations || ""
   );
+  const unitOptions = getUnitsForTagType(selectedTagType, selectedUnit);
 
   const handleParentDelete = (parentVariable: string) => {
     setVirtualTags((prevState: NodeConVirtualTags) => {
@@ -164,13 +168,20 @@ const VirtualTagForVariable = ({
   };
 
   const handleTagTypeChange = (updatedTagType: string) => {
+    const nextUnitOptions = getUnitsForTagType(updatedTagType);
+    const nextUnit = nextUnitOptions.includes(selectedUnit)
+      ? selectedUnit
+      : getDefaultUnitForTagType(updatedTagType);
+
     setSelectedTagType(updatedTagType);
+    setSelectedUnit(nextUnit);
     setVirtualTags((prevState: NodeConVirtualTags) => ({
       ...prevState,
       [parentVariable]: {
         [firstKey]: {
           ...prevState[parentVariable][firstKey],
           type: updatedTagType,
+          units: nextUnit,
         },
       },
     }));
@@ -231,7 +242,7 @@ const VirtualTagForVariable = ({
               handleUnitChange(e.target.value);
             }}
           >
-            {unitTypes.map((option) => (
+            {unitOptions.map((option) => (
               <MenuItem key={option} value={option}>
                 {option}
               </MenuItem>
@@ -316,7 +327,7 @@ const AddVariableButton = ({
     const newItem: VirtualTag = {
       tags: [],
       type: tagTypes[0],
-      units: unitTypes[0],
+      units: getDefaultUnitForTagType(tagTypes[0]),
       contents: contentTypes[0],
       parent_id: selectedVariable,
       operations: "",
