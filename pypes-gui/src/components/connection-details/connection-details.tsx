@@ -33,6 +33,7 @@ import dynamic from "next/dynamic";
 import VirtualTagEditModal, {
   VirtualTagPayload,
 } from "../virtual-tag-edit-modal/virtual-tag-edit-modal";
+import { buildUnitIdOptions } from "../tag-creation-modal/unit-id-options";
 
 interface ConnectionDeatailsProps {
   open: boolean;
@@ -61,6 +62,7 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
     selectedEdgeId,
     tagCreationModalOpen,
     tagEditModalOpen,
+    nodes,
     edges, // Assuming edges are stored in useStore
   } = useStore();
 
@@ -87,6 +89,15 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
   const similarConnections = propSimilarConnections || edges
     .filter((edge) => edge.edge.source === connectionData?.edge.source && edge.edge.target === connectionData?.edge.target)
     .map((edge) => edge.id);
+  const allNodes = Object.values(nodes).flat();
+  const sourceNode = allNodes.find((node) => node.id === connectionData?.edge.source);
+  const destinationNode = allNodes.find((node) => node.id === connectionData?.edge.target);
+  const sourceUnitIds = sourceNode
+    ? buildUnitIdOptions(sourceNode.data.additionalData?.num_units)
+    : [];
+  const destinationUnitIds = destinationNode
+    ? buildUnitIdOptions(destinationNode.data.additionalData?.num_units)
+    : [];
 
   useEffect(() => {
     if (open && selectedEdgeId) {
@@ -300,6 +311,8 @@ const ConnectionDeatails: React.FC<ConnectionDeatailsProps> = ({
           <TagCreationModal
             open={tagCreationModalOpen}
             onClose={closeTagCreationModal}
+            source={sourceUnitIds}
+            destination={destinationUnitIds}
           />
           <TagEditModal
             open={tagEditModalOpen}

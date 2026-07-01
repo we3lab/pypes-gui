@@ -29,6 +29,7 @@ import dynamic from "next/dynamic";
 import VirtualTagEditModal, {
   VirtualTagPayload,
 } from "../virtual-tag-edit-modal/virtual-tag-edit-modal";
+import { buildUnitIdOptions } from "../tag-creation-modal/unit-id-options";
 
 interface NodeDeatailsProps {
   setRefreshFalse: () => void;
@@ -95,6 +96,7 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
     nodeData?.data?.virtual_tags || {}
   );
   const nodeSchemaType = nodeData?.data.additionalData?.type ?? nodeData?.node.type;
+  const sourceUnitIds = buildUnitIdOptions(nodeData?.data.additionalData?.num_units);
   const canEnterNode =
     nodeSchemaType === "Network" ||
     nodeSchemaType === "Facility" ||
@@ -391,7 +393,7 @@ const NodeDeatails: React.FC<NodeDeatailsProps> = ({
           <TagCreationModal
             open={tagCreationModalOpen}
             onClose={closeTagCreationModal}
-            source={[]} // Pass an empty array or adjust as needed
+            source={sourceUnitIds}
             destination={[]} // No destination for nodes
           />
           <TagEditModal

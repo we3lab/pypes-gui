@@ -105,8 +105,8 @@ export const tagTypes: string[] = [
 interface TagCreationModalProps {
   open: boolean;
   onClose: () => void;
-  source?: [];
-  destination?: [];
+  source?: string[];
+  destination?: string[];
 }
 
 const TagCreationModal: React.FC<TagCreationModalProps> = ({
@@ -133,18 +133,25 @@ const TagCreationModal: React.FC<TagCreationModalProps> = ({
   const [sourceUnitID, setSourceUnitID] = useState<string>("");
   const [destUnitID, setDestUnitID] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const defaultSourceUnitID = source?.[0] ?? "";
+  const defaultDestUnitID = destination?.[0] ?? "";
+
   useEffect(() => {
     setSelectedDestination(selectedNodeId);
   }, [selectedNodeId]);
 
   useEffect(() => {
+    if (!open) {
+      return;
+    }
     setSelectedContentType("");
     setSelectedUnitType("");
     setSelectedTagType("");
     setSelectedId("");
-    setSelectedContentType("");
+    setSourceUnitID(defaultSourceUnitID);
+    setDestUnitID(defaultDestUnitID);
     setIsTotalized(false);
-  }, [onClose, open]);
+  }, [defaultDestUnitID, defaultSourceUnitID, open]);
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -257,17 +264,11 @@ const TagCreationModal: React.FC<TagCreationModalProps> = ({
                       setSourceUnitID(e.target.value);
                     }}
                   >
-                    {source &&
-                      source.map(
-                        (
-                          item,
-                          index // TODO: unitTypes csere sourceUnitIDs-ra
-                        ) => (
-                          <MenuItem key={index} value={item}>
-                            {item}
-                          </MenuItem>
-                        )
-                      )}
+                    {source?.map((item) => (
+                      <MenuItem key={item} value={item}>
+                        {item}
+                      </MenuItem>
+                    ))}
                   </FlowsSelect>
                 </div>
                 {destination && destination.length > 0 && (
@@ -285,17 +286,11 @@ const TagCreationModal: React.FC<TagCreationModalProps> = ({
                         setDestUnitID(e.target.value);
                       }}
                     >
-                      {destination &&
-                        destination.map(
-                          (
-                            item,
-                            index // TODO: unitTypes csere destUnitIDs-ra
-                          ) => (
-                            <MenuItem key={index} value={item}>
-                              {item}
-                            </MenuItem>
-                          )
-                        )}
+                      {destination.map((item) => (
+                        <MenuItem key={item} value={item}>
+                          {item}
+                        </MenuItem>
+                      ))}
                     </FlowsSelect>
                   </div>
                 )}
