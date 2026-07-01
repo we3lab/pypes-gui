@@ -1,3 +1,5 @@
+import { convertUnits } from "../utils/unitParser";
+
 export type UnitGroupName =
   | "volumetric"
   | "volumetricFlow"
@@ -54,6 +56,8 @@ export const unitGroups: Record<UnitGroupName, string[]> = {
   uvIntensity: ["W / square meter"],
   membranePermeability: ["LMH / bar"],
 };
+
+export const CUSTOM_UNIT_OPTION = "__custom_unit__";
 
 const tagTypeUnitGroups: Record<string, UnitGroupName> = {
   Volume: "volumetric",
@@ -116,6 +120,34 @@ const appendCurrentUnit = (units: string[], currentUnit?: string | null) => {
 };
 
 export const unitTypes = uniqueUnits(Object.values(unitGroups).flat());
+
+const cleanUnitText = (unit: string) =>
+  unit.trim().toLowerCase().replace(/[_\s]/g, "");
+
+const knownUnitKeys = new Set(unitTypes.map(cleanUnitText));
+
+export const normalizeUnitText = (unit: string) => {
+  const trimmedUnit = unit.trim();
+  if (!trimmedUnit) {
+    return "";
+  }
+
+  if (unitTypes.includes(trimmedUnit) || knownUnitKeys.has(cleanUnitText(trimmedUnit))) {
+    return trimmedUnit;
+  }
+
+  return convertUnits(cleanUnitText(trimmedUnit));
+};
+
+export const getUnitValidationError = (unit: string) => {
+  if (!unit.trim()) {
+    return "";
+  }
+
+  return normalizeUnitText(unit)
+    ? ""
+    : "Unit is not recognized. Use a listed unit or a supported Pint-style alias.";
+};
 
 export const getUnitsForGroup = (
   groupName: UnitGroupName,

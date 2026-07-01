@@ -19,8 +19,10 @@ import {
   tagTypes,
 } from "../tag-creation-modal/tag-creation-modal";
 import {
-  getDefaultUnitForTagType,
-  getUnitsForTagType,
+  CUSTOM_UNIT_OPTION,
+  getUnitValidationError,
+  normalizeUnitText,
+  unitTypes,
 } from "../global/unit-groups";
 import FlowsTextField from "../global/flows-text-field";
 import { convertUnits } from "../utils/unitParser";
@@ -133,7 +135,11 @@ const VirtualTagForVariable = ({
     firstKeyUnit.trim().toLowerCase().replace(/[_\s]/g, "")
   );
 
-  const [selectedUnit, setSelectedUnit] = useState<string>(convertedUnits);
+  const initialUnit = convertedUnits || (firstKeyUnit ? CUSTOM_UNIT_OPTION : "");
+  const [selectedUnit, setSelectedUnit] = useState<string>(initialUnit);
+  const [customUnit, setCustomUnit] = useState<string>(
+    initialUnit === CUSTOM_UNIT_OPTION ? firstKeyUnit : ""
+  );
   const [selectedTagType, setSelectedTagType] = useState<string>(
     virtualTags[parentVariable][firstKey]?.type || ""
   );
@@ -144,7 +150,10 @@ const VirtualTagForVariable = ({
   const [lambdaOperation, setLambdaOperation] = useState<string>(
     virtualTags[parentVariable][firstKey]?.operations || ""
   );
-  const unitOptions = getUnitsForTagType(selectedTagType, selectedUnit);
+  const selectedUnitText =
+    selectedUnit === CUSTOM_UNIT_OPTION ? customUnit : selectedUnit;
+  const normalizedUnit = normalizeUnitText(selectedUnitText);
+  const unitValidationError = getUnitValidationError(selectedUnitText);
 
   const handleParentDelete = (parentVariable: string) => {
     setVirtualTags((prevState: NodeConVirtualTags) => {
@@ -156,32 +165,43 @@ const VirtualTagForVariable = ({
 
   const handleUnitChange = (updatedUnit: string) => {
     setSelectedUnit(updatedUnit);
+    if (updatedUnit !== CUSTOM_UNIT_OPTION) {
+      setCustomUnit("");
+    }
     setVirtualTags((prevState: NodeConVirtualTags) => ({
       ...prevState,
       [parentVariable]: {
         [firstKey]: {
           ...prevState[parentVariable][firstKey],
-          units: updatedUnit,
+          units: updatedUnit === CUSTOM_UNIT_OPTION ? customUnit : updatedUnit,
+        },
+      },
+    }));
+  };
+
+  const handleCustomUnitChange = (updatedUnit: string) => {
+    const nextUnit = normalizeUnitText(updatedUnit);
+
+    setCustomUnit(updatedUnit);
+    setVirtualTags((prevState: NodeConVirtualTags) => ({
+      ...prevState,
+      [parentVariable]: {
+        [firstKey]: {
+          ...prevState[parentVariable][firstKey],
+          units: nextUnit || updatedUnit,
         },
       },
     }));
   };
 
   const handleTagTypeChange = (updatedTagType: string) => {
-    const nextUnitOptions = getUnitsForTagType(updatedTagType);
-    const nextUnit = nextUnitOptions.includes(selectedUnit)
-      ? selectedUnit
-      : getDefaultUnitForTagType(updatedTagType);
-
     setSelectedTagType(updatedTagType);
-    setSelectedUnit(nextUnit);
     setVirtualTags((prevState: NodeConVirtualTags) => ({
       ...prevState,
       [parentVariable]: {
         [firstKey]: {
           ...prevState[parentVariable][firstKey],
           type: updatedTagType,
-          units: nextUnit,
         },
       },
     }));
@@ -242,11 +262,12 @@ const VirtualTagForVariable = ({
               handleUnitChange(e.target.value);
             }}
           >
-            {unitOptions.map((option) => (
+            {unitTypes.map((option) => (
               <MenuItem key={option} value={option}>
                 {option}
               </MenuItem>
             ))}
+            <MenuItem value={CUSTOM_UNIT_OPTION}>Custom</MenuItem>
           </FlowsSelect>
           <FlowsSelect
             className="m-5 w-full"
@@ -264,6 +285,29 @@ const VirtualTagForVariable = ({
             ))}
           </FlowsSelect>
         </div>
+        {selectedUnit === CUSTOM_UNIT_OPTION && (
+          <>
+            <FlowsTextField
+              className="w-full m-5"
+              label="Custom unit"
+              type="text"
+              value={customUnit}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                handleCustomUnitChange(e.target.value);
+              }}
+            />
+            {unitValidationError && (
+              <div className="mx-5 mb-2 text-xs text-red-600">
+                {unitValidationError}
+              </div>
+            )}
+            {!unitValidationError && normalizedUnit && (
+              <div className="mx-5 mb-2 text-xs text-gray-600">
+                Will save as {normalizedUnit}
+              </div>
+            )}
+          </>
+        )}
         <div className={modal_section_horizontal_css}>
           <FlowsSelect
             className="m-5 w-full"
@@ -327,7 +371,7 @@ const AddVariableButton = ({
     const newItem: VirtualTag = {
       tags: [],
       type: tagTypes[0],
-      units: getDefaultUnitForTagType(tagTypes[0]),
+      units: unitTypes[0],
       contents: contentTypes[0],
       parent_id: selectedVariable,
       operations: "",
@@ -399,6 +443,23 @@ const VirtualTagModal = ({ networkId }: { networkId: string }) => {
     trpc.tagRouter.updateVirtualTags.useMutation();
 
   const UpdateNetworkWithVtags = async () => {
+    const invalidVirtualTag = Object.entries(virtualTags).flatMap(
+      ([parentId, parentVirtualTags]) =>
+        Object.entries(parentVirtualTags).map(([virtualTagName, virtualTag]) => ({
+          parentId,
+          virtualTagName,
+          units: virtualTag.units ?? "",
+        }))
+    ).find(({ units }) => Boolean(getUnitValidationError(units)));
+
+    if (invalidVirtualTag) {
+      setSaveVirtualTagsStatus("failed");
+      alert(
+        `Invalid unit for ${invalidVirtualTag.parentId}/${invalidVirtualTag.virtualTagName}: ${invalidVirtualTag.units}`
+      );
+      return;
+    }
+
     try {
       const uplaodStatus = await uploadVirtualTags({
         network_id: networkId,

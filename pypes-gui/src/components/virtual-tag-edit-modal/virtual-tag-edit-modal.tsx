@@ -21,8 +21,10 @@ import {
   tagTypes,
 } from "../tag-creation-modal/tag-creation-modal";
 import {
-  getDefaultUnitForTagType,
-  getUnitsForTagType,
+  CUSTOM_UNIT_OPTION,
+  getUnitValidationError,
+  normalizeUnitText,
+  unitTypes,
 } from "../global/unit-groups";
 
 export type VirtualTagPayload = {
@@ -122,10 +124,13 @@ const VirtualTagEditModal = ({
   const [content, setContent] = useState("");
   const [tagType, setTagType] = useState("");
   const [unit, setUnit] = useState("");
+  const [customUnit, setCustomUnit] = useState("");
   const [lambdaOperation, setLambdaOperation] = useState("");
   const [unaryOperations, setUnaryOperations] = useState("");
   const [binaryOperations, setBinaryOperations] = useState("");
-  const unitOptions = getUnitsForTagType(tagType, unit);
+  const selectedUnitText = unit === CUSTOM_UNIT_OPTION ? customUnit : unit;
+  const normalizedUnit = normalizeUnitText(selectedUnitText);
+  const unitValidationError = getUnitValidationError(selectedUnitText);
 
   const availableTagText = useMemo(
     () => availableTags.slice().sort().join(", "),
@@ -142,7 +147,9 @@ const VirtualTagEditModal = ({
     setTags(stringifyTags(existingVirtualTag?.tags));
     setContent(existingVirtualTag?.contents ?? "");
     setTagType(existingVirtualTag?.type ?? "");
-    setUnit(existingVirtualTag?.units ?? "");
+    const existingUnit = existingVirtualTag?.units ?? "";
+    setUnit(existingUnit && !unitTypes.includes(existingUnit) ? CUSTOM_UNIT_OPTION : existingUnit);
+    setCustomUnit(existingUnit && !unitTypes.includes(existingUnit) ? existingUnit : "");
     setLambdaOperation(existingVirtualTag?.operations ?? "");
     setUnaryOperations(stringifyList(existingVirtualTag?.unary_operations));
     setBinaryOperations(stringifyList(existingVirtualTag?.binary_operations));
@@ -160,8 +167,11 @@ const VirtualTagEditModal = ({
     if (tagType) {
       nextTag.type = tagType;
     }
-    if (unit) {
-      nextTag.units = unit;
+    if (selectedUnitText) {
+      if (!normalizedUnit) {
+        return;
+      }
+      nextTag.units = normalizedUnit;
     }
 
     if (mode === "custom") {
@@ -254,16 +264,9 @@ const VirtualTagEditModal = ({
                     className="m-5 w-full"
                     label="Type"
                     value={tagType}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      const nextTagType = event.target.value;
-                      const nextUnitOptions = getUnitsForTagType(nextTagType);
-                      setTagType(nextTagType);
-                      setUnit((currentUnit) =>
-                        nextUnitOptions.includes(currentUnit)
-                          ? currentUnit
-                          : getDefaultUnitForTagType(nextTagType)
-                      );
-                    }}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                      setTagType(event.target.value)
+                    }
                   >
                     <MenuItem value="">None</MenuItem>
                     {tagTypes.map((option) => (
@@ -277,17 +280,39 @@ const VirtualTagEditModal = ({
                   className={modal_dropdown_css}
                   label="Unit"
                   value={unit}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                    setUnit(event.target.value)
-                  }
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setUnit(event.target.value);
+                    if (event.target.value !== CUSTOM_UNIT_OPTION) {
+                      setCustomUnit("");
+                    }
+                  }}
                 >
                   <MenuItem value="">None</MenuItem>
-                  {unitOptions.map((option) => (
+                  {unitTypes.map((option) => (
                     <MenuItem key={option} value={option}>
                       {option}
                     </MenuItem>
                   ))}
+                  <MenuItem value={CUSTOM_UNIT_OPTION}>Custom</MenuItem>
                 </FlowsSelect>
+                {unit === CUSTOM_UNIT_OPTION && (
+                  <>
+                    <FlowsTextField
+                      className={modal_textfield_css}
+                      label="Custom unit"
+                      placeholder="e.g. m^3/day"
+                      value={customUnit}
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                        setCustomUnit(event.target.value)
+                      }
+                    />
+                    {unitValidationError && (
+                      <div className="mx-5 mb-2 text-xs text-red-600">
+                        {unitValidationError}
+                      </div>
+                    )}
+                  </>
+                )}
                 {mode === "algebraic" ? (
                   <>
                     <TextField
@@ -343,7 +368,8 @@ const VirtualTagEditModal = ({
               (mode === "custom" && !lambdaOperation.trim()) ||
               (mode === "algebraic" &&
                 !unaryOperations.trim() &&
-                !binaryOperations.trim())
+                !binaryOperations.trim()) ||
+              Boolean(unitValidationError)
             }
             onClick={handleSave}
           >
